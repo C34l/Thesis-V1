@@ -1,8 +1,6 @@
-import pandas as pd
-import numpy as np
-import scipy as sp
-import matplotlib as mpl
+import headers as h
 
-df = pd.read_excel('https://github.com/C34l/thesis/blob/main/Input_Temp.xlsx')
+#INPUT:- C:\Users\Admin\Desktop\Input_Temp.xlsx
+#OUTPUT:- C:\Users\Admin\Desktop\Output.xlsx
 
-print(df)
+
