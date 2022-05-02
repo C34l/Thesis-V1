@@ -1,5 +1,4 @@
 import numpy as np
-
 import headers as h
 
 
@@ -12,9 +11,16 @@ class Nrtl:
         _gba = 2
         _xi = data["x+"]
         _ti = data ["T+"]
-
-        for x in np.nditer(_xi):
-            print(_xi)
+        steps = len(data)
+        for x in range(steps):
+            print(_xi[x])
+            _xa = _xi[x]
+            _xb = (1-_xa)
+            _t = _ti[x]
+            _tauab = (_gab/(_r*_t))
+            _tauba = (_gba/(_r*_t))
+            if _xa <= 0.31:
+                gamma = np.square(_xb)*
 
         return 0
 
