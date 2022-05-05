@@ -3,7 +3,7 @@ import headers as h
 class IO:
     def _read():
         _InputFilePath = input("Dateipfad des Inputs eingeben")
-        _df = h.pd.read_excel((_InputFilePath), skiprows = 0, usecols = [0, 1] )
+        _df = h.pd.read_excel((_InputFilePath), skiprows = 0, usecols = [0, 1], dtype={0:float, 1:float} )
         return _df
 
     def _write(_df):
