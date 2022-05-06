@@ -31,13 +31,24 @@ class Nrtl:
             if _xa <= 0.32:
                 _tauab = (_gab31 / (_r * _t))
                 _tauba = (_gba31 / (_r * _t))
-                _Gab = np.exp((-_alpha)*_tauab)
-                _Gba = np.exp((-_alpha)*_tauba)
-                _gamma = (_xb**2)*((_tauba*(_Gba/(_xa+(_Gba*_xb)))**2)+(_tauab+_Gab/((_xa*_Gab)+_xb)**2))
+                _Gab = np.exp((-1* _alpha) *_tauab)
+                _Gba = np.exp((-1* _alpha) *_tauba)
+                #_gamma = (_xb**2)*((_tauba*(_Gba/(_xa+(_Gba*_xb)))**2)+(_tauab+_Gab/((_xa*_Gab)+_xb)**2))
+                _gamma = (_xa**2)*((_tauab*(_Gab/(_xb+(_Gab*_xa)))**2)+(_tauba+_Gba/((_xb*_Gba)+_xa)**2))
                 _gammaA = np.exp(_gamma)
                 _dataoutgammaA.append(_gammaA)
+
+                _h0i = (_h0A * _xi[x]) + (_h0B * (1 - _xi[x]))
+                _t0i = (_t0A * _xi[x]) + (_t0B * (1 - _xi[x]))
+                _gx = _dataoutgammaA[x] * (1-_xi[x])
+                _ht0 = _h0i / _t0i
+                _tcalc = -_h0i / (_r * np.log(_gx) - _ht0)
+                _dataouttempA.append(_tcalc)
+
+                print(_tcalc)
                 print(_gammaA)
                 print("gamma < o.31")
+
 
             elif _xa >= 0.69:
                 _tauab = (_gab69 / (_r * _t))
@@ -48,6 +59,15 @@ class Nrtl:
                 _gamma = (_xb ** 2) * ((_tauba * (_Gba / (_xa + _Gba * _xb)) ** 2) + (_tauab + _Gab / (_xa * _Gab + _xb) ** 2))
                 _gammaA = np.exp(_gamma)
                 _dataoutgammaA.append(_gammaA)
+
+                _h0i = (_h0A * _xi[x]) + (_h0B * (1 - _xi[x]))
+                _t0i = (_t0A * _xi[x]) + (_t0B * (1 - _xi[x]))
+                _gx = _dataoutgammaA[x] * _xi[x]
+                _ht0 = _h0i / _t0i
+                _tcalc = -_h0i / (_r * np.log(_gx) - _ht0)
+                _dataouttempA.append(_tcalc)
+
+                print(_tcalc)
                 print(_gammaA)
                 print("gamma > o.69")
 
@@ -55,16 +75,14 @@ class Nrtl:
                 _gammaA=0
                 #_dataoutgammaA.append(_gammaA)
 
-        for x in range(_steps):
-            _h0i = (_h0A * _xi[x])+(_h0B * (1-_xi[x]))
-            _t0i = (_t0A * _xi[x])+(_t0B * (1-_xi[x]))
-            _gx = _dataoutgammaA[x]*_xi[x]
-            _ht0 = _h0i/_t0i
-            #_t0i = _t0A
-
-            _tcalc = -_h0i/(_r*np.log(_gx)-_ht0)
-            _dataouttempA.append(_tcalc)
-            print(_tcalc)
+        #for x in range(_steps):
+            #_h0i = (_h0A * _xi[x])+(_h0B * (1-_xi[x]))
+            #_t0i = (_t0A * _xi[x])+(_t0B * (1-_xi[x]))
+            #_gx = _dataoutgammaA[x]*_xi[x]
+            #_ht0 = _h0i/_t0i
+            #_tcalc = -_h0i/(_r*np.log(_gx)-_ht0)
+            #_dataouttempA.append(_tcalc)
+            #print(_tcalc)
 
         #print(_gamma)
         _dataoutgammaDF = h.pd.DataFrame(_dataoutgammaA, columns=['gamma'])
