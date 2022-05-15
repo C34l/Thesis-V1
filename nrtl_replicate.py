@@ -21,7 +21,7 @@ class Nrtl:
         _h0B = 24500.0
         _xi = datain["x - RMA pur"]
         _ti = datain["T - RMA pur"]
-        _steps = len(_xi)
+        _steps = _xi.count()
         _dataoutgammaA = []
         _dataouttempA = []
 
@@ -97,13 +97,13 @@ class Nrtl:
         _gbaS = 9907.41
         _gabRS = -3143.16
         _gbaRS = 9443.10
-        _gbaR = -3509.61
-        _gabR = 9841.69
+        _gabR = -3509.61
+        _gbaR = 9841.69
         _t0S = 404.75
         _t0RS = 393.35
         _t0R = 404.65
         _h0S = 24500.0
-        _h0RS = 25600
+        _h0RS = 25600.0
         _h0R = 25736.0
 
         _dataoutgammaS = []
@@ -121,7 +121,6 @@ class Nrtl:
         _tr = datain["T - RWasser"]
         def s_ma():
             _steps = _xs.count()
-            print(_steps)
             for x in range(_steps):
                 _xMA = _xs[x]
                 _xWasser = float((1 - _xs[x]))
@@ -136,14 +135,13 @@ class Nrtl:
                 _htS = _h0S / _t0S
                 _tcalcS = _h0S / (_htS - _r * np.log(_gxS))
                 _dataouttempS.append(_tcalcS)
-                print(_tcalcS)
-                print(_gammaS)
-                print("gamma S")
+               # print(_tcalcS)
+               # print(_gammaS)
+               # print("gamma S")
             return 0
 
         def rs_ma():
             _steps = _xrs.count()
-            print(_steps)
             for x in range(_steps):
                 _xMA = _xrs[x]
                 _xWasser = float((1 - _xrs[x]))
@@ -159,14 +157,13 @@ class Nrtl:
                 _htRS = _h0RS / _t0RS
                 _tcalcRS = _h0RS / (_htRS - _r * np.log(_gxRS))
                 _dataouttempRS.append(_tcalcRS)
-                print(_tcalcRS)
-                print(_gammaRS)
-                print("gamma RS")
+               # print(_tcalcRS)
+               # print(_gammaRS)
+               # print("gamma RS")
             return 0
 
         def r_ma():
             _steps = _xr.count()
-            print(_steps)
             for x in range(_steps):
                 _xMA = _xr[x]
                 _xWasser = float((1 - _xr[x]))
@@ -182,8 +179,8 @@ class Nrtl:
                 _htR = _h0R / _t0R
                 _tcalcR = _h0R / (_htR - _r * np.log(_gxR))
                 _dataouttempR.append(_tcalcR)
-                print(_tcalcR)
-                print(_gammaR)
+               # print(_tcalcR)
+                print(_gammaAR)
                 print("gamma R")
             return 0
 
