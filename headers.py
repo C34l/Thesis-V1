@@ -5,5 +5,7 @@ import matplotlib as mpl
 import read_write as rw
 import nrtl_replicate as nrp
 import nrtl_fit_solvent as nrfs
+import scipy.optimize as spo
+
 
 #header und objektverwaltung
