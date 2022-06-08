@@ -118,6 +118,7 @@ class Nrtl:
         _trs = datain["T - RSWasser"]
         _xr = datain["x - RWasser"]
         _tr = datain["T - RWasser"]
+
         def s_ma():
             _steps = _xs.count()
             for x in range(_steps):
@@ -183,7 +184,6 @@ class Nrtl:
                 # print("gamma R")
             return 0
 
-
         s_ma()
         rs_ma()
         r_ma()
@@ -201,115 +201,203 @@ class Nrtl:
         return _result
 
     @staticmethod
-    def ma_lactate(datain):
+    def ma_alkyl_lactate(datain):
         _alpha = 0.4
         _r = 8.31462618
-        _gabS = -2827.97
-        _gbaS = 9907.41
-        _gabRS = -3143.16
-        _gbaRS = 9443.10
-        _gabR = -3509.61
-        _gbaR = 9841.69
+
+        _gabSM = -5145.15
+        _gbaSM = 4077.76
+        _gabRM = -5031.57
+        _gbaRM = 4787.22
+
+        _gabSE = -4883.75
+        _gbaSE = 12111.15
+        _gabRE = -4833.93
+        _gbaRE = 10744.97
+
+        _gabSP = -5013.79
+        _gbaSP = 5442.11
+        _gabRP = -4696.62
+        _gbaRP = 4967.03
+
+        _gabSB = -4621.74
+        _gbaSB = 4763.98
+        _gabRB = -4345.53
+        _gbaRB = 4545.06
+
         _t0S = 404.75
-        _t0RS = 393.35
         _t0R = 404.65
         _h0S = 24500.0
-        _h0RS = 25600.0
         _h0R = 25736.0
 
-        _dataoutgammaS = []
-        _dataoutgammaRS = []
-        _dataoutgammaR = []
-        _dataouttempS = []
-        _dataouttempRS = []
-        _dataouttempR = []
+        _dataoutgammaSM = []
+        _dataoutgammaRM = []
+        _dataouttempSM = []
+        _dataouttempRM = []
 
-        _xs = datain["x - SLak"]
-        _ts = datain["T - SLak"]
-        _xrs = datain["x - RSLak"]
-        _trs = datain["T - RSLak"]
-        _xr = datain["x - RLak"]
-        _tr = datain["T - RLak"]
+        _dataoutgammaSE = []
+        _dataoutgammaRE = []
+        _dataouttempSE = []
+        _dataouttempRE = []
 
-        def s_ma():
-            _steps = _xs.count()
-            for x in range(_steps):
-                _xMA = _xs[x]
-                _xSolvent = float((1 - _xs[x]))
-                _tauabS = (_gabS / (_r * _ts[x]))
-                _taubaS = (_gbaS / (_r * _ts[x]))
-                _GabS = h.np.exp(-_alpha * _tauabS)
-                _GbaS = h.np.exp(-_alpha * _taubaS)
-                _gammaS = (_xSolvent ** 2) * ((_taubaS * (_GbaS / (_xMA + (_GbaS * _xSolvent))) ** 2) + (
-                            _tauabS * (_GabS / ((_xMA * _GabS) + _xSolvent) ** 2)))
+        _dataoutgammaSP = []
+        _dataoutgammaRP = []
+        _dataouttempSP = []
+        _dataouttempRP = []
+
+        _dataoutgammaSB = []
+        _dataoutgammaRB = []
+        _dataouttempSB = []
+        _dataouttempRB = []
+
+        _xsM = datain["x - SLakM"]
+        _tsM = datain["T - SLakM"]
+        _xrM = datain["x - RLakM"]
+        _trM = datain["T - RLakM"]
+
+        _xsE = datain["x - SLakE"]
+        _tsE = datain["T - SLakE"]
+        _xrE = datain["x - RLakE"]
+        _trE = datain["T - RLakE"]
+
+        _xsP = datain["x - SLakP"]
+        _tsP = datain["T - SLakP"]
+        _xrP = datain["x - RLakP"]
+        _trP = datain["T - RLakP"]
+
+        _xsB = datain["x - SLakB"]
+        _tsB = datain["T - SLakB"]
+        _xrB = datain["x - RLakB"]
+        _trB = datain["T - RLakB"]
+
+        def nrtl(_xi, _gij, _gji, _texp, _a):
+            _xj = float(1.0 - _xi)
+            _tauij = _gij / (_r * _texp)
+            _tauji = _gji / (_r * _texp)
+            _Gij = h.np.exp(-_a * _tauij)
+            _Gji = h.np.exp(-_a * _tauji)
+            _func = ((_xj ** 2) * ((_tauji * (_Gji / (_xi + _xj * _Gji)) ** 2 + _tauij * (_Gij / (_xi * _Gij + _xj) ** 2))))
+            return _func
+
+        def sle(_yi, _xi, _h0, _t0):
+            _gxS = _yi * _xi
+            _ht = _h0 / _t0
+            _func = _h0 / (_ht - _r * h.np.log(_gxS))
+            return _func
+
+        def methyl():
+            _stepsS = _xsM.count()
+            _stepsR = _xrM.count()
+
+            for x in range(_stepsS):
+                _gammaS = nrtl(_xsM[x], _gabSM, _gbaSM, _tsM[x], _alpha)
                 _gammaAS = h.np.exp(_gammaS)
-                _dataoutgammaS.append(_gammaAS)
-                _gxS = _dataoutgammaS[x] * _xMA
-                _htS = _h0S / _t0S
-                _tcalcS = _h0S / (_htS - _r * h.np.log(_gxS))
-                _dataouttempS.append(_tcalcS)
-            # print(_tcalcS)
-            # print(_gammaS)
-            # print("gamma S")
-            return 0
+                _dataoutgammaSM.append(_gammaAS)
+                _tcalcS = sle(_gammaAS, _xsM[x], _h0S, _t0S)
+                _dataouttempSM.append(_tcalcS)
 
-        def rs_ma():
-            _steps = _xrs.count()
-            for x in range(_steps):
-                _xMA = _xrs[x]
-                _xSolvent = float((1 - _xrs[x]))
-                _tauabRS = (_gabRS / (_r * _trs[x]))
-                _taubaRS = (_gbaRS / (_r * _trs[x]))
-                _GabRS = h.np.exp(-_alpha * _tauabRS)
-                _GbaRS = h.np.exp(-_alpha * _taubaRS)
-                _gammaRS = (_xSolvent ** 2) * ((_taubaRS * (_GbaRS / (_xMA + (_GbaRS * _xSolvent))) ** 2) + (
-                        _tauabRS * (_GabRS / ((_xMA * _GabRS) + _xSolvent) ** 2)))
-                _gammaARS = h.np.exp(_gammaRS)
-                _dataoutgammaRS.append(_gammaARS)
-                _gxRS = _dataoutgammaRS[x] * _xMA
-                _htRS = _h0RS / _t0RS
-                _tcalcRS = _h0RS / (_htRS - _r * h.np.log(_gxRS))
-                _dataouttempRS.append(_tcalcRS)
-            # print(_tcalcRS)
-            # print(_gammaRS)
-            # print("gamma RS")
-            return 0
-
-        def r_ma():
-            _steps = _xr.count()
-            for x in range(_steps):
-                _xMA = _xr[x]
-                _xSolvent = float((1 - _xr[x]))
-                _tauabR = (_gabR / (_r * _tr[x]))
-                _taubaR = (_gbaR / (_r * _tr[x]))
-                _GabR = h.np.exp(-_alpha * _tauabR)
-                _GbaR = h.np.exp(-_alpha * _taubaR)
-                _gammaR = (_xSolvent ** 2) * ((_taubaR * (_GbaR / (_xMA + (_GbaR * _xSolvent))) ** 2) + (
-                        _tauabR * (_GabR / ((_xMA * _GabR) + _xSolvent) ** 2)))
+            for x in range(_stepsR):
+                _gammaR = nrtl(_xrM[x], _gabRM, _gbaRM, _trM[x], _alpha)
                 _gammaAR = h.np.exp(_gammaR)
-                _dataoutgammaR.append(_gammaAR)
-                _gxR = _dataoutgammaR[x] * _xMA
-                _htR = _h0R / _t0R
-                _tcalcR = _h0R / (_htR - _r * h.np.log(_gxR))
-                _dataouttempR.append(_tcalcR)
-            # print(_tcalcR)
-            # print(_gammaAR)
-            # print("gamma R")
+                _dataoutgammaRM.append(_gammaAR)
+                _tcalcR = sle(_gammaAR, _xrM[x], _h0R, _t0R)
+                _dataouttempRM.append(_tcalcR)
             return 0
 
-        s_ma()
-        rs_ma()
-        r_ma()
+        def ethyl():
+            _stepsS = _xsE.count()
+            _stepsR = _xrE.count()
 
-        _dataoutgammaDFS = h.pd.DataFrame(_dataoutgammaS, columns=['gamma S'])
-        _dataoutgammaDFRS = h.pd.DataFrame(_dataoutgammaRS, columns=['gamma RS'])
-        _dataoutgammaDFR = h.pd.DataFrame(_dataoutgammaR, columns=['gamma R'])
-        _dataouttempDFS = h.pd.DataFrame(_dataouttempS, columns=['Temp S'])
-        _dataouttempDFRS = h.pd.DataFrame(_dataouttempRS, columns=['Temp RS'])
-        _dataouttempDFR = h.pd.DataFrame(_dataouttempR, columns=['Temp R'])
+            for x in range(_stepsS):
+                _gammaS = nrtl(_xsE[x], _gabSE, _gbaSE, _tsE[x], _alpha)
+                _gammaAS = h.np.exp(_gammaS)
+                _dataoutgammaSE.append(_gammaAS)
+                _tcalcS = sle(_gammaAS, _xsE[x], _h0S, _t0S)
+                _dataouttempSE.append(_tcalcS)
 
-        _dataout = [datain["x - SLak"], _dataoutgammaDFS, _dataouttempDFS, datain["x - RSLak"], _dataoutgammaDFRS,
-                    _dataouttempDFRS, datain["x - RLak"], _dataoutgammaDFR, _dataouttempDFR]
-        _result = h.pd.concat(_dataout, axis=1)
+            for x in range(_stepsR):
+                _gammaR = nrtl(_xrE[x], _gabRE, _gbaRE, _trE[x], _alpha)
+                _gammaAR = h.np.exp(_gammaR)
+                _dataoutgammaRE.append(_gammaAR)
+                _tcalcR = sle(_gammaAR, _xrE[x], _h0R, _t0R)
+                _dataouttempRE.append(_tcalcR)
+            return 0
 
-        return _result
+        def propyl():
+            _stepsS = _xsP.count()
+            _stepsR = _xrP.count()
+
+            for x in range(_stepsS):
+                _gammaS = nrtl(_xsP[x], _gabSP, _gbaSP, _tsP[x], _alpha)
+                _gammaAS = h.np.exp(_gammaS)
+                _dataoutgammaSP.append(_gammaAS)
+                _tcalcS = sle(_gammaAS, _xsP[x], _h0S, _t0S)
+                _dataouttempSP.append(_tcalcS)
+
+            for x in range(_stepsR):
+                _gammaR = nrtl(_xrP[x], _gabRP, _gbaRP, _trP[x], _alpha)
+                _gammaAR = h.np.exp(_gammaR)
+                _dataoutgammaRP.append(_gammaAR)
+                _tcalcR = sle(_gammaAR, _xrP[x], _h0R, _t0R)
+                _dataouttempRP.append(_tcalcR)
+            return 0
+
+        def butyl():
+            _stepsS = _xsB.count()
+            _stepsR = _xrB.count()
+
+            for x in range(_stepsS):
+                _gammaS = nrtl(_xsB[x], _gabSB, _gbaSB, _tsB[x], _alpha)
+                _gammaAS = h.np.exp(_gammaS)
+                _dataoutgammaSB.append(_gammaAS)
+                _tcalcS = sle(_gammaAS, _xsB[x], _h0S, _t0S)
+                _dataouttempSB.append(_tcalcS)
+
+            for x in range(_stepsR):
+                _gammaR = nrtl(_xrB[x], _gabRB, _gbaRB, _trB[x], _alpha)
+                _gammaAR = h.np.exp(_gammaR)
+                _dataoutgammaRB.append(_gammaAR)
+                _tcalcR = sle(_gammaAR, _xrB[x], _h0R, _t0R)
+                _dataouttempRB.append(_tcalcR)
+            return 0
+
+        def solve():
+            methyl()
+            ethyl()
+            propyl()
+            butyl()
+
+            _dataoutgammaDFSM = h.pd.DataFrame(_dataoutgammaSM, columns=['gamma SM'])
+            _dataoutgammaDFRM = h.pd.DataFrame(_dataoutgammaRM, columns=['gamma RM'])
+            _dataouttempDFSM = h.pd.DataFrame(_dataouttempSM, columns=['Temp SM'])
+            _dataouttempDFRM = h.pd.DataFrame(_dataouttempRM, columns=['Temp RM'])
+
+            _dataoutgammaDFSE = h.pd.DataFrame(_dataoutgammaSE, columns=['gamma SE'])
+            _dataoutgammaDFRE = h.pd.DataFrame(_dataoutgammaRE, columns=['gamma RE'])
+            _dataouttempDFSE = h.pd.DataFrame(_dataouttempSE, columns=['Temp SE'])
+            _dataouttempDFRE = h.pd.DataFrame(_dataouttempRE, columns=['Temp RE'])
+
+            _dataoutgammaDFSP = h.pd.DataFrame(_dataoutgammaSP, columns=['gamma SP'])
+            _dataoutgammaDFRP = h.pd.DataFrame(_dataoutgammaRP, columns=['gamma RP'])
+            _dataouttempDFSP = h.pd.DataFrame(_dataouttempSP, columns=['Temp SP'])
+            _dataouttempDFRP = h.pd.DataFrame(_dataouttempRP, columns=['Temp RP'])
+
+            _dataoutgammaDFSB = h.pd.DataFrame(_dataoutgammaSB, columns=['gamma SB'])
+            _dataoutgammaDFRB = h.pd.DataFrame(_dataoutgammaRB, columns=['gamma RB'])
+            _dataouttempDFSB = h.pd.DataFrame(_dataouttempSB, columns=['Temp SB'])
+            _dataouttempDFRB = h.pd.DataFrame(_dataouttempRB, columns=['Temp RB'])
+
+            _dataout = [datain["x - SLakM"], _dataoutgammaDFSM, _dataouttempDFSM,
+                        datain["x - RLakM"], _dataoutgammaDFRM, _dataouttempDFRM,
+                        datain["x - SLakE"], _dataoutgammaDFSE, _dataouttempDFSE,
+                        datain["x - RLakE"], _dataoutgammaDFRE, _dataouttempDFRE,
+                        datain["x - SLakP"], _dataoutgammaDFSP, _dataouttempDFSP,
+                        datain["x - RLakP"], _dataoutgammaDFRP, _dataouttempDFRP,
+                        datain["x - SLakB"], _dataoutgammaDFSB, _dataouttempDFSB,
+                        datain["x - RLakB"], _dataoutgammaDFRB, _dataouttempDFRB,
+                        ]
+            _result = h.pd.concat(_dataout, axis=1)
+
+            return _result
+
+        return solve()
