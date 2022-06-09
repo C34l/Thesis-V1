@@ -37,22 +37,22 @@ class Nrtl:
     @staticmethod
     def ma_water(datain):
 
-        _gabS = -2984.75
-        _gbaS = 9156.563
-        _alpha_abS = 0.686433
-        _alpha_baS = 0.217498
+        _gabS = -936.8582648064328
+        _gbaS = 7738.340763773082
+        _alpha_abS = 1.0
+        _alpha_baS = 0.6932988458041727
         _gS = h.np.array([_gabS, _gbaS, _alpha_abS, _alpha_baS])
 
-        _gabRS = -3352.98
-        _gbaRS = 9315.423
-        _alpha_abRS = 0.398493
-        _alpha_baRS = 0.399798
+        _gabRS = -2851.955633837102
+        _gbaRS = 9198.690625747879
+        _alpha_abRS = 0.4
+        _alpha_baRS = 0.4
         _gRS = h.np.array([_gabRS, _gbaRS, _alpha_abRS, _alpha_baRS])
 
-        _gabR = -3999.01
-        _gbaR = 10387.36
-        _alpha_abR = 0.363806
-        _alpha_baR = 0.39205
+        _gabR = -3681.3339563886193
+        _gbaR = 11555.590515237207
+        _alpha_abR = 0.4
+        _alpha_baR = 0.4
         _gR = h.np.array([_gabR, _gbaR, _alpha_abR, _alpha_baR])
 
         _dataoutgammaS = []

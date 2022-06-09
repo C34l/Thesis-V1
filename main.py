@@ -24,10 +24,10 @@ df = h.rw.IO._read()
 # output = h.pd.DataFrame(h.nrp.Nrtl.ma_water(df))
 # output = h.pd.DataFrame(h.nrp.Nrtl.ma_alkyl_lactate(df))
 
-# output = h.pd.DataFrame(h.nrfs.NrtlFit.parametersH2O(df))
+output = h.pd.DataFrame(h.nrfs.NrtlFit.parametersH2O(df))
 # output = h.pd.DataFrame(h.nrfs.NrtlFit._parameters_lak(df))
 
-output = h.pd.DataFrame(h.nrpe.Nrtl.ma_water(df))
+# output = h.pd.DataFrame(h.nrpe.Nrtl.ma_water(df))
 # output = h.pd.DataFrame(h.nrpe.Nrtl.ma_alkyl_lactate(df))
 
-h.rw.IO._write(output)
+# h.rw.IO._write(output)
