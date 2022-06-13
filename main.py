@@ -13,6 +13,8 @@ import headers as h
 # OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_h2o.xlsx
 # OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_h2o_param.xlsx
 # OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_h2o_refit.xlsx
+# OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_h2o_param1a.xlsx
+# OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_h2o_param2a.xlsx
 
 # OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_LAK.xlsx
 # OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_LAK_param.xlsx
@@ -24,10 +26,16 @@ df = h.rw.IO._read()
 # output = h.pd.DataFrame(h.nrp.Nrtl.ma_water(df))
 # output = h.pd.DataFrame(h.nrp.Nrtl.ma_alkyl_lactate(df))
 
-output = h.pd.DataFrame(h.nrfs.NrtlFit.parametersH2O(df))
-# output = h.pd.DataFrame(h.nrfs.NrtlFit._parameters_lak(df))
+# output = h.pd.DataFrame(h.nrfs.NrtlFit.parametersH2O(df))
+output = h.pd.DataFrame(h.nrfs.NrtlFit._parameters_lak(df))
 
 # output = h.pd.DataFrame(h.nrpe.Nrtl.ma_water(df))
 # output = h.pd.DataFrame(h.nrpe.Nrtl.ma_alkyl_lactate(df))
 
-# h.rw.IO._write(output)
+#output = h.pd.DataFrame(h.nrfs1a.NrtlFit.parametersH2O(df))
+#output = h.pd.DataFrame(h.nrfs1a.NrtlFit._parameters_lak(df))
+
+#output = h.pd.DataFrame(h.nrfs2a.NrtlFit.parametersH2O(df))
+#output = h.pd.DataFrame(h.nrfs2a.NrtlFit._parameters_lak(df))
+
+h.rw.IO._write(output)

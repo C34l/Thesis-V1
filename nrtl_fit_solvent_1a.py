@@ -1,4 +1,3 @@
-
 import scipy.optimize
 
 import headers as h
@@ -15,29 +14,29 @@ _Alpha = 0.4
 
 class NrtlFit:
     @staticmethod
-    def y_nrtl(_g, _xi, _texp, _alpha):
+    def y_nrtl(_g, _xi, _texp,):
         _xj = float(1.0 - _xi)
         _tauij = _g[0] / (_r * _texp)
         _tauji = _g[1] / (_r * _texp)
-        _Gij = h.np.exp(-_alpha * _tauij)
-        _Gji = h.np.exp(-_alpha * _tauji)
+        _Gij = h.np.exp(-_g[2] * _tauij)
+        _Gji = h.np.exp(-_g[2] * _tauji)
         _func = ((_xj ** 2) * (_tauji * (_Gji / (_xi + _xj * _Gji)) ** 2 + _tauij * (_Gij / (_xi * _Gij + _xj) ** 2)))
         return _func
 
     @staticmethod
-    def t_sle(_texp, _xi, _h0, _t0, _g, _alpha):
-        _yi = NrtlFit.y_nrtl(_g, _xi, _texp, _alpha)
+    def t_sle(_texp, _xi, _h0, _t0, _g,):
+        _yi = NrtlFit.y_nrtl(_g, _xi, _texp, )
         _gx = h.np.exp(_yi) * _xi
         _func = (h.np.exp((-_h0 / (_r * _texp)) * (1 - (_texp / _t0))) / _gx)-1
         return _func
 
     @staticmethod
-    def min_fqs(_g, _xi, _texp, _h0, _t0, _steps, _alpha):
+    def min_fqs(_g, _xi, _texp, _h0, _t0, _steps,):
         _tcalc = h.np.zeros(_steps)
         _tdiff = h.np.zeros(_steps)
 
         for x in range(_steps):
-            _tcalc1 = h.spo.fsolve(NrtlFit.t_sle, _texp[x], args=(_xi[x], _h0, _t0, _g, _alpha), full_output=True)
+            _tcalc1 = h.spo.fsolve(NrtlFit.t_sle, _texp[x], args=(_xi[x], _h0, _t0, _g,), full_output=True)
             _tcalc[x] = _tcalc1[0]
             # _tmod[x] = scipy.optimize.fsolve(NrtlFit.t_sle, _tmod0, args=(_xi[x], _h0, _t0, _g))
             _tdiff[x] = _texp[x]-_tcalc[x]
@@ -58,19 +57,19 @@ class NrtlFit:
             _gabS = -3000.0
             _gbaS = 9000.0
             # _gSa = h.np.array([_gabS, _gbaS, _alphaabS, _alphabaS])
-            _gSa = h.np.array([_gabS, _gbaS, ])
+            _gSa = h.np.array([_gabS, _gbaS,_Alpha ])
             _alphaabRS = 0.3
             _alphabaRS = 0.3
-            _gabRS = -5000.0
-            _gbaRS = 12000.0
+            _gabRS = -3000.0
+            _gbaRS = 10000.0
             # _gRSa = h.np.array([_gabRS, _gbaRS, _alphaabRS, _alphabaRS])
-            _gRSa = h.np.array([_gabS, _gbaS,])
+            _gRSa = h.np.array([_gabS, _gbaS, _Alpha ])
             _alphaabR = 0.4
             _alphabaR = 0.4
-            _gabR = -150000
-            _gbaR = 9800.0
+            _gabR = -5000.0
+            _gbaR = 9000.0
             # _gRa = h.np.array([_gabR, _gbaR, _alphaabR, _alphabaR])
-            _gRa = h.np.array([_gabS, _gbaS,])
+            _gRa = h.np.array([_gabS, _gbaS, _Alpha])
 
             _xs = datain["x - SWasser"]
             _tSexp = datain["T - SWasser"]
@@ -90,17 +89,17 @@ class NrtlFit:
             _lenr1 = _lenr.astype(int)
             _tr = h.np.array(_tRexp[0:_lenr1])
 
-            _bnds1 = ((None, None), (0, None),)
-            _bnds2 = ((None, None), (0, None),)
-            _bnds3 = ((None, None), (0, None),)
+            _bnds1 = ((None, None), (0, None), (0.0, 1.0))
+            _bnds2 = ((None, None), (0, None), (0.0, 1.0))
+            _bnds3 = ((None, None), (0, 15000.0), (0.1, 0.6))
 
             def s_ma():
                 steps_t = len(_ts)
 
-                res_1 = scipy.optimize.minimize(NrtlFit.min_fqs, _gSa, args=(_xs, _ts, _h0S, _t0S, steps_t,_Alpha), method='Powell', bounds=_bnds1)
+                res_1 = scipy.optimize.minimize(NrtlFit.min_fqs, _gSa, args=(_xs, _ts, _h0S, _t0S, steps_t,), method='Nelder-Mead', bounds=_bnds1)
                 print('deltag_AB s = ' + str(res_1.x[0]))
                 print('deltag_BA s = ' + str(res_1.x[1]))
-                # print('alpha ab s =', res_1.x[2])
+                print('alpha ab s =', res_1.x[2])
                 # print('alpha ba s =', res_1.x[3])
 
                 t_diff_norm = h.np.zeros(steps_t)
@@ -109,30 +108,30 @@ class NrtlFit:
                 _gamma = h.np.zeros(steps_t)
 
                 # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-                _gneu = (res_1.x[0], res_1.x[1],)
+                _gneu = (res_1.x[0], res_1.x[1], res_1.x[2])
 
                 for x in range(steps_t):
-                    _tcalc1 = h.spo.fsolve(NrtlFit.t_sle, _ts[x], args=(_xs[x], _h0S, _t0S, _gneu, _Alpha), full_output=True)
+                    _tcalc1 = h.spo.fsolve(NrtlFit.t_sle, _ts[x], args=(_xs[x], _h0S, _t0S, _gneu,), full_output=True)
                     _tcalc[x] = _tcalc1[0]
                     t_diff[x] = abs((_ts[x] - _tcalc[x]))
-                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xs[x], _ts[x], _Alpha))
+                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xs[x], _ts[x],))
 
                 t_diff_norm = h.np.abs(h.np.divide(t_diff, _ts))
                 ard_neu_norm = (100 / steps_t) * sum(t_diff_norm)
                 print('ARD_normiert [%] =', ard_neu_norm)
                 print(_tcalc)
                 # _params = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-                _params = (res_1.x[0], res_1.x[1], ard_neu_norm,_tcalc, _gamma, )
+                _params = (res_1.x[0], res_1.x[1], ard_neu_norm, res_1.x[2], _tcalc, _gamma, )
                 return _params
 
             def rs_ma():
                 steps_t = len(_trs)
 
-                res_1 = scipy.optimize.minimize(NrtlFit.min_fqs, _gRSa, args=(_xrs, _trs, _h0RS, _t0RS, steps_t, _Alpha ),
-                                                method='Powell', bounds=_bnds2)
-                print('deltag_AB s = ' + str(res_1.x[0]))
-                print('deltag_BA s = ' + str(res_1.x[1]))
-                # print('alpha ab s =', res_1.x[2])
+                res_1 = scipy.optimize.minimize(NrtlFit.min_fqs, _gRSa, args=(_xrs, _trs, _h0RS, _t0RS, steps_t, ),
+                                                method='Nelder-Mead', bounds=_bnds2)
+                print('deltag_AB rs = ' + str(res_1.x[0]))
+                print('deltag_BA rs = ' + str(res_1.x[1]))
+                print('alpha ab rs =', res_1.x[2])
                 # print('alpha ba s =', res_1.x[3])
 
                 t_diff_norm = h.np.zeros(steps_t)
@@ -141,33 +140,33 @@ class NrtlFit:
                 _gamma = h.np.zeros(steps_t)
 
                 # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-                _gneu = (res_1.x[0], res_1.x[1],)
+                _gneu = (res_1.x[0], res_1.x[1], res_1.x[2])
 
                 for x in range(steps_t):
-                    _tcalc[x] = h.spo.fsolve(NrtlFit.t_sle, _trs[x], args=(_xrs[x], _h0RS, _t0RS, _gneu,_Alpha))
+                    _tcalc[x] = h.spo.fsolve(NrtlFit.t_sle, _trs[x], args=(_xrs[x], _h0RS, _t0RS, _gneu,))
                     t_diff[x] = abs((_trs[x] - _tcalc[x]))
-                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xs[x], _ts[x], _Alpha))
+                    _gamma[x] = NrtlFit.y_nrtl(_gneu, _xs[x], _ts[x],)
 
                 t_diff_norm = h.np.abs(h.np.divide(t_diff, _trs))
                 ard_neu_norm = (100 / steps_t) * sum(t_diff_norm)
                 print('ARD_normiert [%] =', ard_neu_norm)
                 print(_tcalc)
                 # _params = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-                _params = (res_1.x[0], res_1.x[1], ard_neu_norm, _tcalc, _gamma, )
+                _params = (res_1.x[0], res_1.x[1], ard_neu_norm, res_1.x[2], _tcalc, _gamma, )
                 return _params
 
             def r_ma():
                 steps_t = len(_tr)
 
-                res_1 = scipy.optimize.minimize(NrtlFit.min_fqs, _gRa, args=(_xr, _tr, _h0R, _t0R, steps_t,_Alpha),
-                                                method='Nelder-Mead', bounds=_bnds3)
-                print('deltag_AB [ ] = ' + str(res_1.x[0]))
-                print('deltag_BA [ ] = ' + str(res_1.x[1]))
-                #print('alpha =', res_1.x[2])
+                res_1 = scipy.optimize.minimize(NrtlFit.min_fqs, _gRa, args=(_xr, _tr, _h0R, _t0R, steps_t,),
+                                                method='Powell', bounds=_bnds3)
+                print('deltag_AB r[ ] = ' + str(res_1.x[0]))
+                print('deltag_BAr  [ ] = ' + str(res_1.x[1]))
+                print('alpha r =', res_1.x[2])
                 #print('alpha ba s =', res_1.x[3])
 
                 # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-                _gneu = (res_1.x[0], res_1.x[1],)
+                _gneu = (res_1.x[0], res_1.x[1], res_1.x[2])
 
                 t_diff_norm = h.np.zeros(steps_t)
                 t_diff = h.np.zeros(steps_t)
@@ -175,26 +174,26 @@ class NrtlFit:
                 _gamma = h.np.zeros(steps_t)
 
                 for x in range(steps_t):
-                    _tcalc[x] = h.spo.fsolve(NrtlFit.t_sle, _tr[x], args=(_xr[x], _h0R, _t0R, _gneu, _Alpha))
+                    _tcalc[x] = h.spo.fsolve(NrtlFit.t_sle, _tr[x], args=(_xr[x], _h0R, _t0R, _gneu, ))
                     t_diff[x] = abs((_tr[x] - _tcalc[x]))
-                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xs[x], _ts[x], _Alpha))
+                    _gamma[x] = NrtlFit.y_nrtl(_gneu, _xs[x], _ts[x],)
 
                 t_diff_norm = h.np.abs(h.np.divide(t_diff, _tr))
                 ard_neu_norm = (100 / (steps_t)) * sum(t_diff_norm)
                 print('ARD_normiert [%] =', ard_neu_norm)
                 print(_tcalc)
                 # _params = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-                _params = (res_1.x[0], res_1.x[1], ard_neu_norm, _tcalc, _gamma, )
+                _params = (res_1.x[0], res_1.x[1], ard_neu_norm, res_1.x[2], _tcalc, _gamma, )
                 return _params
 
             def solve():
-                _GABS, _GBAS, _ARDS, _TCALCS, _GAMMAS = s_ma()
-                _GABRS, _GBARS, _ARDRS, _TCALCRS, _GAMMARS = rs_ma()
-                _GABR, _GBAR, _ARDR, _TCALCR, _GAMMAR = r_ma()
+                _GABS, _GBAS, _ARDS, _ALPHAS, _TCALCS, _GAMMAS = s_ma()
+                _GABRS, _GBARS, _ARDRS, _ALPHARS, _TCALCRS, _GAMMARS = rs_ma()
+                _GABR, _GBAR, _ARDR, _ALPHAR, _TCALCR, _GAMMAR = r_ma()
 
-                _dataoutParamsS = [_GABS, _GBAS, _ARDS]
-                _dataoutParamsRS = [_GABRS, _GBARS, _ARDRS]
-                _dataoutParamsR = [_GABR, _GBAR, _ARDR]
+                _dataoutParamsS = [_GABS, _GBAS, _ARDS, _ALPHAS]
+                _dataoutParamsRS = [_GABRS, _GBARS, _ARDRS, _ALPHARS]
+                _dataoutParamsR = [_GABR, _GBAR, _ARDR, _ALPHAR]
 
 
                 _dataoutFrame = ('gAB', 'gBA', 'ARD', 'a')
@@ -228,31 +227,31 @@ class NrtlFit:
 
         _gabSM = -5145.15
         _gbaSM = 4077.76
-        _gSaM = h.np.array([_gabSM, _gbaSM,])
+        _gSaM = h.np.array([_gabSM, _gbaSM, _Alpha])
         _gabRM = -5031.57
         _gbaRM = 4787.22
-        _gRaM = h.np.array([_gabRM, _gbaRM,])
+        _gRaM = h.np.array([_gabRM, _gbaRM, _Alpha])
 
         _gabSE = -4883.75
         _gbaSE = 12111.15
-        _gSaE = h.np.array([_gabSE, _gbaSE,])
+        _gSaE = h.np.array([_gabSE, _gbaSE, _Alpha])
         _gabRE = -4833.93
         _gbaRE = 10744.97
-        _gRaE = h.np.array([_gabRE, _gbaRE,])
+        _gRaE = h.np.array([_gabRE, _gbaRE, _Alpha])
 
         _gabSP = -5013.79
         _gbaSP = 5442.11
-        _gSaP = h.np.array([_gabSP, _gbaSP,])
+        _gSaP = h.np.array([_gabSP, _gbaSP, _Alpha])
         _gabRP = -4696.62
         _gbaRP = 4967.03
-        _gRaP = h.np.array([_gabRP, _gbaRP,])
+        _gRaP = h.np.array([_gabRP, _gbaRP, _Alpha])
 
         _gabSB = -4621.74
         _gbaSB = 4763.98
-        _gSaB = h.np.array([_gabSB, _gbaSB,])
+        _gSaB = h.np.array([_gabSB, _gbaSB, _Alpha])
         _gabRB = -4345.53
         _gbaRB = 4545.06
-        _gRaB = h.np.array([_gabRB, _gbaRB,])
+        _gRaB = h.np.array([_gabRB, _gbaRB, _Alpha])
 
         _xsM = datain["x - SLakM"]
         _tsM = datain["T - SLakM"]
@@ -302,12 +301,12 @@ class NrtlFit:
         _lenrb1 = _lenrb.astype(int)
         _trb = h.np.array(_trB[0:_lenrb1])
 
-        _bnds = ((-6000.0, None), (None, None),)
+        _bnds = ((-6000.0, None), (None, 8000.0), (0.1, 1.0))
 
         def _methyl():
             steps_tS = len(_tsm)
 
-            res_S = scipy.optimize.minimize(NrtlFit.min_fqs, _gSaM, args=(_xsM, _tsm, _h0S, _t0S, steps_tS, _Alpha),
+            res_S = scipy.optimize.minimize(NrtlFit.min_fqs, _gSaM, args=(_xsM, _tsm, _h0S, _t0S, steps_tS,),
                                             method='Nelder-Mead', bounds=_bnds)
             print('deltag_AB s = ' + str(res_S.x[0]))
             print('deltag_BA s = ' + str(res_S.x[1]))
@@ -320,14 +319,14 @@ class NrtlFit:
             _gammaS = h.np.zeros(steps_tS)
 
             # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _gneuS = (res_S.x[0], res_S.x[1])
+            _gneuS = (res_S.x[0], res_S.x[1], res_S.x[2],)
 
             for x in range(steps_tS):
-                _tcalc1S = h.spo.fsolve(NrtlFit.t_sle, _tsm[x], args=(_xsM[x], _h0S, _t0S, _gneuS, _Alpha),
+                _tcalc1S = h.spo.fsolve(NrtlFit.t_sle, _tsm[x], args=(_xsM[x], _h0S, _t0S, _gneuS,),
                                        full_output=True)
                 _tcalcS[x] = _tcalc1S[0]
                 t_diffS[x] = abs((_tsm[x] - _tcalcS[x]))
-                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsM[x], _tsm[x], _Alpha))
+                _gammaS[x] = NrtlFit.y_nrtl(_gneuS, _xsM[x], _tsm[x],)
 
             t_diff_normS= h.np.abs(h.np.divide(t_diffS, _tsm))
             ard_neu_normS = (100 / steps_tS) * sum(t_diff_normS)
@@ -336,7 +335,7 @@ class NrtlFit:
 
             steps_tR = len(_trm)
 
-            res_R = scipy.optimize.minimize(NrtlFit.min_fqs, _gRaM, args=(_xrM, _tsm, _h0R, _t0R, steps_tR, _Alpha),
+            res_R = scipy.optimize.minimize(NrtlFit.min_fqs, _gRaM, args=(_xrM, _tsm, _h0R, _t0R, steps_tR,),
                                             method='Nelder-Mead', bounds=_bnds)
             print('deltag_AB r = ' + str(res_R.x[0]))
             print('deltag_BA r = ' + str(res_R.x[1]))
@@ -349,27 +348,27 @@ class NrtlFit:
             _gammaR = h.np.zeros(steps_tS)
 
             # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _gneuR = (res_R.x[0], res_R.x[1])
+            _gneuR = (res_R.x[0], res_R.x[1], res_R.x[2],)
 
             for x in range(steps_tR):
-                _tcalc1R = h.spo.fsolve(NrtlFit.t_sle, _trm[x], args=(_xrM[x], _h0R, _t0R, _gneuR, _Alpha),
+                _tcalc1R = h.spo.fsolve(NrtlFit.t_sle, _trm[x], args=(_xrM[x], _h0R, _t0R, _gneuR,),
                                         full_output=True)
                 _tcalcR[x] = _tcalc1R[0]
                 t_diffR[x] = abs((_trm[x] - _tcalcR[x]))
-                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrM[x], _trm[x], _Alpha))
+                _gammaR[x] = NrtlFit.y_nrtl(_gneuR, _xrM[x], _trm[x],)
 
             t_diff_normR = h.np.abs(h.np.divide(t_diffR, _trm))
             ard_neu_normR = (100 / steps_tR) * sum(t_diff_normR)
             print('ARD_normiert [%] =', ard_neu_normR)
             print(_tcalcR)
             # _params = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _params = (res_S.x[0], res_S.x[1], ard_neu_normS, _tcalcS, _gammaS, res_R.x[0], res_R.x[1], ard_neu_normR, _tcalcR, _gammaR)
+            _params = (res_S.x[0], res_S.x[1], ard_neu_normS, res_S.x[2], _tcalcS, _gammaS, res_R.x[0], res_R.x[1], ard_neu_normR, res_R.x[2], _tcalcR, _gammaR)
             return _params
 
         def _ethyl():
             steps_tS = len(_tse)
 
-            res_S = scipy.optimize.minimize(NrtlFit.min_fqs, _gSaE, args=(_xsE, _tse, _h0S, _t0S, steps_tS, _Alpha),
+            res_S = scipy.optimize.minimize(NrtlFit.min_fqs, _gSaE, args=(_xsE, _tse, _h0S, _t0S, steps_tS,),
                                             method='Nelder-Mead', bounds=_bnds)
             print('deltag_AB s = ' + str(res_S.x[0]))
             print('deltag_BA s = ' + str(res_S.x[1]))
@@ -382,14 +381,14 @@ class NrtlFit:
             _gammaS = h.np.zeros(steps_tS)
 
             # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _gneuS = (res_S.x[0], res_S.x[1])
+            _gneuS = (res_S.x[0], res_S.x[1], res_S.x[2],)
 
             for x in range(steps_tS):
-                _tcalc1S = h.spo.fsolve(NrtlFit.t_sle, _tse[x], args=(_xsE[x], _h0S, _t0S, _gneuS, _Alpha),
+                _tcalc1S = h.spo.fsolve(NrtlFit.t_sle, _tse[x], args=(_xsE[x], _h0S, _t0S, _gneuS,),
                                         full_output=True)
                 _tcalcS[x] = _tcalc1S[0]
                 t_diffS[x] = abs((_tse[x] - _tcalcS[x]))
-                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsE[x], _tse[x], _Alpha))
+                _gammaS[x] = NrtlFit.y_nrtl(_gneuS, _xsE[x], _tse[x],)
 
             t_diff_normS = h.np.abs(h.np.divide(t_diffS, _tse))
             ard_neu_normS = (100 / steps_tS) * sum(t_diff_normS)
@@ -398,7 +397,7 @@ class NrtlFit:
 
             steps_tR = len(_tre)
 
-            res_R = scipy.optimize.minimize(NrtlFit.min_fqs, _gRaE, args=(_xrE, _tse, _h0R, _t0R, steps_tR, _Alpha),
+            res_R = scipy.optimize.minimize(NrtlFit.min_fqs, _gRaE, args=(_xrE, _tse, _h0R, _t0R, steps_tR,),
                                             method='Nelder-Mead', bounds=_bnds)
             print('deltag_AB r = ' + str(res_R.x[0]))
             print('deltag_BA r = ' + str(res_R.x[1]))
@@ -411,29 +410,27 @@ class NrtlFit:
             _gammaR = h.np.zeros(steps_tS)
 
             # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _gneuR = (res_R.x[0], res_R.x[1])
+            _gneuR = (res_R.x[0], res_R.x[1], res_R.x[2],)
 
             for x in range(steps_tR):
-                _tcalc1R = h.spo.fsolve(NrtlFit.t_sle, _tre[x], args=(_xrE[x], _h0R, _t0R, _gneuR, _Alpha),
+                _tcalc1R = h.spo.fsolve(NrtlFit.t_sle, _tre[x], args=(_xrE[x], _h0R, _t0R, _gneuR,),
                                         full_output=True)
                 _tcalcR[x] = _tcalc1R[0]
                 t_diffR[x] = abs((_tre[x] - _tcalcR[x]))
-                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrE[x], _tre[x], _Alpha))
+                _gammaR[x] = NrtlFit.y_nrtl(_gneuR, _xrE[x], _tre[x],)
 
             t_diff_normR = h.np.abs(h.np.divide(t_diffR, _tre))
             ard_neu_normR = (100 / steps_tR) * sum(t_diff_normR)
             print('ARD_normiert [%] =', ard_neu_normR)
             print(_tcalcR)
             # _params = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _params = (
-            res_S.x[0], res_S.x[1], ard_neu_normS, _tcalcS, _gammaS, res_R.x[0], res_R.x[1], ard_neu_normR, _tcalcR,
-            _gammaR)
+            _params = (res_S.x[0], res_S.x[1], ard_neu_normS, res_S.x[2], _tcalcS, _gammaS, res_R.x[0], res_R.x[1], ard_neu_normR, res_R.x[2], _tcalcR, _gammaR)
             return _params
 
         def _propyl():
             steps_tS = len(_tsp)
 
-            res_S = scipy.optimize.minimize(NrtlFit.min_fqs, _gSaP, args=(_xsP, _tsp, _h0S, _t0S, steps_tS, _Alpha),
+            res_S = scipy.optimize.minimize(NrtlFit.min_fqs, _gSaP, args=(_xsP, _tsp, _h0S, _t0S, steps_tS,),
                                             method='Nelder-Mead', bounds=_bnds)
             print('deltag_AB s = ' + str(res_S.x[0]))
             print('deltag_BA s = ' + str(res_S.x[1]))
@@ -446,14 +443,14 @@ class NrtlFit:
             _gammaS = h.np.zeros(steps_tS)
 
             # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _gneuS = (res_S.x[0], res_S.x[1])
+            _gneuS = (res_S.x[0], res_S.x[1], res_S.x[2],)
 
             for x in range(steps_tS):
-                _tcalc1S = h.spo.fsolve(NrtlFit.t_sle, _tsp[x], args=(_xsP[x], _h0S, _t0S, _gneuS, _Alpha),
+                _tcalc1S = h.spo.fsolve(NrtlFit.t_sle, _tsp[x], args=(_xsP[x], _h0S, _t0S, _gneuS,),
                                         full_output=True)
                 _tcalcS[x] = _tcalc1S[0]
                 t_diffS[x] = abs((_tsp[x] - _tcalcS[x]))
-                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsP[x], _tsp[x], _alpha))
+                _gammaS[x] = NrtlFit.y_nrtl(_gneuS, _xsP[x], _tsp[x],)
 
             t_diff_normS = h.np.abs(h.np.divide(t_diffS, _tsp))
             ard_neu_normS = (100 / steps_tS) * sum(t_diff_normS)
@@ -462,7 +459,7 @@ class NrtlFit:
 
             steps_tR = len(_trp)
 
-            res_R = scipy.optimize.minimize(NrtlFit.min_fqs, _gRaP, args=(_xrP, _tsp, _h0R, _t0R, steps_tR, _Alpha),
+            res_R = scipy.optimize.minimize(NrtlFit.min_fqs, _gRaP, args=(_xrP, _tsp, _h0R, _t0R, steps_tR,),
                                             method='Nelder-Mead', bounds=_bnds)
             print('deltag_AB r = ' + str(res_R.x[0]))
             print('deltag_BA r = ' + str(res_R.x[1]))
@@ -475,14 +472,14 @@ class NrtlFit:
             _gammaR = h.np.zeros(steps_tS)
 
             # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _gneuR = (res_R.x[0], res_R.x[1])
+            _gneuR = (res_R.x[0], res_R.x[1], res_R.x[2],)
 
             for x in range(steps_tR):
-                _tcalc1R = h.spo.fsolve(NrtlFit.t_sle, _trp[x], args=(_xrP[x], _h0R, _t0R, _gneuR, _Alpha),
+                _tcalc1R = h.spo.fsolve(NrtlFit.t_sle, _trp[x], args=(_xrP[x], _h0R, _t0R, _gneuR,),
                                         full_output=True)
                 _tcalcR[x] = _tcalc1R[0]
                 t_diffR[x] = abs((_trp[x] - _tcalcR[x]))
-                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrP[x], _trp[x], _Alpha))
+                _gammaR[x] = NrtlFit.y_nrtl(_gneuR, _xrP[x], _trp[x],)
 
             t_diff_normR = h.np.abs(h.np.divide(t_diffR, _trp))
             ard_neu_normR = (100 / steps_tR) * sum(t_diff_normR)
@@ -490,14 +487,14 @@ class NrtlFit:
             print(_tcalcR)
             # _params = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
             _params = (
-                res_S.x[0], res_S.x[1], ard_neu_normS, _tcalcS, _gammaS, res_R.x[0], res_R.x[1], ard_neu_normR, _tcalcR,
-                _gammaR)
+            res_S.x[0], res_S.x[1], ard_neu_normS, res_S.x[2], _tcalcS, _gammaS, res_R.x[0], res_R.x[1], ard_neu_normR,
+            res_R.x[2], _tcalcR, _gammaR)
             return _params
 
         def _butyl():
             steps_tS = len(_tsb)
 
-            res_S = scipy.optimize.minimize(NrtlFit.min_fqs, _gSaB, args=(_xsB, _tsb, _h0S, _t0S, steps_tS, _Alpha),
+            res_S = scipy.optimize.minimize(NrtlFit.min_fqs, _gSaB, args=(_xsB, _tsb, _h0S, _t0S, steps_tS,),
                                             method='Nelder-Mead', bounds=_bnds)
             print('deltag_AB s = ' + str(res_S.x[0]))
             print('deltag_BA s = ' + str(res_S.x[1]))
@@ -510,14 +507,14 @@ class NrtlFit:
             _gammaS = h.np.zeros(steps_tS)
 
             # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _gneuS = (res_S.x[0], res_S.x[1])
+            _gneuS = (res_S.x[0], res_S.x[1], res_S.x[2],)
 
             for x in range(steps_tS):
-                _tcalc1S = h.spo.fsolve(NrtlFit.t_sle, _tsb[x], args=(_xsB[x], _h0S, _t0S, _gneuS, _Alpha),
+                _tcalc1S = h.spo.fsolve(NrtlFit.t_sle, _tsb[x], args=(_xsB[x], _h0S, _t0S, _gneuS,),
                                         full_output=True)
                 _tcalcS[x] = _tcalc1S[0]
                 t_diffS[x] = abs((_tsb[x] - _tcalcS[x]))
-                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsB[x], _tsb[x], _Alpha))
+                _gammaS[x] = NrtlFit.y_nrtl(_gneuS, _xsB[x], _tsb[x],)
 
             t_diff_normS = h.np.abs(h.np.divide(t_diffS, _tsb))
             ard_neu_normS = (100 / steps_tS) * sum(t_diff_normS)
@@ -526,7 +523,7 @@ class NrtlFit:
 
             steps_tR = len(_trb)
 
-            res_R = scipy.optimize.minimize(NrtlFit.min_fqs, _gRaB, args=(_xrB, _tsb, _h0R, _t0R, steps_tR, _Alpha),
+            res_R = scipy.optimize.minimize(NrtlFit.min_fqs, _gRaB, args=(_xrB, _tsb, _h0R, _t0R, steps_tR,),
                                             method='Nelder-Mead', bounds=_bnds)
             print('deltag_AB r = ' + str(res_R.x[0]))
             print('deltag_BA r = ' + str(res_R.x[1]))
@@ -539,39 +536,37 @@ class NrtlFit:
             _gammaR = h.np.zeros(steps_tS)
 
             # _gneu = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _gneuR = (res_R.x[0], res_R.x[1])
+            _gneuR = (res_R.x[0], res_R.x[1], res_R.x[2],)
 
             for x in range(steps_tR):
-                _tcalc1R = h.spo.fsolve(NrtlFit.t_sle, _trb[x], args=(_xrB[x], _h0R, _t0R, _gneuR, _Alpha),
+                _tcalc1R = h.spo.fsolve(NrtlFit.t_sle, _trb[x], args=(_xrB[x], _h0R, _t0R, _gneuR,),
                                         full_output=True)
                 _tcalcR[x] = _tcalc1R[0]
                 t_diffR[x] = abs((_trb[x] - _tcalcR[x]))
-                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrB[x], _trb[x], _Alpha))
+                _gammaR[x] = NrtlFit.y_nrtl(_gneuR, _xrB[x], _trb[x],)
 
             t_diff_normR = h.np.abs(h.np.divide(t_diffR, _trb))
             ard_neu_normR = (100 / steps_tR) * sum(t_diff_normR)
             print('ARD_normiert [%] =', ard_neu_normR)
             print(_tcalcR)
             # _params = (res_1.x[0], res_1.x[1], res_1.x[2], res_1.x[3])
-            _params = (
-                res_S.x[0], res_S.x[1], ard_neu_normS, _tcalcS, _gammaS, res_R.x[0], res_R.x[1], ard_neu_normR, _tcalcR,
-                _gammaR)
+            _params = (res_S.x[0], res_S.x[1], ard_neu_normS, res_S.x[2], _tcalcS, _gammaS, res_R.x[0], res_R.x[1], ard_neu_normR, res_R.x[2], _tcalcR, _gammaR)
             return _params
 
         def _solve():
-            _GABSM, _GBASM, _ARDSM, _TCALCSM, _GAMMASM, _GABRM, _GBARM, _ARDRM, _TCALCRM, _GAMMARM = _methyl()
-            _GABSE, _GBASE, _ARDSE, _TCALCSE, _GAMMASE, _GABRE, _GBARE, _ARDRE, _TCALCRE, _GAMMARE = _ethyl()
-            _GABSP, _GBASP, _ARDSP, _TCALCSP, _GAMMASP, _GABRP, _GBARP, _ARDRP, _TCALCRP, _GAMMARP = _propyl()
-            _GABSB, _GBASB, _ARDSB, _TCALCSB, _GAMMASB, _GABRB, _GBARB, _ARDRB, _TCALCRB, _GAMMARB = _butyl()
+            _GABSM, _GBASM, _ARDSM, _ALPHASM, _TCALCSM, _GAMMASM, _GABRM, _GBARM, _ARDRM, _ALPHARM, _TCALCRM, _GAMMARM = _methyl()
+            _GABSE, _GBASE, _ARDSE, _ALPHASE, _TCALCSE, _GAMMASE, _GABRE, _GBARE, _ARDRE, _ALPHARE, _TCALCRE, _GAMMARE = _ethyl()
+            _GABSP, _GBASP, _ARDSP, _ALPHASP, _TCALCSP, _GAMMASP, _GABRP, _GBARP, _ARDRP, _ALPHARP, _TCALCRP, _GAMMARP = _propyl()
+            _GABSB, _GBASB, _ARDSB, _ALPHASB, _TCALCSB, _GAMMASB, _GABRB, _GBARB, _ARDRB, _ALPHARB, _TCALCRB, _GAMMARB = _butyl()
 
-            _dataoutParamsSM = [_GABSM, _GBASM, _ARDSM]
-            _dataoutParamsRM = [_GABRM, _GBARM, _ARDRM]
-            _dataoutParamsSE = [_GABSE, _GBASE, _ARDSE]
-            _dataoutParamsRE = [_GABRE, _GBARE, _ARDRE]
-            _dataoutParamsSP = [_GABSP, _GBASP, _ARDSP]
-            _dataoutParamsRP = [_GABRP, _GBARP, _ARDRP]
-            _dataoutParamsSB = [_GABSB, _GBASB, _ARDSB]
-            _dataoutParamsRB = [_GABRB, _GBARB, _ARDRB]
+            _dataoutParamsSM = [_GABSM, _GBASM, _ARDSM, _ALPHASM]
+            _dataoutParamsRM = [_GABRM, _GBARM, _ARDRM, _ALPHARM]
+            _dataoutParamsSE = [_GABSE, _GBASE, _ARDSE, _ALPHASE]
+            _dataoutParamsRE = [_GABRE, _GBARE, _ARDRE, _ALPHARE]
+            _dataoutParamsSP = [_GABSP, _GBASP, _ARDSP, _ALPHASP]
+            _dataoutParamsRP = [_GABRP, _GBARP, _ARDRP, _ALPHARP]
+            _dataoutParamsSB = [_GABSB, _GBASB, _ARDSB, _ALPHASB]
+            _dataoutParamsRB = [_GABRB, _GBARB, _ARDRB, _ALPHARB]
 
 
             _dataoutFrame = ('gAB','gBA','ARD','a')
