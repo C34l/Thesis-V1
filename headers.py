@@ -10,5 +10,7 @@ import nrtl_params_eigen as nrpe
 # import nrtl_fit_solvent_opti as nrfso
 import nrtl_fit_solvent_1a as nrfs1a
 import nrtl_fit_solvent_2a as nrfs2a
+import NRTL_Test as nrtlt
+import math as math
 
 #header und objektverwaltung
