@@ -114,7 +114,7 @@ class NrtlFit:
                     _tcalc1 = h.spo.fsolve(NrtlFit.t_sle, _ts[x], args=(_xs[x], _h0S, _t0S, _gneu,), full_output=True)
                     _tcalc[x] = _tcalc1[0]
                     t_diff[x] = abs((_ts[x] - _tcalc[x]))
-                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xs[x], _ts[x],))
+                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xs[x], _tcalc[x],))
 
                 t_diff_norm = h.np.abs(h.np.divide(t_diff, _ts))
                 ard_neu_norm = (100 / steps_t) * sum(t_diff_norm)
@@ -145,7 +145,7 @@ class NrtlFit:
                 for x in range(steps_t):
                     _tcalc[x] = h.spo.fsolve(NrtlFit.t_sle, _trs[x], args=(_xrs[x], _h0RS, _t0RS, _gneu,))
                     t_diff[x] = abs((_trs[x] - _tcalc[x]))
-                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xrs[x], _trs[x],))
+                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xrs[x], _tcalc[x],))
 
                 t_diff_norm = h.np.abs(h.np.divide(t_diff, _trs))
                 ard_neu_norm = (100 / steps_t) * sum(t_diff_norm)
@@ -176,7 +176,7 @@ class NrtlFit:
                 for x in range(steps_t):
                     _tcalc[x] = h.spo.fsolve(NrtlFit.t_sle, _tr[x], args=(_xr[x], _h0R, _t0R, _gneu, ))
                     t_diff[x] = abs((_tr[x] - _tcalc[x]))
-                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xr[x], _tr[x],))
+                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gneu, _xr[x], _tcalc[x],))
 
                 t_diff_norm = h.np.abs(h.np.divide(t_diff, _tr))
                 ard_neu_norm = (100 / (steps_t)) * sum(t_diff_norm)
@@ -326,7 +326,7 @@ class NrtlFit:
                                        full_output=True)
                 _tcalcS[x] = _tcalc1S[0]
                 t_diffS[x] = abs((_tsm[x] - _tcalcS[x]))
-                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsM[x], _tsm[x],))
+                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsM[x], _tcalcS[x],))
 
             t_diff_normS= h.np.abs(h.np.divide(t_diffS, _tsm))
             ard_neu_normS = (100 / steps_tS) * sum(t_diff_normS)
@@ -355,7 +355,7 @@ class NrtlFit:
                                         full_output=True)
                 _tcalcR[x] = _tcalc1R[0]
                 t_diffR[x] = abs((_trm[x] - _tcalcR[x]))
-                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrM[x], _trm[x],))
+                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrM[x], _tcalcR[x],))
 
             t_diff_normR = h.np.abs(h.np.divide(t_diffR, _trm))
             ard_neu_normR = (100 / steps_tR) * sum(t_diff_normR)
@@ -388,7 +388,7 @@ class NrtlFit:
                                         full_output=True)
                 _tcalcS[x] = _tcalc1S[0]
                 t_diffS[x] = abs((_tse[x] - _tcalcS[x]))
-                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsE[x], _tse[x],))
+                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsE[x], _tcalcS[x],))
 
             t_diff_normS = h.np.abs(h.np.divide(t_diffS, _tse))
             ard_neu_normS = (100 / steps_tS) * sum(t_diff_normS)
@@ -417,7 +417,7 @@ class NrtlFit:
                                         full_output=True)
                 _tcalcR[x] = _tcalc1R[0]
                 t_diffR[x] = abs((_tre[x] - _tcalcR[x]))
-                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrE[x], _tre[x],))
+                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrE[x], _tcalcR[x],))
 
             t_diff_normR = h.np.abs(h.np.divide(t_diffR, _tre))
             ard_neu_normR = (100 / steps_tR) * sum(t_diff_normR)
@@ -450,7 +450,7 @@ class NrtlFit:
                                         full_output=True)
                 _tcalcS[x] = _tcalc1S[0]
                 t_diffS[x] = abs((_tsp[x] - _tcalcS[x]))
-                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsP[x], _tsp[x],))
+                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsP[x], _tcalcS[x],))
 
             t_diff_normS = h.np.abs(h.np.divide(t_diffS, _tsp))
             ard_neu_normS = (100 / steps_tS) * sum(t_diff_normS)
@@ -479,7 +479,7 @@ class NrtlFit:
                                         full_output=True)
                 _tcalcR[x] = _tcalc1R[0]
                 t_diffR[x] = abs((_trp[x] - _tcalcR[x]))
-                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrP[x], _trp[x],))
+                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrP[x], _tcalcR[x],))
 
             t_diff_normR = h.np.abs(h.np.divide(t_diffR, _trp))
             ard_neu_normR = (100 / steps_tR) * sum(t_diff_normR)
@@ -514,7 +514,7 @@ class NrtlFit:
                                         full_output=True)
                 _tcalcS[x] = _tcalc1S[0]
                 t_diffS[x] = abs((_tsb[x] - _tcalcS[x]))
-                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsB[x], _tsb[x],))
+                _gammaS[x] = h.np.exp(NrtlFit.y_nrtl(_gneuS, _xsB[x], _tcalcS[x],))
 
             t_diff_normS = h.np.abs(h.np.divide(t_diffS, _tsb))
             ard_neu_normS = (100 / steps_tS) * sum(t_diff_normS)
@@ -543,7 +543,7 @@ class NrtlFit:
                                         full_output=True)
                 _tcalcR[x] = _tcalc1R[0]
                 t_diffR[x] = abs((_trb[x] - _tcalcR[x]))
-                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrB[x], _trb[x],))
+                _gammaR[x] = h.np.exp(NrtlFit.y_nrtl(_gneuR, _xrB[x], _tcalcR[x],))
 
             t_diff_normR = h.np.abs(h.np.divide(t_diffR, _trb))
             ard_neu_normR = (100 / steps_tR) * sum(t_diff_normR)

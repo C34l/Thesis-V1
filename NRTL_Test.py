@@ -2,12 +2,12 @@ import headers as h
 import scipy.optimize
 
 _r = 8.3141
-_t0S = 380
-_t0RS = 380
-_t0R = 380
-_h0S = 25000
-_h0RS = 25000.0
-_h0R = 25000.0
+_t0S = 404.75
+_t0RS = 393.35
+_t0R = 404.65
+_h0S = 24500.0
+_h0RS = 25600.0
+_h0R = 25736.0
 _Alpha = 0.4
 
 
@@ -18,8 +18,8 @@ class NrtlFit:
         _xj = float(1.0 - _xi)
         _tauij = (_g[0] / (_r * _texp))
         _tauji = (_g[1] / (_r * _texp))
-        _Gij = (h.math.exp(-_alpha * _tauij))
-        _Gji = (h.math.exp(-_alpha * _tauji))
+        _Gij = (h.np.exp(-_alpha * _tauij))
+        _Gji = (h.np.exp(-_alpha * _tauji))
         _func = ((_xj ** 2) * (_tauji * (_Gji / (_xi + _xj * _Gji)) ** 2 + _tauij * (_Gij / (_xi * _Gij + _xj) ** 2)))
 
         return _func
@@ -35,16 +35,16 @@ class NrtlFit:
     @staticmethod
     def parametersH2O(datain):
 
-            _gabS = -3000.0
-            _gbaS = 9000
+            _gabS = -2827.97
+            _gbaS = 9907.41
             _gSa = h.np.array([_gabS, _gbaS, ])
 
-            _gabRS = -3000.0
-            _gbaRS = 9000
+            _gabRS = -3143.16
+            _gbaRS = 9443.10
             _gRSa = h.np.array([_gabRS, _gbaRS, ])
 
-            _gabR = -3000
-            _gbaR = 9000
+            _gabR = -3509.61
+            _gbaR = 9841.69
             _gRa = h.np.array([_gabR, _gbaR, ])
 
             _xs = datain["x - SWasser"]
@@ -78,7 +78,7 @@ class NrtlFit:
                     _tcalc1 = h.spo.fsolve(NrtlFit.t_sle, _ts[x], args=(_xs[x], _h0S, _t0S, _gSa, _Alpha), full_output=True)
                     _tcalc[x] = _tcalc1[0]
                     t_diff[x] = abs((_ts[x] - _tcalc[x]))
-                    _gamma[x] = h.math.exp(NrtlFit.y_nrtl(_gSa, _xs[x], _tcalc[x], _Alpha))
+                    _gamma[x] = h.np.exp(NrtlFit.y_nrtl(_gSa, _xs[x], _tcalc[x], _Alpha))
 
                 t_diff_norm = h.np.abs(h.np.divide(t_diff, _ts))
                 ard_neu_norm = (100 / steps_t) * sum(t_diff_norm)
