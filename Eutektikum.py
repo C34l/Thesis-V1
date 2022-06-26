@@ -36,7 +36,7 @@ class EutFind:
 
 
     @staticmethod
-    def t_sle_ideal(_texp, _xi, _h0, _t0, _g, _alpha):
+    def t_sle_ideal(_texp, _xi, _h0, _t0,):
         _yi = 1
         _gx = _yi * (_xi)
         _func = (h.np.exp((-_h0 / (_r * _texp)) * (1 - (_texp / _t0))) / _gx) - 1
@@ -56,20 +56,23 @@ class EutFind:
         return _func
 
     @staticmethod
-    def x_sle_ideal2t(_texp, _h0, _t0, _g, _alpha):
-        _func = _yi = 1
-        _t = _texp
-        _func = (h.np.exp((-_h0 / (_r * _t) * (1 - (_t/_t0)))))
+    def calc_eut_ideal(_p, _h0i, _t0i, _h0j, _t0j):
+        _t, _x = _p
+
+        _pure = EutFind.t_sle_ideal(_t, _x, _h0i, _t0i)
+        _rac = EutFind.t_sle_rac_ideal(_t, _x, _h0j, _t0j)
+
+        _func = [_pure, _rac]
         return _func
 
     @staticmethod
-    def obj_func(_t, _h0i, _t0i, _h0j, _t0j):
+    def calc_eut_nrtl1(_p, _h0i, _t0i, _gi, _h0j, _t0j, _alpha):
+        _t, _x = _p
 
-        _pure = (-_h0i/_r*_t)*(1-(_t/_t0i))
-        _rac = -2 * ((-_h0j / _r * _t) * (1 - (_t / _t0j)))+1
+        _pure = EutFind.t_sle(_t, _x, _h0i, _t0i, _gi, _alpha)
+        _rac = EutFind.t_sle_rac_ideal(_t, _x, _h0j, _t0j)
 
-        _func = _pure - _rac
-
+        _func = [_pure, _rac]
         return _func
 
     @staticmethod
@@ -90,6 +93,7 @@ class EutFind:
             def _ideal_sle():
                 _xin = h.np.zeros(100)
                 _xinRac = h.np.zeros(100)
+                _xinRac[0] = 0.5
                 _tin = h.np.zeros(100)
                 _tin[0] = 273.15
 
@@ -103,29 +107,29 @@ class EutFind:
                 # loading up values
                 for x in range(len(_xin)):
                     _xin[x] = _xin[x-1]+0.01
-                    _xinRac[x] = _xinRac[x-1]+.005
+                    _xinRac[x] = _xinRac[0]+.005*x
 
                 for x in range(len(_tin)):
                     _tin[x] = _tin[0]+(2.0*x)
 
                 # loading up calc points
                 for x in range(len(_xin)):
-                    _tcalcS[x] = h.spo.fsolve(EutFind.t_sle_ideal, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _Alpha))
+                    _tcalcS[x] = h.spo.fsolve(EutFind.t_sle_ideal, _tin[x], args=(_xin[x], _h0S, _t0S,))
                     _tcalcRSS[x] = h.spo.fsolve(EutFind.t_sle_rac_ideal, _tin[x], args=(_xinRac[x], _h0RS, _t0RS,))
                     _tcalcRSR[x] = h.spo.fsolve(EutFind.t_sle_rac_ideal, _tin[x], args=(_xinRac[x], _h0RS, _t0RS,))
-                    _tcalcR[x] = h.spo.fsolve(EutFind.t_sle_ideal, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
+                    _tcalcR[x] = h.spo.fsolve(EutFind.t_sle_ideal, _tin[x], args=(_xin[x], _h0R, _t0R,))
 
                 # plotting
                 figure, axis = plt.subplots(2, constrained_layout=True)
 
-                axis[0].plot(-_xin+1, _tcalcS, '-g', label='S-Ma-Ideal-SLE')
+                axis[0].plot(_xin, _tcalcS, '-g', label='S-Ma-Ideal-SLE')
                 axis[0].plot(_xinRac, _tcalcRSS, '--g', label='Rac-Ma-Prigogine')
                 axis[0].set_title("S-Rac-ideal")
                 axis[0].set_ylabel('Temperatur / [K]')
                 axis[0].set_xlabel('x-Rac-Ma / [-]')
                 axis[0].legend()
 
-                line_1 = LineString(h.np.column_stack((-_xin+1, _tcalcS)))
+                line_1 = LineString(h.np.column_stack((_xin, _tcalcS)))
                 line_2 = LineString(h.np.column_stack((_xinRac, _tcalcRSS)))
                 intersection = line_1.intersection(line_2)
 
@@ -140,14 +144,14 @@ class EutFind:
                 axis[0].text(x[0], 250, stringout0)
                 print(x, y,)
 
-                axis[1].plot(-_xin+1, _tcalcR, '-b', label='R-Ma-Ideal-SLE')
+                axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-Ideal-SLE')
                 axis[1].plot(_xinRac, _tcalcRSR, '--b', label='Rac-Ma-Prigogine')
                 axis[1].set_title("R-Rac-ideal")
                 axis[1].set_ylabel('Temperatur / [K]')
                 axis[1].set_xlabel('x-Rac-Ma / [-]')
                 axis[1].legend()
 
-                line_3 = LineString(h.np.column_stack((-_xin+1, _tcalcR)))
+                line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
                 line_4 = LineString(h.np.column_stack((_xinRac, _tcalcRSR)))
                 intersection = line_3.intersection(line_4)
 
@@ -169,6 +173,7 @@ class EutFind:
             def _nrtl_pure_comp_sle():
                 _xin = h.np.zeros(100)
                 _xinRac = h.np.zeros(100)
+                _xinRac[0] = 0.5
                 _tin = h.np.zeros(100)
                 _tin[0] = 273.15
 
@@ -185,7 +190,7 @@ class EutFind:
                 # loading up values
                 for x in range(len(_xin)):
                     _xin[x] = _xin[x - 1] + 0.01
-                    _xinRac[x] = _xinRac[x - 1] + 0.005
+                    _xinRac[x] = _xinRac[0]+.005*x
 
                 for x in range(len(_tin)):
                     _tin[x] = _tin[0] + (2.0 * x)
@@ -205,14 +210,14 @@ class EutFind:
                 figure, axis = plt.subplots(2, constrained_layout=True)
 
 
-                axis[0].plot(-_xin+1, _tcalcS, '-g', label='S-Ma-NRTL')
+                axis[0].plot(_xin, _tcalcS, '-g', label='S-Ma-NRTL')
                 axis[0].plot(_xinRac, _tcalcRSS, '--g', label='Rac-Ma-Prigogine')
                 axis[0].set_title("S-Rac-NRTL")
                 axis[0].set_ylabel('Temperatur / [K]')
                 axis[0].set_xlabel('x-Rac-Ma / [-]')
                 axis[0].legend()
 
-                line_1 = LineString(h.np.column_stack((-_xin+1, _tcalcS)))
+                line_1 = LineString(h.np.column_stack((_xin, _tcalcS)))
                 line_2 = LineString(h.np.column_stack((_xinRac, _tcalcRSS)))
                 intersection = line_1.intersection(line_2)
 
@@ -227,14 +232,14 @@ class EutFind:
                 axis[0].text(x[0], 300, stringout0)
                 print(x, y)
 
-                axis[1].plot(-_xin+1, _tcalcR, '-b', label='R-Ma-NRTL')
+                axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-NRTL')
                 axis[1].plot(_xinRac, _tcalcRSR, '--b', label='Rac-Ma-Prigogine')
                 axis[1].set_title("R-Rac-NRTL")
                 axis[1].set_ylabel('Temperatur / [K]')
                 axis[1].set_xlabel('x-Rac-Ma / [-]')
                 axis[1].legend()
 
-                line_3 = LineString(h.np.column_stack((-_xin+1, _tcalcR)))
+                line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
                 line_4 = LineString(h.np.column_stack((_xinRac, _tcalcRSR)))
                 intersection = line_3.intersection(line_4)
 
@@ -289,11 +294,25 @@ class EutFind:
 
                 return 0
 
+            def _eut_test():
+
+                _guesses = h.np.array([388.0, 0.6])
+                a = h.spo.root(EutFind.calc_eut_ideal, _guesses, args=(_h0S, _t0S, _h0RS, _t0RS),)
+                b = h.spo.root(EutFind.calc_eut_ideal, _guesses, args=(_h0R, _t0R, _h0RS, _t0RS),)
+                print(a.x, 'S-Ma_ideal, Rac-Ma_Prigogine')
+                print(b.x, 'R-Ma_ideal, Rac-Ma_Prigogine')
+                c = h.spo.root(EutFind.calc_eut_nrtl1, _guesses, args=(_h0S, _t0S, _gSa, _h0RS, _t0RS, _Alpha))
+                d = h.spo.root(EutFind.calc_eut_nrtl1, _guesses, args=(_h0R, _t0R, _gRa, _h0RS, _t0RS, _Alpha))
+                print(c.x, 'S-Ma_NRTL, Rac-Ma_Prigogine')
+                print(d.x, 'R-Ma_NRTL, Rac-Ma_Prigogine')
+                return 0
+
 
             def solve():
-                _ideal_sle()
-                _nrtl_pure_comp_sle()
+                #_ideal_sle()
+                #_nrtl_pure_comp_sle()
                 #_eq_test()
+                _eut_test()
                 _output = 3
                 return _output
 
