@@ -23,6 +23,7 @@ import headers as h
 # OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_LAK_refit.xlsx
 
 # OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_Programmtest.xlsx
+# OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Calc_Eut.xlsx
 
 #df = h.rw.IO._read()
 
@@ -43,7 +44,10 @@ import headers as h
 # output = h.pd.DataFrame(h.nrfs2a.NrtlFit._parameters_lak(df))
 
 # output = h.pd.DataFrame(h.nrtlt.NrtlFit.parametersH2O(df))
+output = h.pd.DataFrame(h.Eut.EutFind.pure_ma())
 
-#h.rw.IO._write(output)
+#h.Eut.EutFind.pure_ma()
 
-h.Eut.EutFind.pure_ma()
+h.rw.IO._write(output)
+
+
