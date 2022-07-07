@@ -399,20 +399,20 @@ class EutFind:
                 axis[1].set_xlabel('x-R-Ma / [-]')
                 axis[1].legend()
 
-                #line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
-                #line_4 = LineString(h.np.column_stack((_xinRac, _tSLERSR)))
-                #intersection = line_3.intersection(line_4)
+                line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
+                line_4 = LineString(h.np.column_stack((_xinRac, _tSLERSR)))
+                intersection = line_3.intersection(line_4)
 
-                #axis[1].plot(*intersection.xy, 'ro')
-                #x2, y2 = intersection.xy
-                #xout1 = x2[0]
-                #xoutstr1 = "{:10.4f}".format(xout1)
-                #yout1 = y2[0]
-                #youtstr1 = "{:10.4f}".format(yout1)
-                #stringout1 = str(f"SP({xoutstr1}"f"\\{youtstr1})")
-                #axis[1].text(x2[0], y2[0], 'SP')
-                #axis[1].text(x2[0], 300, stringout1)
-                #print(x2, y2)
+                axis[1].plot(*intersection.xy, 'ro')
+                x2, y2 = intersection.xy
+                xout1 = x2[0]
+                xoutstr1 = "{:10.4f}".format(xout1)
+                yout1 = y2[0]
+                youtstr1 = "{:10.4f}".format(yout1)
+                stringout1 = str(f"SP({xoutstr1}"f"\\{youtstr1})")
+                axis[1].text(x2[0], y2[0], 'SP')
+                axis[1].text(x2[0], 300, stringout1)
+                print(x2, y2)
 
                 plt.show()
 
