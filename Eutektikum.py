@@ -103,19 +103,43 @@ class EutFind:
         return _func
 
     @staticmethod
-    def num_equation(_x, _t, _alpha, _gSR, _gRS, _h0):
+    def num_equation123(_x, _t, _alpha, _gSR, _gRS, _h0):
 
-        _GSR = h.np.exp(-_alpha * _gSR / _r*_t)
-        _GRS = h.np.exp(-_alpha * _gRS / _r*_t)
+        _T = _t[0]
+        #_func = (_T / _h0) * (_x / (1 - _x)) * (((_r * _T) / _x) + ((2 * h.np.exp(-_alpha * _gSR / _r * _T) * h.np.exp(
+        #    -_alpha * _gSR / _r * _T) * _gSR * (h.np.exp(-_alpha * _gSR / _r * _T) * _x - h.np.exp(
+        #    -_alpha * _gSR / _r * _T) + 1)) / ((h.np.exp(-_alpha * _gSR / _r * _T) - 1) * _x - h.np.exp(
+        #    -_alpha * _gSR / _r * _T)) ** 3)((2 * _gRS * (_x + h.np.exp(-_alpha * _gRS / _r*_T) - 1)) / ((h.np.exp(-_alpha * _gRS / _r*_T) - 1) * _x + 1) ** 3))
 
-        _func = (_t/_h0) * (_x/(1-_x))*(((_r*_t)/_x)+((2*_GSR*_GSR*_gSR*(_GSR*_x-_GSR+1))/((_GSR-1)*_x-_GSR)**3)((2*_gRS*(_x+_GRS-1))/((_GRS-1)*_x+1)**3))
 
-        return _func
+        _func1 = (_t/_h0)*(-(_x/(1-_x))+1)*(((_r*_t)/_x)+((2*(h.np.exp((-_alpha*_gSR)/(_r*_t)))**2)*(h.np.exp((-_alpha*_gSR)/(_r*_t))*_x-h.np.exp((-_alpha*_gSR)/(_r*_t))+1)/(((h.np.exp((-_alpha*_gSR)/(_r*_t)))-1)*_x+1)**3)-((2*_gRS*(_x+h.np.exp((-_alpha*_gRS)/(_r*_t)))-1)/((h.np.exp((-_alpha*_gRS)/(_r*_t)))*_x+1)**3))
+        return _func1
+
+    @staticmethod
+    def num_equation1234(_x, _t, _alpha, _gSR, _gRS, _h0):
+
+        _T = _t[0]
+        # _func = (_T / _h0) * (_x / (1 - _x)) * (((_r * _T) / _x) + ((2 * h.np.exp(-_alpha * _gSR / _r * _T) * h.np.exp(
+        #    -_alpha * _gSR / _r * _T) * _gSR * (h.np.exp(-_alpha * _gSR / _r * _T) * _x - h.np.exp(
+        #    -_alpha * _gSR / _r * _T) + 1)) / ((h.np.exp(-_alpha * _gSR / _r * _T) - 1) * _x - h.np.exp(
+        #    -_alpha * _gSR / _r * _T)) ** 3)((2 * _gRS * (_x + h.np.exp(-_alpha * _gRS / _r*_T) - 1)) / ((h.np.exp(-_alpha * _gRS / _r*_T) - 1) * _x + 1) ** 3))
+
+        _func1 = (_t / _h0) * ((_x / (1 - _x)) - 1) * (((_r * _t) / _x) + (
+                    (2 * (h.np.exp((-_alpha * _gSR) / (_r * _t))) ** 2) * (
+                        h.np.exp((-_alpha * _gSR) / (_r * _t)) * _x - h.np.exp((-_alpha * _gSR) / (_r * _t)) + 1) / (
+                                ((h.np.exp((-_alpha * _gSR) / (_r * _t))) - 1) * _x + 1) ** 3) - ((2 * _gRS * (
+                    _x + h.np.exp((-_alpha * _gRS) / (_r * _t))) - 1) / ((h.np.exp(
+            (-_alpha * _gRS) / (_r * _t))) * _x + 1) ** 3))
+        return _func1
 
     @staticmethod
     def solve_num_eq(_alpha, _gSR, _gRS, _h0, _teval):
 
-        _func = h.spi.solve_ivp(h.Eut.EutFind.num_equation, (0.5, 0), 393.35, args=(_alpha, _gSR, _gRS, _h0), t_eval=_teval, max_step=0.01)
+        _tinitial = int(393.35)
+        _y = h.np.empty(_tinitial)
+
+        _y0 = _y[0]
+        _func = h.spi.solve_ivp(h.Eut.EutFind.num_equation, [0.5, 0], [393.35, 0], args=(_alpha, _gSR, _gRS, _h0), t_eval=_teval,)
 
         return _func
 
@@ -320,7 +344,7 @@ class EutFind:
                 # loading up values
                 for x in range(len(_xin)):
                     _xin[x] = _xin[x-1] + 0.01
-                    _xinRac[x] = _xinRac[0]+.005*x
+                    _xinRac[x] = _xinRac[0]+0.005*x
 
                 for x in range(len(_tin)):
                     _tin[x] = _tin[0] + (2.0 * x)
@@ -328,23 +352,33 @@ class EutFind:
                 # loading up calc points
                 for x in range(len(_xin+1)):
                     _tcalcS[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _Alpha))
-                    _tcalcRSS[x] = h.spo.fsolve(EutFind.t_sle_rac_nrtl, _tin[x], args=(_xinRac[x], _h0RS, _t0RS,_gSa, _gRa, _Alpha))
-                    _tcalcRSR[x] = h.spo.fsolve(EutFind.t_sle_rac_nrtl, _tin[x], args=(_xinRac[x], _h0RS, _t0RS,_gSa, _gRa, _Alpha))
+                    # _tcalcRSS[x] = h.spo.fsolve(EutFind.t_sle_rac_nrtl, _tin[x], args=(_xinRac[x], _h0RS, _t0RS,_gSa, _gRa, _Alpha))
+                    # _tcalcRSR[x] = h.spo.fsolve(EutFind.t_sle_rac_nrtl, _tin[x], args=(_xinRac[x], _h0RS, _t0RS,_gSa, _gRa, _Alpha))
                     _tcalcR[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
+
+                _tinitial = 393.35
+                print(_xinRac)
+                _initial = [_tinitial]
+                _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabS, _gbaS, _h0RS), t_eval=_xinRac, dense_output=True)
+                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation1234, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRac, dense_output=True)
+
+                #print(_tcalcRSS)
+                _tSLERSS = h.np.reshape(_tcalcRSS.y, 100)
+                _tSLERSR = h.np.reshape(_tcalcRSR.y, 100)
 
                 # plotting
                 figure, axis = plt.subplots(2, constrained_layout=True)
 
 
                 axis[0].plot(_xin, _tcalcS, '-g', label='S-Ma-NRTL')
-                axis[0].plot(_xinRac, _tcalcRSS, '--g', label='Rac-Ma-NRTL')
+                axis[0].plot(_xinRac, _tSLERSS, '--g', label='Rac-Ma-NRTL')
                 axis[0].set_title("S-Rac-NRTL")
                 axis[0].set_ylabel('Temperatur / [K]')
                 axis[0].set_xlabel('x-S-Ma / [-]')
                 axis[0].legend()
 
                 line_1 = LineString(h.np.column_stack((_xin, _tcalcS)))
-                line_2 = LineString(h.np.column_stack((_xinRac, _tcalcRSS)))
+                line_2 = LineString(h.np.column_stack((_xinRac, _tSLERSS)))
                 intersection = line_1.intersection(line_2)
 
                 axis[0].plot(*intersection.xy, 'ro')
@@ -359,26 +393,26 @@ class EutFind:
                 print(x, y)
 
                 axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-NRTL')
-                axis[1].plot(_xinRac, _tcalcRSR, '--b', label='Rac-Ma-NRTL')
+                axis[1].plot(_xinRac, _tSLERSR, '--b', label='Rac-Ma-NRTL')
                 axis[1].set_title("R-Rac-NRTL")
                 axis[1].set_ylabel('Temperatur / [K]')
                 axis[1].set_xlabel('x-R-Ma / [-]')
                 axis[1].legend()
 
-                line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
-                line_4 = LineString(h.np.column_stack((_xinRac, _tcalcRSR)))
-                intersection = line_3.intersection(line_4)
+                #line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
+                #line_4 = LineString(h.np.column_stack((_xinRac, _tSLERSR)))
+                #intersection = line_3.intersection(line_4)
 
-                axis[1].plot(*intersection.xy, 'ro')
-                x2, y2 = intersection.xy
-                xout1 = x2[0]
-                xoutstr1 = "{:10.4f}".format(xout1)
-                yout1 = y2[0]
-                youtstr1 = "{:10.4f}".format(yout1)
-                stringout1 = str(f"SP({xoutstr1}"f"\\{youtstr1})")
-                axis[1].text(x2[0], y2[0], 'SP')
-                axis[1].text(x2[0], 300, stringout1)
-                print(x2, y2)
+                #axis[1].plot(*intersection.xy, 'ro')
+                #x2, y2 = intersection.xy
+                #xout1 = x2[0]
+                #xoutstr1 = "{:10.4f}".format(xout1)
+                #yout1 = y2[0]
+                #youtstr1 = "{:10.4f}".format(yout1)
+                #stringout1 = str(f"SP({xoutstr1}"f"\\{youtstr1})")
+                #axis[1].text(x2[0], y2[0], 'SP')
+                #axis[1].text(x2[0], 300, stringout1)
+                #print(x2, y2)
 
                 plt.show()
 
@@ -499,9 +533,9 @@ class EutFind:
             def solve():
                 # _ideal_sle()
                 #_nrtl_pure_comp_sle()
-                _eut_test()
+                #_eut_test()
                 _nrtl_nrtl()
 
                 return 0
 
-            return solve1()
+            return solve()

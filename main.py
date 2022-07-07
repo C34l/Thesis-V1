@@ -44,10 +44,10 @@ import headers as h
 # output = h.pd.DataFrame(h.nrfs2a.NrtlFit._parameters_lak(df))
 
 # output = h.pd.DataFrame(h.nrtlt.NrtlFit.parametersH2O(df))
-output = h.pd.DataFrame(h.Eut.EutFind.pure_ma())
+#output = h.pd.DataFrame(h.Eut.EutFind.pure_ma())
 
-#h.Eut.EutFind.pure_ma()
+h.Eut.EutFind.pure_ma()
 
-h.rw.IO._write(output)
+#h.rw.IO._write(output)
 
 
