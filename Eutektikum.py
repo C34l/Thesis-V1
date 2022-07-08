@@ -482,25 +482,36 @@ class EutFind:
                 return 0
 
             def _print():
-                _xin = h.np.zeros(100)
+                _xin = h.np.zeros(1000)
                 _xinRac = h.np.zeros(100)
                 _xinRac[0] = 0.5
-                _tin = h.np.zeros(100)
+                _xinRacS = h.np.zeros(100)
+                _xinRacS[0] = 0.5
+                _xinRacR = h.np.zeros(100)
+                _xinRacR[0] = 0.5
+                _tin = h.np.zeros(1000)
                 _tin[0] = 273.15
+                _tinRac = h.np.zeros(100)
+                _tinRac[0] = 273.15
 
-                _tcalcS = h.np.zeros(100)
+                _tcalcS = h.np.zeros(1000)
                 _tcalcRS = h.np.zeros(100)
-                _tcalcR = h.np.zeros(100)
+                _tcalcR = h.np.zeros(1000)
 
                 for x in range(len(_xin)):
-                    _xin[x] = _xin[x - 1] + 0.01
-                    _xinRac[x] = _xinRac[0]+.005*x
+                    _xin[x] = _xin[x - 1] + 0.001
                     _tin[x] = _tin[0] + (2.0 * x)
+
+                for x in range(len(_xinRac)):
+                    _xinRac[x] = _xinRac[0] + .005 * x
+                    _tinRac[x] = _tinRac[0] + (2.0 * x)
 
                 for x in range(len(_xin)):
                     _tcalcS[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _Alpha))
-                    _tcalcRS[x] = h.spo.fsolve(EutFind.t_sle_rac_nrtl, _tin[x], args=(_xinRac[x], _h0RS, _t0RS, _gSa, _gRa, _Alpha))
                     _tcalcR[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
+
+                for xin in range(len(_xinRac)):
+                    _tcalcRS[xin] = h.spo.fsolve(EutFind.t_sle_rac_nrtl, _tinRac[xin], args=(_xinRac[xin], _h0RS, _t0RS, _gSa, _gRa, _Alpha))
 
                 #print(_tcalcS)
 
@@ -508,25 +519,47 @@ class EutFind:
                 _EutS = h.spo.root(EutFind.calc_eut_nrtl2, _guesses, args=(_h0S, _t0S, _gSa, _gRa, _h0RS, _t0RS, _Alpha))
                 _EutR = h.spo.root(EutFind.calc_eut_nrtl2, _guesses, args=(_h0R, _t0R, _gRa, _gSa, _h0RS, _t0RS, _Alpha))
 
-                _return = (_xinRac, _tcalcRS, _xin, _tcalcS, _tcalcR)
+                for x in range(len(_xinRacS)):
+                    _xinRacS[x] = _xinRacS[0] + .00275 * x
+
+                for x in range(len(_xinRacR)):
+                    _xinRacR[x] = _xinRacR[0] + .002 * x
+
+
+                _tinitial = 393.35
+
+                _initial = [_tinitial]
+                _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123, [0.5, 1.0], _initial, method='RK45',
+                                            args=(_Alpha, _gabS, _gbaS, _h0RS), t_eval=_xinRacS, dense_output=True)
+                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation1234, [0.5, 1.0], _initial, method='RK45',
+                                            args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRacR, dense_output=True)
+
+                _tSLERSS = h.np.reshape(_tcalcRSS.y, 100)
+                _tSLERSR = h.np.reshape(_tcalcRSR.y, 100)
+
+                #print(_tSLERSS, _tSLERSR)
+
+                _return = (_xinRac, _tcalcRS, _xinRacS, _tSLERSS, _xinRacR, _tSLERSR, _xin, _tcalcS, _tcalcR)
                 return _return
 
             def solve1():
                 #_ideal_sle()
                 #_nrtl_pure_comp_sle()
 
-                _eut_test()
-                _xinRac, _tcalcRS, _xin, _tcalcS, _tcalcR = _print()
+                #_eut_test()
+                _xinRac, _tcalcRS, _xinRacS, _toutRSS, _xinRacR, _toutRSR, _xin, _tcalcS, _tcalcR = _print()
 
-                #_EutSDF = h.pd.DataFrame(_EutS, columns=['Param Eut S'])
-                #_EutRDF = h.pd.DataFrame(_EutR, columns=['Param Eut R'])
+                _xRSSDF = h.pd.DataFrame(_xinRacS, columns=['x RSS'])
+                _tRSSDF = h.pd.DataFrame(_toutRSS, columns=['t RSS'])
+                _xRSRDF = h.pd.DataFrame(_xinRacR, columns=['x RSR'])
+                _tRSRDF = h.pd.DataFrame(_toutRSR, columns=['t RSR'])
                 _xinRacDF = h.pd.DataFrame(_xinRac, columns=['xinRac'])
                 _tcalcRSDF = h.pd.DataFrame(_tcalcRS, columns=['t RS'])
                 _xinDF = h.pd.DataFrame(_xin, columns=['xin'])
                 _tcalcSDF = h.pd.DataFrame(_tcalcS, columns=['t S'])
                 _tcalcRDF = h.pd.DataFrame(_tcalcR, columns=['t R'])
 
-                _dataout = [_xinRacDF, _tcalcRSDF, _xinDF, _tcalcSDF, _tcalcRDF]
+                _dataout = [_xinRacDF, _tcalcRSDF, _xinDF, _tcalcSDF, _tcalcRDF, _xRSSDF, _tRSSDF, _xRSRDF, _tRSRDF]
                 _output = h.pd.concat(_dataout, axis=1)
                 return _output
 
@@ -538,4 +571,4 @@ class EutFind:
 
                 return 0
 
-            return solve()
+            return solve1()
