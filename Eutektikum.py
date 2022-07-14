@@ -133,6 +133,42 @@ class EutFind:
         return _func1
 
     @staticmethod
+    def num_equation12345(_x, _t, _alpha, _gSR, _gRS, _h0):
+
+        _T = _t[0]
+        # _func = (_T / _h0) * (_x / (1 - _x)) * (((_r * _T) / _x) + ((2 * h.np.exp(-_alpha * _gSR / _r * _T) * h.np.exp(
+        #    -_alpha * _gSR / _r * _T) * _gSR * (h.np.exp(-_alpha * _gSR / _r * _T) * _x - h.np.exp(
+        #    -_alpha * _gSR / _r * _T) + 1)) / ((h.np.exp(-_alpha * _gSR / _r * _T) - 1) * _x - h.np.exp(
+        #    -_alpha * _gSR / _r * _T)) ** 3)((2 * _gRS * (_x + h.np.exp(-_alpha * _gRS / _r*_T) - 1)) / ((h.np.exp(-_alpha * _gRS / _r*_T) - 1) * _x + 1) ** 3))
+
+        _func1 = (_t / _h0) * ((_x / (1 - _x)) - 1) * (((_r * _t) / _x) - (2*_gRS*_x*h.np.exp(-_alpha*_gRS/(_r*_t)))/(h.np.exp(-_alpha*_gRS/(_r*_t))-_x+1)**2 - (2*_gSR*_x*h.np.exp(-_alpha*_gSR/(_r*_t)))/(_x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-_x))**2 - (2*(h.np.exp(_alpha*_gRS/(_r*_t))-1)*h.np.exp(_alpha*_gRS/(_r*_t))*_gRS*(1-_x**2))/(h.np.exp(_alpha*_gRS/(_r*_t))-_x+1)**3 - (2*(h.np.exp(-_alpha*_gSR/(_r*_t)))**2*_gSR*(1-_x**2)*(1-h.np.exp(-_alpha*_gSR/(_r*_t))))/(_x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-_x))**3)
+
+        return _func1
+
+    @staticmethod
+    def num_equation123456(_x, _t, _alpha, _gSR, _gRS, _h0):
+
+        _T = _t[0]
+        # _func = (_T / _h0) * (_x / (1 - _x)) * (((_r * _T) / _x) + ((2 * h.np.exp(-_alpha * _gSR / _r * _T) * h.np.exp(
+        #    -_alpha * _gSR / _r * _T) * _gSR * (h.np.exp(-_alpha * _gSR / _r * _T) * _x - h.np.exp(
+        #    -_alpha * _gSR / _r * _T) + 1)) / ((h.np.exp(-_alpha * _gSR / _r * _T) - 1) * _x - h.np.exp(
+        #    -_alpha * _gSR / _r * _T)) ** 3)((2 * _gRS * (_x + h.np.exp(-_alpha * _gRS / _r*_T) - 1)) / ((h.np.exp(-_alpha * _gRS / _r*_T) - 1) * _x + 1) ** 3))
+
+        _func1 = (_t / _h0) * (-(_x / (1 - _x)) + 1) * (
+                    ((_r * _t) / _x) - (2 * _gRS * _x * h.np.exp(-_alpha * _gRS / (_r * _t))) / (
+                        h.np.exp(-_alpha * _gRS / (_r * _t)) - _x + 1) ** 2 - (
+                                2 * _gSR * _x * h.np.exp(-_alpha * _gSR / (_r * _t))) / (
+                                _x + h.np.exp(-_alpha * _gSR / (_r * _t)) * (1 - _x)) ** 2 - (
+                                2 * (h.np.exp(_alpha * _gRS / (_r * _t)) - 1) * h.np.exp(
+                            _alpha * _gRS / (_r * _t)) * _gRS * (1 - _x ** 2)) / (
+                                h.np.exp(_alpha * _gRS / (_r * _t)) - _x + 1) ** 3 - (
+                                2 * (h.np.exp(-_alpha * _gSR / (_r * _t))) ** 2 * _gSR * (1 - _x ** 2) * (
+                                    1 - h.np.exp(-_alpha * _gSR / (_r * _t)))) / (
+                                _x + h.np.exp(-_alpha * _gSR / (_r * _t)) * (1 - _x)) ** 3)
+
+        return _func1
+
+    @staticmethod
     def solve_num_eq(_alpha, _gSR, _gRS, _h0, _teval):
 
         _tinitial = int(393.35)
@@ -357,10 +393,10 @@ class EutFind:
                     _tcalcR[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
 
                 _tinitial = 393.35
-                print(_xinRac)
+
                 _initial = [_tinitial]
-                _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabS, _gbaS, _h0RS), t_eval=_xinRac, dense_output=True)
-                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation1234, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRac, dense_output=True)
+                _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123456, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabS, _gbaS, _h0RS), t_eval=_xinRac, dense_output=True)
+                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation12345, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRac, dense_output=True)
 
                 #print(_tcalcRSS)
                 _tSLERSS = h.np.reshape(_tcalcRSS.y, 100)
@@ -371,14 +407,14 @@ class EutFind:
 
 
                 axis[0].plot(_xin, _tcalcS, '-g', label='S-Ma-NRTL')
-                axis[0].plot(_xinRac, _tSLERSS, '--g', label='Rac-Ma-NRTL')
+                axis[0].plot(_xinRac[0:60], _tSLERSS[0:60], '--g', label='Rac-Ma-NRTL')
                 axis[0].set_title("S-Rac-NRTL")
                 axis[0].set_ylabel('Temperatur / [K]')
                 axis[0].set_xlabel('x-S-Ma / [-]')
                 axis[0].legend()
 
                 line_1 = LineString(h.np.column_stack((_xin, _tcalcS)))
-                line_2 = LineString(h.np.column_stack((_xinRac, _tSLERSS)))
+                line_2 = LineString(h.np.column_stack((_xinRac[0:60], _tSLERSS[0:60])))
                 intersection = line_1.intersection(line_2)
 
                 axis[0].plot(*intersection.xy, 'ro')
@@ -511,7 +547,7 @@ class EutFind:
                     _tcalcR[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
 
                 for xin in range(len(_xinRac)):
-                    _tcalcRS[xin] = h.spo.fsolve(EutFind.t_sle_rac_nrtl, _tinRac[xin], args=(_xinRac[xin], _h0RS, _t0RS, _gSa, _gRa, _Alpha))
+                    _tcalcRS[xin] = h.spo.fsolve(EutFind.t_sle_rac_ideal, _tinRac[xin], args=(_xinRac[xin], _h0RS, _t0RS))
 
                 #print(_tcalcS)
 
@@ -529,9 +565,9 @@ class EutFind:
                 _tinitial = 393.35
 
                 _initial = [_tinitial]
-                _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123, [0.5, 1.0], _initial, method='RK45',
+                _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123456, [0.5, 1.0], _initial, method='RK45',
                                             args=(_Alpha, _gabS, _gbaS, _h0RS), t_eval=_xinRacS, dense_output=True)
-                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation1234, [0.5, 1.0], _initial, method='RK45',
+                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation12345, [0.5, 1.0], _initial, method='RK45',
                                             args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRacR, dense_output=True)
 
                 _tSLERSS = h.np.reshape(_tcalcRSS.y, 100)
