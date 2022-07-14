@@ -608,4 +608,4 @@ class EutFind:
 
                 return 0
 
-            return solve1()
+            return solve()
