@@ -136,12 +136,13 @@ class EutFind:
     def num_equation12345(_x, _t, _alpha, _gSR, _gRS, _h0):
 
         _T = _t[0]
+        x = 1 -_x
         # _func = (_T / _h0) * (_x / (1 - _x)) * (((_r * _T) / _x) + ((2 * h.np.exp(-_alpha * _gSR / _r * _T) * h.np.exp(
         #    -_alpha * _gSR / _r * _T) * _gSR * (h.np.exp(-_alpha * _gSR / _r * _T) * _x - h.np.exp(
         #    -_alpha * _gSR / _r * _T) + 1)) / ((h.np.exp(-_alpha * _gSR / _r * _T) - 1) * _x - h.np.exp(
         #    -_alpha * _gSR / _r * _T)) ** 3)((2 * _gRS * (_x + h.np.exp(-_alpha * _gRS / _r*_T) - 1)) / ((h.np.exp(-_alpha * _gRS / _r*_T) - 1) * _x + 1) ** 3))
 
-        _func1 = (_t / _h0) * ((_x / (1 - _x)) - 1) * (((_r * _t) / _x) - (2*_gRS*_x*h.np.exp(-_alpha*_gRS/(_r*_t)))/(h.np.exp(-_alpha*_gRS/(_r*_t))-_x+1)**2 - (2*_gSR*_x*h.np.exp(-_alpha*_gSR/(_r*_t)))/(_x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-_x))**2 - (2*(h.np.exp(_alpha*_gRS/(_r*_t))-1)*h.np.exp(_alpha*_gRS/(_r*_t))*_gRS*(1-_x**2))/(h.np.exp(_alpha*_gRS/(_r*_t))-_x+1)**3 - (2*(h.np.exp(-_alpha*_gSR/(_r*_t)))**2*_gSR*(1-_x**2)*(1-h.np.exp(-_alpha*_gSR/(_r*_t))))/(_x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-_x))**3)
+        _func1 = (_t / _h0) * ((x / (1 - x)) - 1) * (((_r * _t) / x) - (2*_gRS*x*h.np.exp(-_alpha*_gRS/(_r*_t)))/(h.np.exp(-_alpha*_gRS/(_r*_t))-x+1)**2 - (2*_gSR*x*h.np.exp(-_alpha*_gSR/(_r*_t)))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**2 - (2*(h.np.exp(_alpha*_gRS/(_r*_t))-1)*h.np.exp(_alpha*_gRS/(_r*_t))*_gRS*(1-x**2))/(h.np.exp(_alpha*_gRS/(_r*_t))-x+1)**3 - (2*(h.np.exp(-_alpha*_gSR/(_r*_t)))**2*_gSR*(1-x**2)*(1-h.np.exp(-_alpha*_gSR/(_r*_t))))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**3)
 
         return _func1
 
@@ -429,7 +430,7 @@ class EutFind:
                 print(x, y)
 
                 axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-NRTL')
-                axis[1].plot(_xinRac, _tSLERSR, '--b', label='Rac-Ma-NRTL')
+                axis[1].plot(_xinRac[0:60], _tSLERSR[0:60], '--b', label='Rac-Ma-NRTL')
                 axis[1].set_title("R-Rac-NRTL")
                 axis[1].set_ylabel('Temperatur / [K]')
                 axis[1].set_xlabel('x-R-Ma / [-]')
