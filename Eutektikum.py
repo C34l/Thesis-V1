@@ -133,17 +133,24 @@ class EutFind:
         return _func1
 
     @staticmethod
-    def num_equation12345(_x, _t, _alpha, _gSR, _gRS, _h0):
+    def num_equation_nrtl_R_Ma(_x, _t, _alpha, _gSR, _gRS, _h0):
 
         _T = _t[0]
-        x = 1 -_x
+
         # _func = (_T / _h0) * (_x / (1 - _x)) * (((_r * _T) / _x) + ((2 * h.np.exp(-_alpha * _gSR / _r * _T) * h.np.exp(
         #    -_alpha * _gSR / _r * _T) * _gSR * (h.np.exp(-_alpha * _gSR / _r * _T) * _x - h.np.exp(
         #    -_alpha * _gSR / _r * _T) + 1)) / ((h.np.exp(-_alpha * _gSR / _r * _T) - 1) * _x - h.np.exp(
         #    -_alpha * _gSR / _r * _T)) ** 3)((2 * _gRS * (_x + h.np.exp(-_alpha * _gRS / _r*_T) - 1)) / ((h.np.exp(-_alpha * _gRS / _r*_T) - 1) * _x + 1) ** 3))
+        v = _gRS
+        z = _gSR
+        tauu = v/(_r*_t)
+        tauw = z/(_r*_t)
+        u = h.np.exp(-_alpha*tauu)
+        w = h.np.exp(-_alpha*tauw)
 
-        _func1 = (_t / _h0) * ((x / (1 - x)) - 1) * (((_r * _t) / x) - (2*_gRS*x*h.np.exp(-_alpha*_gRS/(_r*_t)))/(h.np.exp(-_alpha*_gRS/(_r*_t))-x+1)**2 - (2*_gSR*x*h.np.exp(-_alpha*_gSR/(_r*_t)))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**2 - (2*(h.np.exp(_alpha*_gRS/(_r*_t))-1)*h.np.exp(_alpha*_gRS/(_r*_t))*_gRS*(1-x**2))/(h.np.exp(_alpha*_gRS/(_r*_t))-x+1)**3 - (2*(h.np.exp(-_alpha*_gSR/(_r*_t)))**2*_gSR*(1-x**2)*(1-h.np.exp(-_alpha*_gSR/(_r*_t))))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**3)
 
+        # _func1 = (_t / _h0) * ((1- _x) /_x)) - 1) * (((_r * _t) / x) - (2*_gRS*x*h.np.exp(-_alpha*_gRS/(_r*_t)))/(h.np.exp(-_alpha*_gRS/(_r*_t))-x+1)**2 - (2*_gSR*x*h.np.exp(-_alpha*_gSR/(_r*_t)))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**2 - (2*(h.np.exp(_alpha*_gRS/(_r*_t))-1)*h.np.exp(_alpha*_gRS/(_r*_t))*_gRS*(1-x**2))/(h.np.exp(_alpha*_gRS/(_r*_t))-x+1)**3 - (2*(h.np.exp(-_alpha*_gSR/(_r*_t)))**2*_gSR*(1-x**2)*(1-h.np.exp(-_alpha*_gSR/(_r*_t))))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**3)
+        _func1 = (_t /_h0) * (-1+((1-_x)/_x)) * (((_r * _t) / _x)-((2*w*z*(1-_x))/(w*_x-_x+1)**2) - (2*(w-1)*w*z*(1-_x)**2) / (w*_x-_x+1)**3-((2*(u**2)*v*(1-_x))/(_x+u*(1-_x))**2)-((2*(1-u)*(u**2)*v*(1-_x)**2)/(_x+u*(1-_x))**3))
         return _func1
 
     @staticmethod
@@ -397,7 +404,7 @@ class EutFind:
 
                 _initial = [_tinitial]
                 _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123456, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabS, _gbaS, _h0RS), t_eval=_xinRac, dense_output=True)
-                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation12345, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRac, dense_output=True)
+                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation_nrtl_R_Ma, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRac, dense_output=True)
 
                 #print(_tcalcRSS)
                 _tSLERSS = h.np.reshape(_tcalcRSS.y, 100)
@@ -568,7 +575,7 @@ class EutFind:
                 _initial = [_tinitial]
                 _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123456, [0.5, 1.0], _initial, method='RK45',
                                             args=(_Alpha, _gabS, _gbaS, _h0RS), t_eval=_xinRacS, dense_output=True)
-                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation12345, [0.5, 1.0], _initial, method='RK45',
+                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation_nrtl_R_Ma, [0.5, 1.0], _initial, method='RK45',
                                             args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRacR, dense_output=True)
 
                 _tSLERSS = h.np.reshape(_tcalcRSS.y, 100)
@@ -603,7 +610,7 @@ class EutFind:
             def solve():
                 # _ideal_sle()
                 #_nrtl_pure_comp_sle()
-                #_eut_test()
+                _eut_test()
                 _nrtl_nrtl()
 
                 return 0
