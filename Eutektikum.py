@@ -111,7 +111,7 @@ class EutFind:
     @staticmethod
     def porter_rechts(_t, x):
 
-        _func = (x/(1-x)+1)*_r*_t*(-2*(-30+(15000/_t))*(1-x)+(1/x))
+        _func = (x/(1-x)+1)*_r*_t*(-2*(-1+(1/_t))*(1-x)+(1/x))
 
         return _func
 
