@@ -48,6 +48,6 @@ import headers as h
 
 output = h.Eut.EutFind.pure_ma()
 
-h.rw.IO._write(output)
+#h.rw.IO._write(output)
 
 

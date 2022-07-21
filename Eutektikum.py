@@ -103,6 +103,41 @@ class EutFind:
         return _func
 
     @staticmethod
+    def porter_links(_t, x):
+        _func = (1 + ((1-x) / x)) * _r * _t*(2 * (-4 + (1000 / _t)) * x + (1 / (1 - x)))
+
+        return _func
+
+    @staticmethod
+    def porter_rechts(_t, x):
+
+        _func = (x/(1-x)+1)*_r*_t*(-2*(-30+(15000/_t))*(1-x)+(1/x))
+
+        return _func
+
+    @staticmethod
+    def calc_eut_porter_links(_p, _h0i, _t0i, _gi, _gj, _h0rac, _t0rac, _alpha):
+        _t, x = _p
+
+        _pure = EutFind.t_sle(_t, x, _h0i, _t0i, _gi, _alpha)
+        _rac = EutFind.porter_links(_t, x)
+
+        _func = [_pure, _rac]
+
+        return _func
+
+    @staticmethod
+    def calc_eut_porter_rechts(_p, _h0i, _t0i, _gi, _gj, _h0rac, _t0rac, _alpha):
+        _t, x = _p
+
+        _pure = EutFind.t_sle(_t, x, _h0i, _t0i, _gi, _alpha)
+        _rac = EutFind.porter_rechts(_t, x)
+
+        _func = [_pure, _rac]
+
+        return _func
+
+    @staticmethod
     def num_equation123(_x, _t, _alpha, _gSR, _gRS, _h0):
 
         _T = _t[0]
@@ -133,17 +168,24 @@ class EutFind:
         return _func1
 
     @staticmethod
-    def num_equation12345(_x, _t, _alpha, _gSR, _gRS, _h0):
+    def num_equation_nrtl_R_Ma(_x, _t, _alpha, _gSR, _gRS, _h0):
 
         _T = _t[0]
-        x = 1 -_x
+
         # _func = (_T / _h0) * (_x / (1 - _x)) * (((_r * _T) / _x) + ((2 * h.np.exp(-_alpha * _gSR / _r * _T) * h.np.exp(
         #    -_alpha * _gSR / _r * _T) * _gSR * (h.np.exp(-_alpha * _gSR / _r * _T) * _x - h.np.exp(
         #    -_alpha * _gSR / _r * _T) + 1)) / ((h.np.exp(-_alpha * _gSR / _r * _T) - 1) * _x - h.np.exp(
         #    -_alpha * _gSR / _r * _T)) ** 3)((2 * _gRS * (_x + h.np.exp(-_alpha * _gRS / _r*_T) - 1)) / ((h.np.exp(-_alpha * _gRS / _r*_T) - 1) * _x + 1) ** 3))
+        v = _gRS
+        z = _gSR
+        tauu = v/(_r*_t)
+        tauw = z/(_r*_t)
+        u = h.np.exp(-_alpha*tauu)
+        w = h.np.exp(-_alpha*tauw)
 
-        _func1 = (_t / _h0) * ((x / (1 - x)) - 1) * (((_r * _t) / x) - (2*_gRS*x*h.np.exp(-_alpha*_gRS/(_r*_t)))/(h.np.exp(-_alpha*_gRS/(_r*_t))-x+1)**2 - (2*_gSR*x*h.np.exp(-_alpha*_gSR/(_r*_t)))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**2 - (2*(h.np.exp(_alpha*_gRS/(_r*_t))-1)*h.np.exp(_alpha*_gRS/(_r*_t))*_gRS*(1-x**2))/(h.np.exp(_alpha*_gRS/(_r*_t))-x+1)**3 - (2*(h.np.exp(-_alpha*_gSR/(_r*_t)))**2*_gSR*(1-x**2)*(1-h.np.exp(-_alpha*_gSR/(_r*_t))))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**3)
 
+        # _func1 = (_t / _h0) * ((1- _x) /_x)) - 1) * (((_r * _t) / x) - (2*_gRS*x*h.np.exp(-_alpha*_gRS/(_r*_t)))/(h.np.exp(-_alpha*_gRS/(_r*_t))-x+1)**2 - (2*_gSR*x*h.np.exp(-_alpha*_gSR/(_r*_t)))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**2 - (2*(h.np.exp(_alpha*_gRS/(_r*_t))-1)*h.np.exp(_alpha*_gRS/(_r*_t))*_gRS*(1-x**2))/(h.np.exp(_alpha*_gRS/(_r*_t))-x+1)**3 - (2*(h.np.exp(-_alpha*_gSR/(_r*_t)))**2*_gSR*(1-x**2)*(1-h.np.exp(-_alpha*_gSR/(_r*_t))))/(x+h.np.exp(-_alpha*_gSR/(_r*_t))*(1-x))**3)
+        _func1 = (_t /_h0) * (-1+((1-_x)/_x)) * (((_r * _t) / _x)-((2*w*z*(1-_x))/(w*_x-_x+1)**2) - (2*(w-1)*w*z*(1-_x)**2) / (w*_x-_x+1)**3-((2*(u**2)*v*(1-_x))/(_x+u*(1-_x))**2)-((2*(1-u)*(u**2)*v*(1-_x)**2)/(_x+u*(1-_x))**3))
         return _func1
 
     @staticmethod
@@ -363,6 +405,86 @@ class EutFind:
 
                 return 0
 
+            def _nrtl_pure_comp_porter():
+                _xin = h.np.zeros(100)
+                _xinRac = h.np.zeros(100)
+                _xinRac[0] = 0.0
+                _tin = h.np.zeros(100)
+                _tin[0] = 273.15
+
+                _tcalcS = h.np.zeros(100)
+                _tcalcRSS = h.np.zeros(100)
+                _tcalcRSR = h.np.zeros(100)
+                _tcalcR = h.np.zeros(100)
+
+
+                # loading up values
+                for x in range(len(_xin)):
+                    _xin[x] = _xin[x - 1] + 0.01
+                    _xinRac[x] = _xinRac[0]+.01*x
+
+                for x in range(len(_tin)):
+                    _tin[x] = _tin[0] + (2.0 * x)
+
+                # loading up calc points
+                for x in range(len(_xin)):
+                    _tcalcS[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _Alpha))
+                    _tcalcRSS[x] = h.spo.fsolve(EutFind.porter_links, _tin[x], args=(_xinRac[x],))
+                    _tcalcRSR[x] = h.spo.fsolve(EutFind.porter_rechts, _tin[x], args=(_xinRac[x],))
+                    _tcalcR[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
+
+                # plotting
+                figure, axis = plt.subplots(2, constrained_layout=True)
+
+
+                axis[0].plot(_xin, _tcalcS, '-g', label='S-Ma-NRTL')
+                axis[0].plot(_xinRac, _tcalcRSS, '--g', label='Rac-Ma-Porter')
+                axis[0].set_title("S-Rac-NRTL")
+                axis[0].set_ylabel('Temperatur / [K]')
+                axis[0].set_xlabel('x-S-Ma / [-]')
+                axis[0].legend()
+
+                line_1 = LineString(h.np.column_stack((_xin, _tcalcS)))
+                line_2 = LineString(h.np.column_stack((_xinRac, _tcalcRSS)))
+                intersection = line_1.intersection(line_2)
+
+                #axis[0].plot(*intersection.xy, 'ro')
+                #x, y = intersection.xy
+                #xout0 = x[0]
+                #xoutstr0 = "{:10.4f}".format(xout0)
+                #yout0 = y[0]
+                #youtstr0 = "{:10.4f}".format(yout0)
+                #stringout0 = str(f"SP({xoutstr0}"f"\\{youtstr0})")
+                #axis[0].text(x[0], y[0], 'SP')
+                #axis[0].text(x[0], 300, stringout0)
+                #print(x, y)
+
+                axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-NRTL')
+                axis[1].plot(_xinRac, _tcalcRSR, '--b', label='Rac-Ma-Porter')
+                axis[1].set_title("R-Rac-NRTL")
+                axis[1].set_ylabel('Temperatur / [K]')
+                axis[1].set_xlabel('x-R-Ma / [-]')
+                axis[1].legend()
+
+                line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
+                line_4 = LineString(h.np.column_stack((_xinRac, _tcalcRSR)))
+                intersection = line_3.intersection(line_4)
+
+                #axis[1].plot(*intersection.xy, 'ro')
+                #x2, y2 = intersection.xy
+                #xout1 = x2[0]
+                #xoutstr1 = "{:10.4f}".format(xout1)
+                #yout1 = y2[0]
+                #youtstr1 = "{:10.4f}".format(yout1)
+                #stringout1 = str(f"SP({xoutstr1}"f"\\{youtstr1})")
+                #axis[1].text(x2[0], y2[0], 'SP')
+                #axis[1].text(x2[0], 300, stringout1)
+                #print(x2, y2)
+
+                plt.show()
+
+                return 0
+
             def _nrtl_nrtl():
                 _xin = h.np.zeros(100)
                 _xin[0] = 0
@@ -397,7 +519,7 @@ class EutFind:
 
                 _initial = [_tinitial]
                 _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123456, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabS, _gbaS, _h0RS), t_eval=_xinRac, dense_output=True)
-                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation12345, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRac, dense_output=True)
+                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation_nrtl_R_Ma, [0.5, 1.0], _initial, method='RK45', args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRac, dense_output=True)
 
                 #print(_tcalcRSS)
                 _tSLERSS = h.np.reshape(_tcalcRSS.y, 100)
@@ -516,6 +638,11 @@ class EutFind:
                 j = h.spo.root(EutFind.calc_eut_nrtl2, _guesses, args=(_h0R, _t0R, _gRa, _gSa, _h0RS, _t0RS, _Alpha))
                 print(i.x, 'S-Ma_NRTL, Rac-Ma_Prigogine-NRTL, delta_h-Neumann')
                 print(j.x, 'R-Ma_NRTL, Rac-Ma_Prigogine-NRTL, delta_h-Neumann')
+
+                k = h.spo.root(EutFind.calc_eut_porter_links, _guesses, args=(_h0S, _t0S, _gSa, _gRa, _h0RS, _t0RS, _Alpha))
+                l = h.spo.root(EutFind.calc_eut_porter_rechts, _guesses, args=(_h0R, _t0R, _gRa, _gSa, _h0RS, _t0RS, _Alpha))
+                print(k.x, 'S-Ma_NRTL, Rac-Ma_Porter-NRTL, delta_h-Neumann')
+                print(l.x, 'R-Ma_NRTL, Rac-Ma_Porter-NRTL, delta_h-Neumann')
                 return 0
 
             def _print():
@@ -560,7 +687,7 @@ class EutFind:
                     _xinRacS[x] = _xinRacS[0] + .00275 * x
 
                 for x in range(len(_xinRacR)):
-                    _xinRacR[x] = _xinRacR[0] + .002 * x
+                    _xinRacR[x] = _xinRacR[0] + .0025 * x
 
 
                 _tinitial = 393.35
@@ -568,7 +695,7 @@ class EutFind:
                 _initial = [_tinitial]
                 _tcalcRSS = h.spi.solve_ivp(h.Eut.EutFind.num_equation123456, [0.5, 1.0], _initial, method='RK45',
                                             args=(_Alpha, _gabS, _gbaS, _h0RS), t_eval=_xinRacS, dense_output=True)
-                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation12345, [0.5, 1.0], _initial, method='RK45',
+                _tcalcRSR = h.spi.solve_ivp(h.Eut.EutFind.num_equation_nrtl_R_Ma, [0.5, 1.0], _initial, method='RK45',
                                             args=(_Alpha, _gabR, _gbaR, _h0RS), t_eval=_xinRacR, dense_output=True)
 
                 _tSLERSS = h.np.reshape(_tcalcRSS.y, 100)
@@ -603,8 +730,9 @@ class EutFind:
             def solve():
                 # _ideal_sle()
                 #_nrtl_pure_comp_sle()
-                #_eut_test()
-                _nrtl_nrtl()
+                _nrtl_pure_comp_porter()
+                _eut_test()
+                #_nrtl_nrtl()
 
                 return 0
 
