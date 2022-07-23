@@ -125,10 +125,10 @@ class EutFind:
 
     @staticmethod
     def porter_bilanz_eigen(_t, x):
-        a1a = -5.597
-        a2a = 1952.672
-        a1b = -32.196
-        a2b = 12794.746
+        a1a = -10.597
+        a2a = 3000.672
+        a1b = -10.196
+        a2b = 30000.746
 
         _func = (1/x)-2*((a2a/_t)+a1a)*(1-x)-(1/(1-x))+2*((a2b/_t)/+a1b)*x-0
 
@@ -573,15 +573,15 @@ class EutFind:
                 figure, axis = plt.subplots(2, constrained_layout=True)
 
 
-                axis[0].plot(1-_xin, _tcalcS, '-g', label='S-Ma-NRTL')
-                axis[0].plot(_xinRac, _tcalcRSS, '--g', label='Rac-Ma-Porter_eigen')
+                axis[0].plot(_xin, _tcalcS, '-g', label='S-Ma-NRTL')
+                axis[0].plot(1-_xinRac, _tcalcRSS, '--g', label='Rac-Ma-Porter_eigen')
                 axis[0].set_title("S-Rac-Porter_eigen")
                 axis[0].set_ylabel('Temperatur / [K]')
-                axis[0].set_xlabel('x-R-Ma / [-]')
+                axis[0].set_xlabel('x-S-Ma / [-]')
                 axis[0].legend()
 
-                line_1 = LineString(h.np.column_stack((1-_xin, _tcalcS)))
-                line_2 = LineString(h.np.column_stack((_xinRac, _tcalcRSS)))
+                line_1 = LineString(h.np.column_stack((_xin, _tcalcS)))
+                line_2 = LineString(h.np.column_stack((1-_xinRac, _tcalcRSS)))
                 intersection = line_1.intersection(line_2)
 
                 axis[0].plot(*intersection.xy, 'ro')
@@ -595,15 +595,15 @@ class EutFind:
                 axis[0].text(x[0], 300, stringout0)
                 print(x, y)
 
-                axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-NRTL')
-                axis[1].plot(1-_xinRac, _tcalcRSR, '--b', label='Rac-Ma-Porter_eigen')
+                axis[1].plot(1-_xin, _tcalcR, '-b', label='R-Ma-NRTL')
+                axis[1].plot(_xinRac, _tcalcRSR, '--b', label='Rac-Ma-Porter_eigen')
                 axis[1].set_title("R-Rac-Porter_eigen")
                 axis[1].set_ylabel('Temperatur / [K]')
-                axis[1].set_xlabel('x-R-Ma / [-]')
+                axis[1].set_xlabel('x-S-Ma / [-]')
                 axis[1].legend()
 
-                line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
-                line_4 = LineString(h.np.column_stack((1-_xinRac, _tcalcRSR)))
+                line_3 = LineString(h.np.column_stack((1-_xin, _tcalcR)))
+                line_4 = LineString(h.np.column_stack((_xinRac, _tcalcRSR)))
                 intersection = line_3.intersection(line_4)
 
                 axis[1].plot(*intersection.xy, 'ro')
