@@ -104,14 +104,66 @@ class EutFind:
 
     @staticmethod
     def porter_links(_t, x):
-        _func = (1 + ((1-x) / x)) * _r * _t*(2 * (-4 + (1000 / _t)) * x + (1 / (1 - x)))
+        _func = (1 + ((1-x) / x)) * _r * _t*(2 * (-5.597 + (1952.672 / _t)) * x + (1 / (1 - x)))
+
+        return _func
+
+    @staticmethod
+    def porter_links_eigen_GD(_t, x):
+        a1a = -5.597
+        a2a = 1952.672
+        _func = (-(x/(1-x))+1) * _r * _t * ((1/x)-2*((a2a/_t)+a1a)*(1-x))
 
         return _func
 
     @staticmethod
     def porter_rechts(_t, x):
 
-        _func = (x/(1-x)+1)*_r*_t*(-2*(-50+(10000/_t))*(1-x)+(1/x))
+        _func = (x/(1-x)+1)*_r*_t*(-2*(-32.196+(12794.746/_t))*(1-x)+(1/x))
+
+        return _func
+
+    @staticmethod
+    def porter_bilanz_eigen(_t, x):
+        a1a = -5.597
+        a2a = 1952.672
+        a1b = -32.196
+        a2b = 12794.746
+
+        _func = (1/x)-2*((a2a/_t)+a1a)*(1-x)-(1/(1-x))+2*((a2b/_t)/+a1b)*x-0
+
+        return _func
+
+    @staticmethod
+    def calc_eut_porter_links_eigen(_p, _h0i, _t0i, _gi, _gj, _h0rac, _t0rac, _alpha):
+        _t, x = _p
+        _x = 1-x
+        _pure = EutFind.t_sle(_t, _x, _h0i, _t0i, _gi, _alpha)
+        _rac = EutFind.porter_bilanz_eigen(_t, x)
+
+        _func = [_pure, _rac]
+
+        return _func
+
+    @staticmethod
+    def calc_eut_porter_rechts_eigen(_p, _h0i, _t0i, _gi, _gj, _h0rac, _t0rac, _alpha):
+        _t, x = _p
+        _x = 1 - x
+        _pure = EutFind.t_sle(_t, x, _h0i, _t0i, _gi, _alpha)
+        _rac = EutFind.porter_bilanz_eigen(_t, _x)
+
+        _func = [_pure, _rac]
+
+        return _func
+
+    @staticmethod
+    def calc_eut_porter_links_eigenGD(_p, _h0i, _t0i, _gi, _gj, _h0rac, _t0rac, _alpha):
+        _t, x = _p
+        _x = 1 - x
+        _pure = EutFind.t_sle(_t, x, _h0i, _t0i, _gi, _alpha)
+        _rac = EutFind.porter_links_eigen_GD(_t, _x)
+
+        _func = [_pure, _rac]
 
         return _func
 
@@ -407,8 +459,11 @@ class EutFind:
 
             def _nrtl_pure_comp_porter():
                 _xin = h.np.zeros(100)
-                _xinRac = h.np.zeros(100)
-                _xinRac[0] = 0.0
+                _xinRacS = h.np.zeros(100)
+                _xinRacR = h.np.zeros(100)
+                _xinRacS[0] = 0.5
+                _xinRacR[0] = 0.3
+
                 _tin = h.np.zeros(100)
                 _tin[0] = 273.15
 
@@ -421,7 +476,8 @@ class EutFind:
                 # loading up values
                 for x in range(len(_xin)):
                     _xin[x] = _xin[x - 1] + 0.01
-                    _xinRac[x] = _xinRac[0]+.01*x
+                    _xinRacS[x] = _xinRacS[0]+.001*x
+                    _xinRacR[x] = _xinRacR[0] + .0065 * x
 
                 for x in range(len(_tin)):
                     _tin[x] = _tin[0] + (2.0 * x)
@@ -429,23 +485,23 @@ class EutFind:
                 # loading up calc points
                 for x in range(len(_xin)):
                     _tcalcS[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _Alpha))
-                    _tcalcRSS[x] = h.spo.fsolve(EutFind.porter_links, _tin[x], args=(_xinRac[x],))
-                    _tcalcRSR[x] = h.spo.fsolve(EutFind.porter_rechts, _tin[x], args=(_xinRac[x],))
+                    _tcalcRSS[x] = h.spo.fsolve(EutFind.porter_links, _tin[x], args=(_xinRacS[x],))
+                    _tcalcRSR[x] = h.spo.fsolve(EutFind.porter_rechts, _tin[x], args=(_xinRacR[x],))
                     _tcalcR[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
 
                 # plotting
                 figure, axis = plt.subplots(2, constrained_layout=True)
 
 
-                axis[0].plot(_xin, _tcalcS, '-g', label='S-Ma-NRTL')
-                axis[0].plot(_xinRac, _tcalcRSS, '--g', label='Rac-Ma-Porter')
+                axis[0].plot(1-_xin, _tcalcS, '-g', label='S-Ma-NRTL')
+                axis[0].plot(_xinRacS, _tcalcRSS, '--g', label='Rac-Ma-Porter')
                 axis[0].set_title("S-Rac-NRTL")
                 axis[0].set_ylabel('Temperatur / [K]')
-                axis[0].set_xlabel('x-S-Ma / [-]')
+                axis[0].set_xlabel('x-R-Ma / [-]')
                 axis[0].legend()
 
                 line_1 = LineString(h.np.column_stack((_xin, _tcalcS)))
-                line_2 = LineString(h.np.column_stack((_xinRac, _tcalcRSS)))
+                line_2 = LineString(h.np.column_stack((_xinRacS, _tcalcRSS)))
                 intersection = line_1.intersection(line_2)
 
                 #axis[0].plot(*intersection.xy, 'ro')
@@ -460,14 +516,14 @@ class EutFind:
                 #print(x, y)
 
                 axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-NRTL')
-                axis[1].plot(_xinRac, _tcalcRSR, '--b', label='Rac-Ma-Porter')
+                axis[1].plot(1-_xinRacR, _tcalcRSR, '--b', label='Rac-Ma-Porter')
                 axis[1].set_title("R-Rac-NRTL")
                 axis[1].set_ylabel('Temperatur / [K]')
                 axis[1].set_xlabel('x-R-Ma / [-]')
                 axis[1].legend()
 
                 line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
-                line_4 = LineString(h.np.column_stack((_xinRac, _tcalcRSR)))
+                line_4 = LineString(h.np.column_stack((_xinRacR, _tcalcRSR)))
                 intersection = line_3.intersection(line_4)
 
                 #axis[1].plot(*intersection.xy, 'ro')
@@ -480,6 +536,86 @@ class EutFind:
                 #axis[1].text(x2[0], y2[0], 'SP')
                 #axis[1].text(x2[0], 300, stringout1)
                 #print(x2, y2)
+
+                plt.show()
+
+                return 0
+
+            def _nrtl_pure_comp_porter_eigen():
+                _xin = h.np.zeros(100)
+                _xinRac = h.np.zeros(100)
+                _xinRac[0] = 0.3
+                _tin = h.np.zeros(100)
+                _tin[0] = 273.15
+
+                _tcalcS = h.np.zeros(100)
+                _tcalcRSS = h.np.zeros(100)
+                _tcalcRSR = h.np.zeros(100)
+                _tcalcR = h.np.zeros(100)
+
+
+                # loading up values
+                for x in range(len(_xin)):
+                    _xin[x] = _xin[x - 1] + 0.01
+                    _xinRac[x] = _xinRac[0]+.002*x
+
+                for x in range(len(_tin)):
+                    _tin[x] = _tin[0] + (2.0 * x)
+
+                # loading up calc points
+                for x in range(len(_xin)):
+                    _tcalcS[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _Alpha))
+                    _tcalcRSS[x] = h.spo.fsolve(EutFind.porter_bilanz_eigen, _tin[x], args=(_xinRac[x],))
+                    _tcalcRSR[x] = h.spo.fsolve(EutFind.porter_bilanz_eigen, _tin[x], args=(_xinRac[x],))
+                    _tcalcR[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
+
+                # plotting
+                figure, axis = plt.subplots(2, constrained_layout=True)
+
+
+                axis[0].plot(1-_xin, _tcalcS, '-g', label='S-Ma-NRTL')
+                axis[0].plot(_xinRac, _tcalcRSS, '--g', label='Rac-Ma-Porter_eigen')
+                axis[0].set_title("S-Rac-Porter_eigen")
+                axis[0].set_ylabel('Temperatur / [K]')
+                axis[0].set_xlabel('x-R-Ma / [-]')
+                axis[0].legend()
+
+                line_1 = LineString(h.np.column_stack((1-_xin, _tcalcS)))
+                line_2 = LineString(h.np.column_stack((_xinRac, _tcalcRSS)))
+                intersection = line_1.intersection(line_2)
+
+                axis[0].plot(*intersection.xy, 'ro')
+                x, y = intersection.xy
+                xout0 = x[0]
+                xoutstr0 = "{:10.4f}".format(xout0)
+                yout0 = y[0]
+                youtstr0 = "{:10.4f}".format(yout0)
+                stringout0 = str(f"SP({xoutstr0}"f"\\{youtstr0})")
+                axis[0].text(x[0], y[0], 'SP')
+                axis[0].text(x[0], 300, stringout0)
+                print(x, y)
+
+                axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-NRTL')
+                axis[1].plot(1-_xinRac, _tcalcRSR, '--b', label='Rac-Ma-Porter_eigen')
+                axis[1].set_title("R-Rac-Porter_eigen")
+                axis[1].set_ylabel('Temperatur / [K]')
+                axis[1].set_xlabel('x-R-Ma / [-]')
+                axis[1].legend()
+
+                line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
+                line_4 = LineString(h.np.column_stack((1-_xinRac, _tcalcRSR)))
+                intersection = line_3.intersection(line_4)
+
+                axis[1].plot(*intersection.xy, 'ro')
+                x2, y2 = intersection.xy
+                xout1 = x2[0]
+                xoutstr1 = "{:10.4f}".format(xout1)
+                yout1 = y2[0]
+                youtstr1 = "{:10.4f}".format(yout1)
+                stringout1 = str(f"SP({xoutstr1}"f"\\{youtstr1})")
+                axis[1].text(x2[0], y2[0], 'SP')
+                axis[1].text(x2[0], 350, stringout1)
+                print(x2, y2)
 
                 plt.show()
 
@@ -643,6 +779,12 @@ class EutFind:
                 l = h.spo.root(EutFind.calc_eut_porter_rechts, _guesses, args=(_h0R, _t0R, _gRa, _gSa, _h0RS, _t0RS, _Alpha))
                 print(k.x, 'S-Ma_NRTL, Rac-Ma_Porter-NRTL, delta_h-Neumann')
                 print(l.x, 'R-Ma_NRTL, Rac-Ma_Porter-NRTL, delta_h-Neumann')
+
+                m = h.spo.root(EutFind.calc_eut_porter_links_eigen, _guesses, args=(_h0S, _t0S, _gSa, _gRa, _h0RS, _t0RS, _Alpha))
+                n = h.spo.root(EutFind.calc_eut_porter_rechts_eigen, _guesses, args=(_h0R, _t0R, _gRa, _gSa, _h0RS, _t0RS, _Alpha))
+                print(m.x, 'S-Ma_NRTL, Rac-Ma_Porter_eigen-NRTL, delta_h-Neumann')
+                print(n.x, 'R-Ma_NRTL, Rac-Ma_Porter_eigen-NRTL, delta_h-Neumann')
+
                 return 0
 
             def _print():
@@ -730,9 +872,10 @@ class EutFind:
             def solve():
                 # _ideal_sle()
                 #_nrtl_pure_comp_sle()
-                _nrtl_pure_comp_porter()
-                _eut_test()
+                #_nrtl_pure_comp_porter()
+                _nrtl_pure_comp_porter_eigen()
                 #_nrtl_nrtl()
+                _eut_test()
 
                 return 0
 
