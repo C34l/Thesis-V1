@@ -674,15 +674,15 @@ class EutFind:
                 figure, axis = plt.subplots(3, constrained_layout=True)
 
 
-                axis[0].plot(_xin, _tcalcS, '-g', label='S-Ma-NRTL')
-                axis[0].plot(_xinRac[0:60], _tSLERSS[0:60], '--g', label='Rac-Ma-NRTL')
+                axis[0].plot(1-_xin, _tcalcS, '-g', label='S-Ma-NRTL')
+                axis[0].plot(1-_xinRac[0:60], _tSLERSS[0:60], '--g', label='Rac-Ma-NRTL')
                 axis[0].set_title("S-Rac-NRTL")
                 axis[0].set_ylabel('Temperatur / [K]')
-                axis[0].set_xlabel('x-S-Ma / [-]')
+                axis[0].set_xlabel('x-R-Ma / [-]')
                 axis[0].legend()
 
-                line_1 = LineString(h.np.column_stack((_xin, _tcalcS)))
-                line_2 = LineString(h.np.column_stack((_xinRac[0:60], _tSLERSS[0:60])))
+                line_1 = LineString(h.np.column_stack((1-_xin, _tcalcS)))
+                line_2 = LineString(h.np.column_stack((1-_xinRac[0:60], _tSLERSS[0:60])))
                 intersection = line_1.intersection(line_2)
 
                 axis[0].plot(*intersection.xy, 'ro')
@@ -715,16 +715,16 @@ class EutFind:
                 youtstr1 = "{:10.4f}".format(yout1)
                 stringout1 = str(f"SP({xoutstr1}"f"\\{youtstr1})")
                 axis[1].text(x2[0], y2[0], 'SP')
-                axis[1].text(x2[0], 300, stringout1)
+                axis[1].text(x2[0], 350, stringout1)
                 print(x2, y2)
 
-                axis[2].plot(_xin[60:100], _tcalcS[60:100], '-g', label='S-Ma-NRTL')
-                axis[2].plot(1 - _xin[60:100], _tcalcR[60:100], '-b', label='S-Ma-NRTL')
-                axis[2].plot(_xinRac[0:50], _tSLERSS[0:50], '--g', label='Rac-Ma-Porter_eigen')
-                axis[2].plot(1-_xinRac[0:50], _tSLERSR[0:50], '--b', label='Rac-Ma-Porter_eigen')
+                axis[2].plot(1-_xin[69:100], _tcalcS[69:100], '-g', label='S-Ma-NRTL')
+                axis[2].plot(_xin[69:100], _tcalcR[69:100], '-b', label='S-Ma-NRTL')
+                axis[2].plot(1-_xinRac[0:50], _tSLERSS[0:50], '--g', label='Rac-Ma-Porter_eigen')
+                axis[2].plot(_xinRac[0:50], _tSLERSR[0:50], '--b', label='Rac-Ma-Porter_eigen')
                 axis[2].set_title("Konstruktion_Phasendiagramm_NRTL-NRTL")
                 axis[2].set_ylabel('Temperatur / [K]')
-                axis[2].set_xlabel('x-S-Ma / [-]')
+                axis[2].set_xlabel('x-R-Ma / [-]')
                 # axis[2].legend(loc='upper center')
 
                 plt.show()
@@ -892,7 +892,7 @@ class EutFind:
                 #_nrtl_pure_comp_sle()
                 #_nrtl_pure_comp_porter()
                 _nrtl_pure_comp_porter_eigen()
-                #_nrtl_nrtl()
+                _nrtl_nrtl()
                 _eut_test()
 
                 return 0
