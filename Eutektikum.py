@@ -125,10 +125,14 @@ class EutFind:
 
     @staticmethod
     def porter_bilanz_eigen(_t, x):
-        a1a = -10.597
-        a2a = 3000.672
-        a1b = -10.196
-        a2b = 30000.746
+        #a1a = -10.597
+        #a2a = 3000.672
+        #a1b = -10.196
+        #a2b = 30000.746
+        a1a = -5.597
+        a2a = 1952.672
+        a1b = -32.196
+        a2b = 12794.746
 
         _func = (1/x)-2*((a2a/_t)+a1a)*(1-x)-(1/(1-x))+2*((a2b/_t)/+a1b)*x-0
 
@@ -617,10 +621,10 @@ class EutFind:
                 axis[1].text(x2[0], 350, stringout1)
                 print(x2, y2)
 
-                axis[2].plot(_xin[60:100], _tcalcS[60:100], '-g', label='S-Ma-NRTL')
-                axis[2].plot(1-_xin[60:100], _tcalcR[60:100], '-b', label='S-Ma-NRTL')
-                axis[2].plot(1 - _xinRac[25:85], _tcalcRSS[25:85], '--g', label='Rac-Ma-Porter_eigen')
-                axis[2].plot(_xinRac[25:85], _tcalcRSR[25:85], '--b', label='Rac-Ma-Porter_eigen')
+                axis[2].plot(_xin[54:100], _tcalcS[54:100], '-g', label='S-Ma-NRTL')
+                axis[2].plot(1-_xin[53:100], _tcalcR[53:100], '-b', label='S-Ma-NRTL')
+                axis[2].plot(1 - _xinRac[63:85], _tcalcRSS[63:85], '--g', label='Rac-Ma-Porter_eigen')
+                axis[2].plot(_xinRac[63:85], _tcalcRSR[63:85], '--b', label='Rac-Ma-Porter_eigen')
                 axis[2].set_title("Konstruktion_Phasendiagramm")
                 axis[2].set_ylabel('Temperatur / [K]')
                 axis[2].set_xlabel('x-R-Ma / [-]')
@@ -892,7 +896,7 @@ class EutFind:
                 #_nrtl_pure_comp_sle()
                 #_nrtl_pure_comp_porter()
                 _nrtl_pure_comp_porter_eigen()
-                _nrtl_nrtl()
+                #_nrtl_nrtl()
                 _eut_test()
 
                 return 0
