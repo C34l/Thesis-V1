@@ -671,7 +671,7 @@ class EutFind:
                 _tSLERSR = h.np.reshape(_tcalcRSR.y, 100)
 
                 # plotting
-                figure, axis = plt.subplots(3, constrained_layout=True)
+                figure, axis = plt.subplots(3, constrained_layout=True, figsize=(8, 8))
 
 
                 axis[0].plot(1-_xin, _tcalcS, '-g', label='S-Ma-NRTL')
@@ -679,7 +679,7 @@ class EutFind:
                 axis[0].set_title("S-Rac-NRTL")
                 axis[0].set_ylabel('Temperatur / [K]')
                 axis[0].set_xlabel('x-R-Ma / [-]')
-                axis[0].legend()
+                axis[0].legend(loc='center right', bbox_to_anchor=(1.0, 0.5))
 
                 line_1 = LineString(h.np.column_stack((1-_xin, _tcalcS)))
                 line_2 = LineString(h.np.column_stack((1-_xinRac[0:60], _tSLERSS[0:60])))
@@ -701,7 +701,7 @@ class EutFind:
                 axis[1].set_title("R-Rac-NRTL")
                 axis[1].set_ylabel('Temperatur / [K]')
                 axis[1].set_xlabel('x-R-Ma / [-]')
-                axis[1].legend()
+                axis[1].legend(loc='center left', bbox_to_anchor=(0.0, 0.5))
 
                 line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
                 line_4 = LineString(h.np.column_stack((_xinRac, _tSLERSR)))
