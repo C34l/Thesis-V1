@@ -114,7 +114,7 @@ class EutFind:
         #a1a = -5.597
         #a2a = 1952.672
         a1a = -10
-        a2a = 4700
+        a2a = 4738
         x = 1 - _x
         _func = (-(x/(1-x))+1) * _r * _t * ((1/x)-2*((a2a/_t)+a1a)*(1-x))
 
@@ -131,8 +131,8 @@ class EutFind:
     def porter_rechts_eigen_GD(_t, x):
         #a1b = -32.196
         #a2b = 12794.746
-        a1b = -10
-        a2b = 4700
+        a1b = -10.01
+        a2b = 4738
 
         _func = (-(x / (1 - x)) + 1) * _r * _t * ((1 / x) - 2 * ((a2b / _t) + a1b) * (1 - x))
 
@@ -709,7 +709,7 @@ class EutFind:
                 axis[1].set_title("R-Rac-Porter_GD")
                 axis[1].set_ylabel('Temperatur [K]')
                 axis[1].set_xlabel('x-R-Ma [-]')
-                axis[1].legend()
+                axis[1].legend(loc='center left')
 
                 line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
                 line_4 = LineString(h.np.column_stack((1-_xinRac, _tcalcRSR)))
