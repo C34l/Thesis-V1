@@ -113,8 +113,8 @@ class EutFind:
     def porter_links_eigen_GD(_t, _x):
         #a1a = -5.597
         #a2a = 1952.672
-        a1a = -10
-        a2a = 4738
+        a1a = -10.07
+        a2a = 4760
         x = 1 - _x
         _func = (-(x/(1-x))+1) * _r * _t * ((1/x)-2*((a2a/_t)+a1a)*(1-x))
 
@@ -131,8 +131,8 @@ class EutFind:
     def porter_rechts_eigen_GD(_t, x):
         #a1b = -32.196
         #a2b = 12794.746
-        a1b = -10.01
-        a2b = 4738
+        a1b = -10.12
+        a2b = 4780
 
         _func = (-(x / (1 - x)) + 1) * _r * _t * ((1 / x) - 2 * ((a2b / _t) + a1b) * (1 - x))
 
@@ -726,11 +726,11 @@ class EutFind:
                 axis[1].text(x2[0], 350, stringout1)
                 print(x2, y2)
 
-                axis[2].plot(1-_xin[54:100], _tcalcS[54:100], '-g', label='S-Ma-NRTL')
-                axis[2].plot(_xin[53:100], _tcalcR[53:100], '-b', label='S-Ma-NRTL')
-                axis[2].plot(_xinRac[20:85], _tcalcRSS[20:85], '--g', label='Rac-Ma-Porter_GD')
-                axis[2].plot(1-_xinRac[20:85], _tcalcRSR[20:85], '--b', label='Rac-Ma-Porter_GD')
-                axis[2].plot(XEXP, TEXP, 'ro', label='Experimentaldaten')
+                axis[2].plot(1-_xin[67:100], _tcalcS[67:100], '-g', label='S-Ma-NRTL')
+                axis[2].plot(_xin[65:100], _tcalcR[65:100], '-b', label='S-Ma-NRTL')
+                axis[2].plot(_xinRac[22:85], _tcalcRSS[22:85], '--g', label='Rac-Ma-Porter_GD')
+                axis[2].plot(1-_xinRac[28:85], _tcalcRSR[28:85], '--b', label='Rac-Ma-Porter_GD')
+                axis[2].plot(XEXP, TEXP, 'rx', label='Experimentaldaten')
                 axis[2].set_title("Konstruktion_Phasendiagramm")
                 axis[2].set_ylabel('Temperatur [K]')
                 axis[2].set_xlabel('x-R-Ma [-]')
