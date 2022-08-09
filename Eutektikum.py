@@ -32,6 +32,11 @@ class EutFind:
         return _func
 
     @staticmethod
+    def y_porter(_x, _t, _a1, _a2):
+        _func = h.np.exp((1-_x)**2*(_a1+(_a2/_t)))
+        return _func
+
+    @staticmethod
     def t_sle(_texp, _xi, _h0, _t0, _g,  _alpha):
 
         _yi = EutFind.y_nrtl(_g, _xi, _texp, _alpha)
@@ -44,7 +49,15 @@ class EutFind:
 
         _yi = EutFind.y_nrtl(_g, _xi, _texp, _alpha)
         _gx = h.np.exp(_yi) * _xi
-        _func = (h.np.exp((-_h0 / (_r * _texp)) * (1 - (_texp / _t0))) / 2*_gx) - 1
+        _func = (h.np.exp((_h0 / (_r * _texp)) * (1 - (_texp / _t0))) / 2*_gx) - 1
+        return _func
+
+    @staticmethod
+    def t_sle_modifiziert_porter(_texp, _xi, _h0, _t0, _a1, _a2):
+
+        _yi = EutFind.y_porter(_xi, _texp, _a1, _a2)
+        _gx = _yi * _xi
+        _func = (h.np.exp((_h0 / (_r * _texp)) * (1 - (_texp / _t0))) / 2 * _gx) - 1
         return _func
 
 
@@ -748,6 +761,104 @@ class EutFind:
 
                 return 0
 
+            def _nrtl_pure_comp_SLE_eigen():
+                _xin = h.np.zeros(100)
+                _xinRac = h.np.zeros(100)
+                _xinRac[0] = 0.25
+                _tin = h.np.zeros(100)
+                _tin[0] = 273.15
+
+                _tcalcS = h.np.zeros(100)
+                _tcalcRSS = h.np.zeros(100)
+                _tcalcRSR = h.np.zeros(100)
+                _tcalcR = h.np.zeros(100)
+
+
+                # loading up values
+                for x in range(len(_xin)):
+                    _xin[x] = _xin[x - 1] + 0.01
+                    _xinRac[x] = _xinRac[0]+.003*x
+
+                for x in range(len(_tin)):
+                    _tin[x] = _tin[0] + (2.0 * x)
+
+                # loading up calc points
+                for x in range(len(_xin)):
+                    _tcalcS[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _Alpha))
+                    _tcalcRSS[x] = h.spo.fsolve(EutFind.t_sle_modifiziert_nrtl, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _Alpha))
+                    _tcalcRSR[x] = h.spo.fsolve(EutFind.t_sle_modifiziert_nrtl, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
+                    _tcalcR[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
+
+                # plotting
+                figure, axis = plt.subplots(3, constrained_layout=True)
+
+
+                axis[0].plot(1-_xin, _tcalcS, '-g', label='S-Ma-NRTL')
+                axis[0].plot(_xin, _tcalcRSS, '--g', label='Rac-Ma-SLE_eigen')
+                axis[0].set_title("S-Rac-Porter_GD")
+                axis[0].set_ylabel('Temperatur [K]')
+                axis[0].set_xlabel('x-R-Ma [-]')
+                axis[0].legend()
+
+                line_1 = LineString(h.np.column_stack((1-_xin, _tcalcS)))
+                line_2 = LineString(h.np.column_stack((_xinRac, _tcalcRSS)))
+                intersection = line_1.intersection(line_2)
+
+                #axis[0].plot(*intersection.xy, 'ro')
+                #x, y = intersection.xy
+                #xout0 = x[0]
+                #xoutstr0 = "{:10.4f}".format(xout0)
+                #yout0 = y[0]
+                #youtstr0 = "{:10.4f}".format(yout0)
+                #stringout0 = str(f"SP({xoutstr0}"f"\\{youtstr0})")
+                #axis[0].text(x[0], y[0], 'SP')
+                #axis[0].text(x[0], 300, stringout0)
+                #print(x, y)
+
+                axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-NRTL')
+                axis[1].plot(1-_xin, _tcalcRSR, '--b', label='Rac-Ma-Porter_GD')
+                axis[1].set_title("R-Rac-Porter_GD")
+                axis[1].set_ylabel('Temperatur [K]')
+                axis[1].set_xlabel('x-R-Ma [-]')
+                axis[1].legend(loc='center left')
+
+                line_3 = LineString(h.np.column_stack((_xin, _tcalcR)))
+                line_4 = LineString(h.np.column_stack((1-_xinRac, _tcalcRSR)))
+                intersection = line_3.intersection(line_4)
+
+                #axis[1].plot(*intersection.xy, 'ro')
+                #x2, y2 = intersection.xy
+                #xout1 = x2[0]
+                #xoutstr1 = "{:10.4f}".format(xout1)
+                #yout1 = y2[0]
+                #youtstr1 = "{:10.4f}".format(yout1)
+                #stringout1 = str(f"SP({xoutstr1}"f"\\{youtstr1})")
+                #axis[1].text(x2[0], y2[0], 'SP')
+                #axis[1].text(x2[0], 350, stringout1)
+                #print(x2, y2)
+
+                axis[2].plot(1-_xin[0:100], _tcalcS[0:100], '-g', label='S-Ma-NRTL')
+                axis[2].plot(_xin[0:100], _tcalcR[0:100], '-b', label='S-Ma-NRTL')
+                axis[2].plot(_xin, _tcalcRSS, '--g', label='Rac-Ma-Porter_GD')
+                axis[2].plot(1-_xin, _tcalcRSR, '--b', label='Rac-Ma-Porter_GD')
+                axis[2].plot(XEXP, TEXP, 'rx', label='Experimentaldaten')
+                axis[2].set_title("Konstruktion_Phasendiagramm")
+                axis[2].set_ylabel('Temperatur [K]')
+                axis[2].set_xlabel('x-R-Ma [-]')
+                axis[2].legend(loc='center left', fontsize=6)
+
+                plt.show()
+                _xinDF = h.pd.DataFrame(_xin, columns=['xin'])
+                _tSDF = h.pd.DataFrame(_tcalcS, columns=['t S'])
+                _tRSDF = h.pd.DataFrame(_tcalcRSS, columns=['t RS'])
+                _tSRDF = h.pd.DataFrame(_tcalcRSS, columns=['t SR'])
+                _tRDF = h.pd.DataFrame(_tcalcR, columns=['t R'])
+                _dataout = [_xinDF, _tSDF, _tRSDF, _tSRDF, _tRDF]
+                df = h.pd.concat(_dataout, axis=1)
+                df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData.xlsx')
+
+                return 0
+
             def _nrtl_nrtl():
                 _xin = h.np.zeros(100)
                 _xin[0] = 0
@@ -1011,9 +1122,10 @@ class EutFind:
                 #_nrtl_pure_comp_sle()
                 #_nrtl_pure_comp_porter()
                 #_nrtl_pure_comp_porter_eigen()
-                _nrtl_pure_comp_porter_eigen_GD()
+                #_nrtl_pure_comp_porter_eigen_GD()
+                _nrtl_pure_comp_SLE_eigen()
                 #_nrtl_nrtl()
-                _eut_test()
+                #_eut_test()
 
                 return 0
 
