@@ -794,7 +794,7 @@ class EutFind:
 
 
                 axis[0].plot(1-_xin, _tcalcS, '-g', label='S-Ma-NRTL')
-                axis[0].plot(_xin, _tcalcRSS, '--g', label='Rac-Ma-SLE_eigen')
+                axis[0].plot(1-_xin, _tcalcRSS, '--g', label='Rac-Ma-SLE_eigen')
                 axis[0].set_title("S-Rac-Porter_GD")
                 axis[0].set_ylabel('Temperatur [K]')
                 axis[0].set_xlabel('x-R-Ma [-]')
@@ -816,7 +816,7 @@ class EutFind:
                 #print(x, y)
 
                 axis[1].plot(_xin, _tcalcR, '-b', label='R-Ma-NRTL')
-                axis[1].plot(1-_xin, _tcalcRSR, '--b', label='Rac-Ma-Porter_GD')
+                axis[1].plot(_xin, _tcalcRSR, '--b', label='Rac-Ma-Porter_GD')
                 axis[1].set_title("R-Rac-Porter_GD")
                 axis[1].set_ylabel('Temperatur [K]')
                 axis[1].set_xlabel('x-R-Ma [-]')
