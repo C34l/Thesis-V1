@@ -39,6 +39,14 @@ class EutFind:
         _func = (h.np.exp((-_h0 / (_r * _texp)) * (1 - (_texp / _t0))) / _gx)-1
         return _func
 
+    @staticmethod
+    def t_sle_modifiziert_nrtl(_texp, _xi, _h0, _t0, _g, _alpha):
+
+        _yi = EutFind.y_nrtl(_g, _xi, _texp, _alpha)
+        _gx = h.np.exp(_yi) * _xi
+        _func = (h.np.exp((-_h0 / (_r * _texp)) * (1 - (_texp / _t0))) / 2*_gx) - 1
+        return _func
+
 
     @staticmethod
     def t_sle_ideal(_texp, _xi, _h0, _t0,):
