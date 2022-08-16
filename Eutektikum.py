@@ -64,6 +64,17 @@ class EutFind:
         return _func
 
     @staticmethod
+    def t_sle_modifiziert_nrtl_beidseitig_neu(_texp, _xi, _h0a, _t0a, _ga, _h0b, _t0b, _gb, _alpha):
+
+        _ya = EutFind.y_nrtl(_ga, _xi, _texp, _alpha)
+        _yb = EutFind.y_nrtl(_gb, 1 - _xi, _texp, _alpha)
+        _ha = ((_h0a / (_r * _texp)) * (1 - (_texp / _t0a)))
+        _hb = ((_h0b / (_r * _texp)) * (1 - (_texp / _t0b)))
+        _gx = 4 * _xi * h.np.exp(_ya) * (1 - _xi) * h.np.exp(_yb)
+        _func = (h.np.exp((_ha + _hb)) / _gx) - 1
+        return _func
+
+    @staticmethod
     def t_sle_modifiziert_porter(_texp, _xi, _h0, _t0, _a1, _a2):
 
         _yi = EutFind.y_porter(_xi, _texp, _a1, _a2)
@@ -894,8 +905,8 @@ class EutFind:
                 # loading up calc points
                 for x in range(len(_xin)):
                     _tcalcS[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _Alpha))
-                    _tcalcRSS[x] = h.spo.fsolve(EutFind.t_sle_modifiziert_nrtl_beidseitig, _tin[x], args=(_xin[x], _h0S, _t0S, _gSa, _h0R, _t0R, _gRa, _Alpha))
-                    _tcalcRSR[x] = h.spo.fsolve(EutFind.t_sle_modifiziert_nrtl_beidseitig, _tin[x], args=(1-_xin[x], _h0S, _t0S, _gSa, _h0R, _t0R, _gRa, _Alpha))
+                    _tcalcRSS[x] = h.spo.fsolve(EutFind.t_sle_modifiziert_nrtl_beidseitig_neu, _tin[x], args=(_xinRac[x], _h0S, _t0S, _gSa, _h0R, _t0R, _gRa, _Alpha))
+                    _tcalcRSR[x] = h.spo.fsolve(EutFind.t_sle_modifiziert_nrtl_beidseitig_neu, _tin[x], args=(1-_xinRac[x], _h0S, _t0S, _gSa, _h0R, _t0R, _gRa, _Alpha))
                     _tcalcR[x] = h.spo.fsolve(EutFind.t_sle, _tin[x], args=(_xin[x], _h0R, _t0R, _gRa, _Alpha))
 
                 # plotting
