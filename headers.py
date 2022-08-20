@@ -14,5 +14,6 @@ import nrtl_fit_solvent_2a as nrfs2a
 import NRTL_Test as nrtlt
 import Eutektikum as Eut
 import math as math
+import Battery_test as bt
 
 #header und objektverwaltung
