@@ -15,5 +15,6 @@ import NRTL_Test as nrtlt
 import Eutektikum as Eut
 import math as math
 import Battery_test as bt
+import Diagrammdaten as diag
 
 #header und objektverwaltung

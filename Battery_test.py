@@ -12,6 +12,4 @@ class batterytest:
 
         return 0
 
-class Natriumbatterie:
-    Natriumparameter = []
-    natriumbatterie = pb.BaseBatteryModel(options=Natriumparameter)
+
