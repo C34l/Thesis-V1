@@ -271,17 +271,53 @@ class Diagrams:
 
     #soll t für Bilanz C berechnen
     @staticmethod
-    def Bilanz_C_porter_pia():
-        return 0
+    def Bilanz_C_porter_pia(t, x, a):
+        _func = (_r*t)*((x/(1-x))-1)*((1/x)-2*(1-x)*(a[0]+(a[1]/t)))
+        return _func
 
     @staticmethod
-    def Bilanz_C_porter_fit():
-        return 0
+    def Bilanz_C_porter_fit_minfqs(_a, _xi, _texp, _steps, ):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
+
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_C_porter_pia, _texp[x], args=(_xi[x], _a,),
+                                   full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            _tdiff[x] = _texp[x] - _tcalc[x]
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
+
 
     @staticmethod
-    def Bilanz_C_nrtl_pia():
-        return 0
+    def Bilanz_C_nrtl_pia(x, t, g,):
+        a = _Alpha
+        u = g[0]
+        U = h.np.exp((a * u) / (_r * t))
+        v = g[1]
+        V = h.np.exp((a * v) / (_r * t))
+
+        _func = ((x / (1 - x)) - 1) * (t / _h0RS) * (((_r * t) / x) + (2 * (1 - x) ** 2) * (
+                    ((u * (U - 1)) / (x * (U - 1) + 1) ** 3) - ((v * V * (V - 1)) / ((x - 1) * V - x) ** 3)) - (
+                                                                 2 * (1 - x)) * ((u / (x * (U - 1) + 1) ** 2) + (
+                    (v * V) / (x - (x - 1) * V) ** 2)))
+        return _func
 
     @staticmethod
-    def Bilanz_C_nrtl_fit():
-        return 0
+    def Bilanz_C_nrtl_fit_minfqs(_g, _xi, _texp, _steps,):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
+
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, _texp[x], args=(_xi[x], _g,),
+                                   full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            _tdiff[x] = _texp[x] - _tcalc[x]
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
