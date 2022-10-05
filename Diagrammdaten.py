@@ -226,8 +226,20 @@ class Diagrams:
 
     #soll Porterkoeff für Ansatz B optimieren
     @staticmethod
-    def Bilanz_B_porter_fit_minfqs():
-        return 0
+    def Bilanz_B_porter_fit_minfqs(_a, _xi, _texp, _steps, ):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
+
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_B_porter_pia, _texp[x], args=(_xi[x], _a,),
+                                   full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            _tdiff[x] = _texp[x] - _tcalc[x]
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
 
     #soll t für Ansatz B nrtl berechnen
     @staticmethod
@@ -242,13 +254,12 @@ class Diagrams:
 
     #soll für ansatz B g's optimieren
     @staticmethod
-    def Bilanz_B_nrtl_fit_minfqs(g1, g2, _xi, _texp, _h0, _t0, _steps,):
+    def Bilanz_B_nrtl_fit_minfqs(_g, _xi, _texp, _steps,):
         _tcalc = h.np.zeros(_steps)
         _tdiff = h.np.zeros(_steps)
-        _g = h.np.array([g1, g2, ])
 
         for x in range(_steps):
-            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, _texp[x], args=(_xi[x], _h0, _t0, _g,),
+            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_B_nrtl_pia, _texp[x], args=(_xi[x], _g,),
                                    full_output=True)
             _tcalc[x] = _tcalc1[0]
             _tdiff[x] = _texp[x] - _tcalc[x]
@@ -258,16 +269,17 @@ class Diagrams:
 
         return fqs_summe
 
+    #soll t für Bilanz C berechnen
     @staticmethod
     def Bilanz_C_porter_pia():
         return 0
 
     @staticmethod
-    def Bilanz_C_nrtl_pia():
+    def Bilanz_C_porter_fit():
         return 0
 
     @staticmethod
-    def Bilanz_C_porter_fit():
+    def Bilanz_C_nrtl_pia():
         return 0
 
     @staticmethod
