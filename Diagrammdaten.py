@@ -16,10 +16,13 @@ _Alpha = 0.4
 XEXP = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508, 0.7997, 0.8504, 0.9002, 0.9406, 1])
 TEXP = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75, 393.65, 397.15, 399.15, 400.65, 404.65])
 
+XEXP_short = h.np.array([0.3192, 0.4, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508])
+TEXP_short = h.np.array([387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75])
+
 XEXP_rechts = h.np.array([0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508])
 TEXP_rechts = h.np.array([393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75])
-XEXP_links = h.np.array([0.1994, 0.3192, 0.4, 0.5])
-TEXP_links = h.np.array([393.65, 387.55, 391.35, 393.35])
+XEXP_links = h.np.array([0.0000000001, 0.1994, 0.3192, 0.4, 0.5])
+TEXP_links = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35])
 
 XEXP_korr = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.486, 0.395, 0.369, 0.3193, 0.3098, 0.2492, 0.2003, 0.1496, 0.0998, 0.0594, 0])
 XEXP_korr_links_Porter = h.np.array([0.000000000000001, 0.1994, 0.3192, 0.4, 0.5, ])
@@ -516,32 +519,32 @@ class Diagrams:
 
     @staticmethod
     def Ansatz_B():
-        t_Porter_B_Pia = h.np.zeros(len(TEXP))
-        t_Porter_B_diff_Pia = h.np.zeros(len(TEXP))
-        t_NRTL_B_Pia = h.np.zeros(len(TEXP))
-        t_NRTL_B_diff_Pia = h.np.zeros(len(TEXP))
+        t_Porter_B_Pia = h.np.zeros(len(TEXP_short))
+        t_Porter_B_diff_Pia = h.np.zeros(len(TEXP_short))
+        t_NRTL_B_Pia = h.np.zeros(len(TEXP_short))
+        t_NRTL_B_diff_Pia = h.np.zeros(len(TEXP_short))
 
-        t_Porter_B = h.np.zeros(len(TEXP))
-        t_Porter_B_diff = h.np.zeros(len(TEXP))
-        t_NRTL_B = h.np.zeros(len(TEXP))
-        t_NRTL_B_diff = h.np.zeros(len(TEXP))
+        t_Porter_B = h.np.zeros(len(TEXP_short))
+        t_Porter_B_diff = h.np.zeros(len(TEXP_short))
+        t_NRTL_B = h.np.zeros(len(TEXP_short))
+        t_NRTL_B_diff = h.np.zeros(len(TEXP_short))
 
-        for x in range(len(TEXP)):
-            t_Porter_B_Pia[x] = spo.fsolve(Diagrams.Bilanz_B_porter_pia, TEXP[x], args=(XEXP[x], _aGes))
-            t_Porter_B_diff_Pia[x] = abs(TEXP[x] - t_Porter_B_Pia[x])
-            t_NRTL_B_Pia[x] = spo.fsolve(Diagrams.Bilanz_B_nrtl_pia, TEXP[x], args=(XEXP[x], _gGes))
-            t_NRTL_B_diff_Pia[x] = abs(TEXP[x] - t_NRTL_B_Pia[x])
+        for x in range(len(TEXP_short)):
+            t_Porter_B_Pia[x] = spo.fsolve(Diagrams.Bilanz_B_porter_pia, TEXP_short[x], args=(XEXP_short[x], _aGes))
+            t_Porter_B_diff_Pia[x] = abs(TEXP_short[x] - t_Porter_B_Pia[x])
+            t_NRTL_B_Pia[x] = spo.fsolve(Diagrams.Bilanz_B_nrtl_pia, TEXP_short[x], args=(XEXP_short[x], _gGes))
+            t_NRTL_B_diff_Pia[x] = abs(TEXP_short[x] - t_NRTL_B_Pia[x])
 
-        t_diff_norm_P_Pia = h.np.abs(h.np.divide(t_Porter_B_diff_Pia, TEXP))
-        ard_neu_norm_P_Pia = (100 / len(TEXP)) * sum(t_diff_norm_P_Pia)
-        t_diff_norm_N_Pia = h.np.abs(h.np.divide(t_NRTL_B_diff_Pia, TEXP))
-        ard_neu_norm_N_Pia = (100 / len(TEXP)) * sum(t_diff_norm_N_Pia)
+        t_diff_norm_P_Pia = h.np.abs(h.np.divide(t_Porter_B_diff_Pia, TEXP_short))
+        ard_neu_norm_P_Pia = (100 / len(TEXP_short)) * sum(t_diff_norm_P_Pia)
+        t_diff_norm_N_Pia = h.np.abs(h.np.divide(t_NRTL_B_diff_Pia, TEXP_short))
+        ard_neu_norm_N_Pia = (100 / len(TEXP_short)) * sum(t_diff_norm_N_Pia)
         print('ARD_normiert für B_Porter_Pia [%] =', ard_neu_norm_P_Pia)
         print('ARD_normiert für B_NRTL_Pia [%] =', ard_neu_norm_N_Pia)
 
 
-        steps_t = len(XEXP)
-        res_Porter = spo.minimize(Diagrams.Bilanz_B_porter_fit_minfqs, _aGes, args=(XEXP, TEXP, steps_t,),
+        steps_t = len(XEXP_short)
+        res_Porter = spo.minimize(Diagrams.Bilanz_B_porter_fit_minfqs, _aGes, args=(XEXP_short, TEXP_short, steps_t,),
                                   method='Powell', )
         print('B_A1 = ' + str(res_Porter.x[0]))
         print('B_A2 = ' + str(res_Porter.x[1]))
@@ -549,7 +552,7 @@ class Diagrams:
         print('B_B1 = ' + str(res_Porter.x[3]))
         _aNeu = (res_Porter.x[0], res_Porter.x[1], res_Porter.x[2], res_Porter.x[3])
 
-        res_NRTL = spo.minimize(Diagrams.Bilanz_B_nrtl_fit_minfqs, _gGes, args=(XEXP, TEXP, steps_t,),
+        res_NRTL = spo.minimize(Diagrams.Bilanz_B_nrtl_fit_minfqs, _gGes, args=(XEXP_short, TEXP_short, steps_t,),
                                 method='Powell', )
         print('B_gab = ' + str(res_NRTL.x[0]))
         print('B_gba = ' + str(res_NRTL.x[1]))
@@ -557,16 +560,16 @@ class Diagrams:
         print('B_gBA = ' + str(res_NRTL.x[3]))
         _gNeu = (res_NRTL.x[0], res_NRTL.x[1], res_NRTL.x[2], res_NRTL.x[3])
 
-        for i in range(len(TEXP)):
-            t_Porter_B[i] = spo.fsolve(Diagrams.Bilanz_B_porter_pia, TEXP[i], args=(XEXP[i], _aNeu))
-            t_Porter_B_diff[i] = abs(TEXP[i] - t_Porter_B[i])
-            t_NRTL_B[i] = spo.fsolve(Diagrams.Bilanz_B_nrtl_pia, TEXP[i], args=(XEXP[i], _gNeu))
-            t_NRTL_B_diff[i] = abs(TEXP[i] - t_NRTL_B[i])
+        for i in range(len(TEXP_short)):
+            t_Porter_B[i] = spo.fsolve(Diagrams.Bilanz_B_porter_pia, TEXP_short[i], args=(XEXP_short[i], _aNeu))
+            t_Porter_B_diff[i] = abs(TEXP_short[i] - t_Porter_B[i])
+            t_NRTL_B[i] = spo.fsolve(Diagrams.Bilanz_B_nrtl_pia, TEXP_short[i], args=(XEXP_short[i], _gNeu))
+            t_NRTL_B_diff[i] = abs(TEXP_short[i] - t_NRTL_B[i])
 
-        t_diff_norm_P = h.np.abs(h.np.divide(t_Porter_B_diff, TEXP))
-        ard_neu_norm_P = (100 / len(TEXP)) * sum(t_diff_norm_P)
-        t_diff_norm_N = h.np.abs(h.np.divide(t_NRTL_B_diff, TEXP))
-        ard_neu_norm_N = (100 / len(TEXP)) * sum(t_diff_norm_N)
+        t_diff_norm_P = h.np.abs(h.np.divide(t_Porter_B_diff, TEXP_short))
+        ard_neu_norm_P = (100 / len(TEXP_short)) * sum(t_diff_norm_P)
+        t_diff_norm_N = h.np.abs(h.np.divide(t_NRTL_B_diff, TEXP_short))
+        ard_neu_norm_N = (100 / len(TEXP_short)) * sum(t_diff_norm_N)
         print('ARD_normiert für B_Porter [%] =', ard_neu_norm_P)
         print('ARD_normiert für B_NRTL [%] =', ard_neu_norm_N)
         return 0
