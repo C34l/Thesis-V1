@@ -451,10 +451,10 @@ class Diagrams:
         t_NRTL_A_Pia = h.np.zeros(len(TEXP))
         t_NRTL_A_diff_Pia = h.np.zeros(len(TEXP))
 
-        t_Porter_rechts_Pia = h.np.zeros(len(TEXP_rechts))
-        t_Porter_rechts_diff_Pia = h.np.zeros(len(TEXP_rechts))
-        t_NRTL_rechts_Pia = h.np.zeros(len(TEXP_rechts))
-        t_NRTL_rechts_diff_Pia = h.np.zeros(len(TEXP_rechts))
+        t_Porter_A = h.np.zeros(len(TEXP))
+        t_Porter_A_diff = h.np.zeros(len(TEXP))
+        t_NRTL_A = h.np.zeros(len(TEXP))
+        t_NRTL_A_diff = h.np.zeros(len(TEXP))
 
         for x in range(len(TEXP)):
             t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, TEXP[x], args=(XEXP[x], _aGes))
@@ -494,5 +494,11 @@ class Diagrams:
         t_diff_N = h.np.zeros(steps_t)
         _tcalc_N = h.np.zeros(steps_t)
         _gamma_N = h.np.zeros(steps_t)
+
+        for x in range(len(TEXP)):
+            t_Porter_A[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, TEXP[x], args=(XEXP[x], _aGes))
+            t_Porter_A_diff[x] = abs(TEXP[x] - t_Porter_A_Pia[x])
+            t_NRTL_A[x] = spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, TEXP[x], args=(XEXP[x], _gGes))
+            t_NRTL_A_diff[x] = abs(TEXP[x] - t_NRTL_A_Pia[x])
 
         return 0
