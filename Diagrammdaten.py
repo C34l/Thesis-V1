@@ -161,6 +161,7 @@ class Diagrams:
         _func = (((1/2)*(((-_h0S/(_r*t))*(1-(t/_t0S)))+(((-_h0R/(_r*t))*(1-(t/_t0R))))))/((h.np.log(0.25)-h.np.log(x*ya*(1-x)*yb))))-1
         return _func
 
+    #ana
     @staticmethod
     def Bilanz_A_nrtl_pia(t, x):
         ya = Diagrams.y_nrtl(_gSa, x, t, _Alpha)
