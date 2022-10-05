@@ -191,7 +191,7 @@ class Diagrams:
         _tdiff = h.np.zeros(_steps)
 
         for x in range(_steps):
-            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_A_NRTL_pia, _texp[x], args=(_xi[x], _h0, _t0, _g,),
+            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, _texp[x], args=(_xi[x], _h0, _t0, _g,),
                                    full_output=True)
             _tcalc[x] = _tcalc1[0]
             _tdiff[x] = _texp[x] - _tcalc[x]
