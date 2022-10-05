@@ -616,21 +616,43 @@ class Diagrams:
         print('ARD_normiert für C_NRTL_Pia_links [%] =', ard_neu_norm_N_Pia_links)
         print('ARD_normiert für C_NRTL_Pia_rechts [%] =', ard_neu_norm_N_Pia_rechts)
 
-        steps_t = len(TEXP_links)
+        steps_t_links = len(TEXP_links)
         _aSa2 = h.np.array([-10, 4600])
-        res_Porter = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aSa2, args=(XEXP_korr_links_Porter, TEXP_links, steps_t,),
+        res_Porter_links = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aSa2, args=(XEXP_korr_links_Porter, TEXP_links, steps_t_links,),
                                   method='Powell', )
-        print('C_A1 = ' + str(res_Porter.x[0]))
-        print('C_A2 = ' + str(res_Porter.x[1]))
 
-        _aNeu = (res_Porter.x[0], res_Porter.x[1])
-        res_NRTL = spo.minimize(Diagrams.Bilanz_C_nrtl_fit_minfqs, _gSa, args=(XEXP_korr_links, TEXP_links, steps_t,),
+
+        _aNeu_links = (res_Porter_links.x[0], res_Porter_links.x[1])
+        res_NRTL_links = spo.minimize(Diagrams.Bilanz_C_nrtl_fit_minfqs, _gSa, args=(XEXP_korr_links, TEXP_links, steps_t_links,),
                                 method='Powell', )
-        print('C_gab = ' + str(res_NRTL.x[0]))
-        print('C_gba = ' + str(res_NRTL.x[1]))
-        #print('C_gAB = ' + str(res_NRTL.x[2]))
-        #print('C_gBA = ' + str(res_NRTL.x[3]))
-        _gNeu = (res_NRTL.x[0], res_NRTL.x[1],)
+        _gNeu_links = (res_NRTL_links.x[0], res_NRTL_links.x[1],)
+
+        steps_t_rechts = len(TEXP_rechts)
+        res_Porter_rechts = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aSa2,
+                                  args=(XEXP_korr_rechts, TEXP_rechts, steps_t_rechts,),
+                                  method='Powell', )
+
+        _aNeu_rechts = (res_Porter_rechts.x[0], res_Porter_rechts.x[1])
+        res_NRTL_rechts = spo.minimize(Diagrams.Bilanz_C_nrtl_fit_minfqs, _gRa, args=(XEXP_korr_rechts, TEXP_rechts, steps_t_rechts,),
+                                method='Powell', )
+        _gNeu_rechts = (res_NRTL_rechts.x[0], res_NRTL_rechts.x[1],)
+
+        print('C_A1_links = ' + str(res_Porter_links.x[0]))
+        print('C_A2_links = ' + str(res_Porter_links.x[1]))
+        print('C_A1_rechts = ' + str(res_Porter_rechts.x[0]))
+        print('C_A2_rechts = ' + str(res_Porter_rechts.x[1]))
+
+        print('C_gab_links = ' + str(res_NRTL_links.x[0]))
+        print('C_gba_links = ' + str(res_NRTL_links.x[1]))
+        print('C_gab = ' + str(res_NRTL_rechts.x[0]))
+        print('C_gba = ' + str(res_NRTL_rechts.x[1]))
+
+
+        for i in range(len(TEXP_rechts)):
+            t_Porter_C_links[i] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, TEXP_links[i], args=(XEXP_korr_links[i], _aNeu_links))
+            t_Porter_C_diff_links[i] = abs(TEXP_links[i] - t_Porter_C_links[i])
+            t_NRTL_C_links[i] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, TEXP_links[i], args=(XEXP_korr_links[i], _gNeu_links))
+            t_NRTL_C_diff_links[i] = abs(TEXP_links[i] - t_NRTL_C_links[i])
 
         for i in range(len(TEXP_links)):
             t_Porter_C[i] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, TEXP_links[i], args=(XEXP_korr_links[i], _aNeu))
