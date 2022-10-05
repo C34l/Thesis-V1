@@ -24,6 +24,9 @@ TEXP_rechts = h.np.array([393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75
 XEXP_links = h.np.array([0.0000000001, 0.1994, 0.3192, 0.4, 0.5])
 TEXP_links = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35])
 
+XEXP_out = h.np.array([0.0000000001, 0.1994, 0.3192, 0.4, 0.5, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508])
+TEXP_out = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75])
+
 XEXP_korr = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.486, 0.395, 0.369, 0.3193, 0.3098, 0.2492, 0.2003, 0.1496, 0.0998, 0.0594, 0])
 XEXP_korr_links_Porter = h.np.array([0.000000000000001, 0.1994, 0.3192, 0.4, 0.5, ])
 XEXP_korr_links = h.np.array([0.000000001, 0.1994, 0.3192, 0.4, 0.5, ])
@@ -370,7 +373,7 @@ class Diagrams:
         #print(TEXP_links)
 
         for x in range(len(TEXP_links)):
-          t_PD_ideal_links[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_links[x], args=XEXP_korr_links[x])
+          t_PD_ideal_links[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_links[x], args=XEXP_links[x])
           t_PD_ideal_links_diff[x] = abs(TEXP_links[x]-t_PD_ideal_links[x])
 
         t_diff_norm_links = h.np.abs(h.np.divide(t_PD_ideal_links_diff, TEXP_links))
@@ -378,18 +381,23 @@ class Diagrams:
         print('ARD_normiert für PD_ideal_links [%] =', ard_neu_norm_links)
 
         for x in range(len(TEXP_rechts)):
-          t_PD_ideal_rechts[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_rechts[x], args=XEXP_korr_rechts[x])
+          t_PD_ideal_rechts[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_rechts[x], args=XEXP_rechts[x])
           t_PD_ideal_rechts_diff[x] = abs(TEXP_rechts[x]-t_PD_ideal_rechts[x])
 
         t_diff_norm_rechts = h.np.abs(h.np.divide(t_PD_ideal_rechts_diff, TEXP_rechts))
         ard_neu_norm_rechts = (100 / len(TEXP_rechts)) * sum(t_diff_norm_rechts)
         print('ARD_normiert für PD_ideal_rechts [%] =', ard_neu_norm_rechts)
-        #print(t_PD_ideal_links)
 
-        #steps_t_links = len(TEXP_links)
-        #c = h.np.array([1])
-        #res_1 = spo.minimize(Diagrams.PD_real_literatur_minfqs, c, args=(XEXP_korr_links, TEXP_links, steps_t_links), method='Nelder-Mead',)
-        #print('deltag_AB s = ' + str(res_1.x[0]))
+        t_out1 = h.np.concatenate((t_PD_ideal_links, t_PD_ideal_rechts))
+
+        _xinDF = h.pd.DataFrame(XEXP_out, columns=['xin'])
+        _t1 = h.pd.DataFrame(t_out1, columns=['t PD ideal'])
+        _ARD1 = h.pd.DataFrame(ard_neu_norm_links, columns=['ard_neu_norm_links'])
+        _ARD2 = h.pd.DataFrame(ard_neu_norm_rechts, columns=['ard_neu_norm_rechts'])
+
+        _dataout = [_xinDF, _t1, _ARD1, _ARD2]
+        df = h.pd.concat(_dataout, axis=1)
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_ideal.xlsx')
 
         return 0
 
@@ -409,27 +417,24 @@ class Diagrams:
         _tinitial = 393.35
 
         _initial = [_tinitial]
-        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.000000001, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_korr_links, dense_output=True)
+        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.0000000001, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_links, dense_output=True)
         _tcalcRSR_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 1.0], _initial, method='RK45',
                                     args=(_aRa), t_eval=XEXP_rechts, dense_output=True)
 
-        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.000000001, 0.5], _initial, method='RK45',
-                                           args=(_gSa), t_eval=XEXP_korr_links, dense_output=True)
+        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.0000000001, 0.5], _initial, method='RK45',
+                                           args=(_gSa), t_eval=XEXP_links, dense_output=True)
         _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.5, 1.0], _initial, method='RK45',
                                            args=(_gRa), t_eval=XEXP_rechts, dense_output=True)
 
         t_Porter_links = h.np.reshape(_tcalcRSS_Porter.y, len(TEXP_links))
-        t_Porter_rechts = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_rechts)-1)
+        t_Porter_rechts = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_rechts))
         t_NRTL_links = h.np.reshape(_tcalcRSS_NRTL.y, len(TEXP_links))
-        t_NRTL_rechts = h.np.reshape(_tcalcRSR_NRTL.y, len(TEXP_rechts) - 1)
-
-        print(t_Porter_links, t_NRTL_links)
+        t_NRTL_rechts = h.np.reshape(_tcalcRSR_NRTL.y, len(TEXP_rechts))
 
         for x in range(len(TEXP_links)):
           t_Porter_links_diff_Pia[x] = abs(TEXP_links[x]-t_Porter_links[x])
           t_NRTL_links_diff_Pia[x] = abs(TEXP_links[x] - t_NRTL_links[x])
 
-        #print(t_Porter_links_diff_Pia)
         t_diff_norm_links_P = h.np.abs(h.np.divide(t_Porter_links_diff_Pia, TEXP_links))
         ard_neu_norm_links_P = (100 / len(TEXP_links)) * sum(t_diff_norm_links_P)
         t_diff_norm_links_N = h.np.abs(h.np.divide(t_NRTL_links_diff_Pia, TEXP_links))
