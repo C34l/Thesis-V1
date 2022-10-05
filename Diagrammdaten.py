@@ -442,3 +442,8 @@ class Diagrams:
         print('ARD_normiert für PD_NRTL_rechts [%] =', ard_neu_norm_rechts_N)
 
         return 0
+
+    @staticmethod
+    def Ansatz_A():
+
+        return 0
