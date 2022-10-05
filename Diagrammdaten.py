@@ -29,6 +29,8 @@ _a1b = -32.196
 _a2b = 12794.746
 _aRa = h.np.array([_a1b, _a2b, ])
 
+_aGes = h.np.array([_a1a, _a2a, _a1b, _a2b])
+
 _gabS = -1403.640
 _gbaS = 2972.166
 _gSa = h.np.array([_gabS, _gbaS, ])
@@ -41,6 +43,7 @@ _gabR = -23.289
 _gbaR = 7526.385
 _gRa = h.np.array([_gabR, _gbaR, ])
 
+_gGes = h.np.array([_gabS, _gbaS, _gabR, _gbaR])
 
 class Diagrams:
     @staticmethod
@@ -55,8 +58,8 @@ class Diagrams:
         return _func
 
     @staticmethod
-    def y_porter(_x, _t, _a1, _a2):
-        _func = h.np.exp((1 - _x) ** 2 * (_a1 + (_a2 / _t)))
+    def y_porter(_x, _t, _a):
+        _func = h.np.exp((1 - _x) ** 2 * (_a[0] + (_a[1] / _t)))
         return _func
 
     @staticmethod
@@ -155,19 +158,19 @@ class Diagrams:
 
     #ana
     @staticmethod
-    def Bilanz_A_porter_pia(t, x):
-        ya = Diagrams.y_porter(x, t, _aSa[0], _aSa[1])
-        yb = Diagrams.y_porter(x, t, _aRa[0], _aRa[1])
+    def Bilanz_A_porter_pia(t, x, a):
+        ya = Diagrams.y_porter(x, t, a[0])
+        yb = Diagrams.y_porter(x, t, a[1])
         _func = (((1/2)*(((-_h0S/(_r*t))*(1-(t/_t0S)))+(((-_h0R/(_r*t))*(1-(t/_t0R))))))/((h.np.log(0.25)-h.np.log(x*ya*(1-x)*yb))))-1
         return _func
 
     #ana
     @staticmethod
-    def Bilanz_A_nrtl_pia(t, x):
-        ya = Diagrams.y_nrtl(_gSa, x, t, _Alpha)
-        yb = Diagrams.y_nrtl(_gRa, x, t, _Alpha)
+    def Bilanz_A_nrtl_pia(t, x, g):
+        ya = Diagrams.y_nrtl(g[0], x, t, _Alpha)
+        yb = Diagrams.y_nrtl(g[1], x, t, _Alpha)
         _func = (((1 / 2) * (((-_h0S / (_r * t)) * (1 - (t / _t0S))) + (((-_h0R / (_r * t)) * (1 - (t / _t0R)))))) / (
-        (h.np.log(0.25) - h.np.log(x * ya * (1 - x) * yb)))) - 1
+         (h.np.log(0.25) - h.np.log(x * ya * (1 - x) * yb)))) - 1
         return _func
 
     @staticmethod
@@ -189,6 +192,7 @@ class Diagrams:
     def Bilanz_A_nrtl_fit_minfqs(_g, _xi, _texp, _h0, _t0, _steps,):
         _tcalc = h.np.zeros(_steps)
         _tdiff = h.np.zeros(_steps)
+
 
         for x in range(_steps):
             _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, _texp[x], args=(_xi[x], _h0, _t0, _g,),
@@ -218,12 +222,25 @@ class Diagrams:
         return _func
 
     @staticmethod
-    def Bilanz_B_porter_fit():
+    def Bilanz_B_porter_fit_minfqs():
         return 0
 
     @staticmethod
-    def Bilanz_B_nrtl_fit():
-        return 0
+    def Bilanz_B_nrtl_fit_minfqs(g1, g2, _xi, _texp, _h0, _t0, _steps,):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
+        _g = h.np.array([g1, g2, ])
+
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, _texp[x], args=(_xi[x], _h0, _t0, _g,),
+                                   full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            _tdiff[x] = _texp[x] - _tcalc[x]
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
 
     @staticmethod
     def Bilanz_C_porter_pia():
