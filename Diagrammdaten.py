@@ -202,12 +202,20 @@ class Diagrams:
         return fqs_summe
 
     @staticmethod
-    def Bilanz_B_porter_pia():
-        return 0
+    def Bilanz_B_porter_pia(t, x):
+        ya = Diagrams.y_porter(x, t, _aSa[0], _aSa[1])
+        yb = Diagrams.y_porter(x, t, _aRa[0], _aRa[1])
+        _func = (((1 / 2) * (((-_h0S / (_r * t)) * (1 - (t / _t0S))) + (((-_h0R / (_r * t)) * (1 - (t / _t0R)))))) / (
+         (h.np.log(4 * x * ya * (1 - x) * yb)))) - 1
+        return _func
 
     @staticmethod
-    def Bilanz_B_nrtl_pia():
-        return 0
+    def Bilanz_B_nrtl_pia(t, x):
+        ya = Diagrams.y_nrtl(_gSa, x, t, _Alpha)
+        yb = Diagrams.y_nrtl(_gRa, x, t, _Alpha)
+        _func = (((1 / 2) * (((-_h0S / (_r * t)) * (1 - (t / _t0S))) + (((-_h0R / (_r * t)) * (1 - (t / _t0R)))))) / (
+            (h.np.log(4 * x * ya * (1 - x) * yb)))) - 1
+        return _func
 
     @staticmethod
     def Bilanz_B_porter_fit():
