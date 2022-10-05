@@ -454,32 +454,32 @@ class Diagrams:
 
     @staticmethod
     def Ansatz_A():
-        t_Porter_A_Pia = h.np.zeros(len(TEXP))
-        t_Porter_A_diff_Pia = h.np.zeros(len(TEXP))
-        t_NRTL_A_Pia = h.np.zeros(len(TEXP))
-        t_NRTL_A_diff_Pia = h.np.zeros(len(TEXP))
+        t_Porter_A_Pia = h.np.zeros(len(TEXP_short))
+        t_Porter_A_diff_Pia = h.np.zeros(len(TEXP_short))
+        t_NRTL_A_Pia = h.np.zeros(len(TEXP_short))
+        t_NRTL_A_diff_Pia = h.np.zeros(len(TEXP_short))
 
-        t_Porter_A = h.np.zeros(len(TEXP))
-        t_Porter_A_diff = h.np.zeros(len(TEXP))
-        t_NRTL_A = h.np.zeros(len(TEXP))
-        t_NRTL_A_diff = h.np.zeros(len(TEXP))
+        t_Porter_A = h.np.zeros(len(TEXP_short))
+        t_Porter_A_diff = h.np.zeros(len(TEXP_short))
+        t_NRTL_A = h.np.zeros(len(TEXP_short))
+        t_NRTL_A_diff = h.np.zeros(len(TEXP_short))
 
-        for x in range(len(TEXP)):
-            t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, TEXP[x], args=(XEXP[x], _aGes))
-            t_Porter_A_diff_Pia[x] = abs(TEXP[x] - t_Porter_A_Pia[x])
-            t_NRTL_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, TEXP[x], args=(XEXP[x], _gGes))
-            t_NRTL_A_diff_Pia[x] = abs(TEXP[x] - t_NRTL_A_Pia[x])
+        for x in range(len(TEXP_short)):
+            t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, TEXP_short[x], args=(XEXP_short[x], _aGes))
+            t_Porter_A_diff_Pia[x] = abs(TEXP_short[x] - t_Porter_A_Pia[x])
+            t_NRTL_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, TEXP_short[x], args=(XEXP_short[x], _gGes))
+            t_NRTL_A_diff_Pia[x] = abs(TEXP_short[x] - t_NRTL_A_Pia[x])
             #print(t_Porter_A_Pia[x])
 
-        t_diff_norm_P_Pia = h.np.abs(h.np.divide(t_Porter_A_diff_Pia, TEXP))
-        ard_neu_norm_P_Pia = (100 / len(TEXP)) * sum(t_diff_norm_P_Pia)
-        t_diff_norm_N_Pia = h.np.abs(h.np.divide(t_NRTL_A_diff_Pia, TEXP))
-        ard_neu_norm_N_Pia = (100 / len(TEXP)) * sum(t_diff_norm_N_Pia)
+        t_diff_norm_P_Pia = h.np.abs(h.np.divide(t_Porter_A_diff_Pia, TEXP_short))
+        ard_neu_norm_P_Pia = (100 / len(TEXP_short)) * sum(t_diff_norm_P_Pia)
+        t_diff_norm_N_Pia = h.np.abs(h.np.divide(t_NRTL_A_diff_Pia, TEXP_short))
+        ard_neu_norm_N_Pia = (100 / len(TEXP_short)) * sum(t_diff_norm_N_Pia)
         print('ARD_normiert für A_Porter_Pia [%] =', ard_neu_norm_P_Pia)
         print('ARD_normiert für A_NRTL_Pia [%] =', ard_neu_norm_N_Pia)
 
-        steps_t = len(XEXP)
-        res_Porter = spo.minimize(Diagrams.Bilanz_A_porter_fit_minfqs, _aGes, args=(XEXP, TEXP, steps_t,),
+        steps_t = len(XEXP_short)
+        res_Porter = spo.minimize(Diagrams.Bilanz_A_porter_fit_minfqs, _aGes, args=(XEXP_short, TEXP_short, steps_t,),
                                         method='Nelder-Mead',)
         print('A_A1 = ' + str(res_Porter.x[0]))
         print('A_A2 = ' + str(res_Porter.x[1]))
@@ -487,7 +487,7 @@ class Diagrams:
         print('A_B1 = ' + str(res_Porter.x[3]))
         _aNeu = (res_Porter.x[0], res_Porter.x[1], res_Porter.x[2], res_Porter.x[3])
 
-        res_NRTL = spo.minimize(Diagrams.Bilanz_A_nrtl_fit_minfqs, _gGes, args=(XEXP, TEXP, steps_t,),
+        res_NRTL = spo.minimize(Diagrams.Bilanz_A_nrtl_fit_minfqs, _gGes, args=(XEXP_short, TEXP_short, steps_t,),
                                   method='Nelder-Mead', )
         print('A_gab = ' + str(res_NRTL.x[0]))
         print('A_gba = ' + str(res_NRTL.x[1]))
@@ -495,24 +495,16 @@ class Diagrams:
         print('A_gBA = ' + str(res_NRTL.x[3]))
         _gNeu = (res_NRTL.x[0], res_NRTL.x[1], res_NRTL.x[2], res_NRTL.x[3])
 
-        t_diff_P = h.np.zeros(steps_t)
-        _tcalc_P = h.np.zeros(steps_t)
-        _gamma_P = h.np.zeros(steps_t)
+        for x in range(len(TEXP_short)):
+            t_Porter_A[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, TEXP_short[x], args=(XEXP_short[x], _aNeu))
+            t_Porter_A_diff[x] = abs(TEXP_short[x] - t_Porter_A[x])
+            t_NRTL_A[x] = spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, TEXP_short[x], args=(XEXP_short[x], _gNeu))
+            t_NRTL_A_diff[x] = abs(TEXP_short[x] - t_NRTL_A[x])
 
-        t_diff_N = h.np.zeros(steps_t)
-        _tcalc_N = h.np.zeros(steps_t)
-        _gamma_N = h.np.zeros(steps_t)
-
-        for x in range(len(TEXP)):
-            t_Porter_A[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, TEXP[x], args=(XEXP[x], _aNeu))
-            t_Porter_A_diff[x] = abs(TEXP[x] - t_Porter_A[x])
-            t_NRTL_A[x] = spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, TEXP[x], args=(XEXP[x], _gNeu))
-            t_NRTL_A_diff[x] = abs(TEXP[x] - t_NRTL_A[x])
-
-        t_diff_norm_P = h.np.abs(h.np.divide(t_Porter_A_diff, TEXP))
-        ard_neu_norm_P = (100 / len(TEXP_links)) * sum(t_diff_norm_P)
-        t_diff_norm_N = h.np.abs(h.np.divide(t_NRTL_A_diff, TEXP))
-        ard_neu_norm_N = (100 / len(TEXP_links)) * sum(t_diff_norm_N)
+        t_diff_norm_P = h.np.abs(h.np.divide(t_Porter_A_diff, TEXP_short))
+        ard_neu_norm_P = (100 / len(TEXP_short)) * sum(t_diff_norm_P)
+        t_diff_norm_N = h.np.abs(h.np.divide(t_NRTL_A_diff, TEXP_short))
+        ard_neu_norm_N = (100 / len(TEXP_short)) * sum(t_diff_norm_N)
         print('ARD_normiert für A_Porter [%] =', ard_neu_norm_P)
         print('ARD_normiert für A_NRTL [%] =', ard_neu_norm_N)
         return 0
