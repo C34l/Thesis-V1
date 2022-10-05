@@ -323,7 +323,7 @@ class Diagrams:
 
 
     @staticmethod
-    def Bilanz_C_nrtl_pia(x, t, g,):
+    def Bilanz_C_nrtl_pia(t, x, g,):
         a = _Alpha
         u = g[0]
         U = h.np.exp((a * u) / (_r * t))
@@ -596,10 +596,10 @@ class Diagrams:
 
         for x in range(len(TEXP_rechts)):
             t_Porter_C_Pia_rechts[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, TEXP_rechts[x],
-                                                 args=(XEXP_korr_rechts[x], _aSa))
+                                                 args=(XEXP_korr_rechts[x], _aRa))
             t_Porter_C_diff_Pia_rechts[x] = abs(TEXP_rechts[x] - t_Porter_C_Pia_rechts[x])
             t_NRTL_C_Pia_rechts[x] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, TEXP_rechts[x],
-                                               args=(XEXP_korr_rechts[x], _gSa))
+                                               args=(XEXP_korr_rechts[x], _gRa))
             t_NRTL_C_diff_Pia_rechts[x] = abs(TEXP_rechts[x] - t_NRTL_C_Pia_rechts[x])
 
         t_diff_norm_P_Pia_links = h.np.abs(h.np.divide(t_Porter_C_diff_Pia_links, TEXP_links))
@@ -612,7 +612,7 @@ class Diagrams:
         t_diff_norm_N_Pia_rechts = h.np.abs(h.np.divide(t_NRTL_C_diff_Pia_rechts, TEXP_rechts))
         ard_neu_norm_N_Pia_rechts = (100 / len(TEXP_links)) * sum(t_diff_norm_N_Pia_rechts)
         print('ARD_normiert für C_Porter_Pia_links [%] =', ard_neu_norm_P_Pia_links)
-        print('ARD_normiert für C_Porter_Pia_rechts [%] =', ard_neu_norm_P_Pia_links)
+        print('ARD_normiert für C_Porter_Pia_rechts [%] =', ard_neu_norm_P_Pia_rechts)
         print('ARD_normiert für C_NRTL_Pia_links [%] =', ard_neu_norm_N_Pia_links)
         print('ARD_normiert für C_NRTL_Pia_rechts [%] =', ard_neu_norm_N_Pia_rechts)
 
