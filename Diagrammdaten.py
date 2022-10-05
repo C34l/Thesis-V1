@@ -117,7 +117,7 @@ class Diagrams:
 
         return fqs_summe
 
-    #num, Gleichung PD Porter Pia
+    #num, Gleichung PD Porter Pia_
     @staticmethod
     def PD_Porter_pia(x, t, a1, a2):
         _func = ((_r*t**2)/_h0RS)*((1/(1-x))-(1/x)+2*a1*(-2*x+1)+2*a2*(((-2*x+1))/t))
@@ -150,11 +150,11 @@ class Diagrams:
 
     #num, Gleichung PD-Nrtl-Pia
     @staticmethod
-    def PD_NRTL_pia(x, t, g,):
+    def PD_NRTL_pia(x, t, g1, g2):
         a = _Alpha
-        u = g[0]
+        u = g1
         U = h.np.exp((a*u)/(_r*t))
-        v = g[1]
+        v = g2
         V = h.np.exp((a*v)/(_r*t))
 
         _func = ((x/(1-x))-1)*(t/_h0RS)*(((_r*t)/x)+(2*(1-x)**2)*(((u*(U-1))/(x*(U-1)+1)**3)-((v*V*(V-1))/((x-1)*V-x)**3))-(2*(1-x))*((u/(x*(U-1)+1)**2)+((v*V)/(x-(x-1)*V)**2)))
@@ -389,20 +389,56 @@ class Diagrams:
 
         t_Porter_links_Pia = h.np.zeros(len(TEXP_links))
         t_Porter_links_diff_Pia = h.np.zeros(len(TEXP_links))
+        t_NRTL_links_Pia = h.np.zeros(len(TEXP_links))
+        t_NRTL_links_diff_Pia = h.np.zeros(len(TEXP_links))
 
         t_Porter_rechts_Pia = h.np.zeros(len(TEXP_rechts))
-        t_Porterl_rechts_diff_Pia = h.np.zeros(len(TEXP_rechts))
+        t_Porter_rechts_diff_Pia = h.np.zeros(len(TEXP_rechts))
+        t_NRTL_rechts_Pia = h.np.zeros(len(TEXP_rechts))
+        t_NRTL_rechts_diff_Pia = h.np.zeros(len(TEXP_rechts))
 
         _tinitial = 393.35
 
         _initial = [_tinitial]
-        _tcalcRSS = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.000000001, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_korr_links, dense_output=True)
-        _tcalcRSR = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 1.0], _initial, method='RK45',
+        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.000000001, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_korr_links, dense_output=True)
+        _tcalcRSR_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 1.0], _initial, method='RK45',
                                     args=(_aRa), t_eval=XEXP_rechts, dense_output=True)
 
-        _tSLERSS = h.np.reshape(_tcalcRSS.y, len(TEXP_links))
-        _tSLERSR = h.np.reshape(_tcalcRSR.y, len(TEXP_rechts)-1)
+        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.000000001, 0.5], _initial, method='RK45',
+                                           args=(_gSa), t_eval=XEXP_korr_links, dense_output=True)
+        _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.5, 1.0], _initial, method='RK45',
+                                           args=(_gRa), t_eval=XEXP_rechts, dense_output=True)
+
+        t_Porter_links = h.np.reshape(_tcalcRSS_Porter.y, len(TEXP_links))
+        t_Porter_rechts = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_rechts)-1)
+        t_NRTL_links = h.np.reshape(_tcalcRSS_NRTL.y, len(TEXP_links))
+        t_NRTL_rechts = h.np.reshape(_tcalcRSR_NRTL.y, len(TEXP_rechts) - 1)
+
+        print(t_Porter_links, t_NRTL_links)
+
+        for x in range(len(TEXP_links)):
+          t_Porter_links_diff_Pia[x] = abs(TEXP_links[x]-t_Porter_links[x])
+          t_NRTL_links_diff_Pia[x] = abs(TEXP_links[x] - t_NRTL_links[x])
+
+        #print(t_Porter_links_diff_Pia)
+        t_diff_norm_links_P = h.np.abs(h.np.divide(t_Porter_links_diff_Pia, TEXP_links))
+        ard_neu_norm_links_P = (100 / len(TEXP_links)) * sum(t_diff_norm_links_P)
+        t_diff_norm_links_N = h.np.abs(h.np.divide(t_NRTL_links_diff_Pia, TEXP_links))
+        ard_neu_norm_links_N = (100 / len(TEXP_links)) * sum(t_diff_norm_links_N)
 
 
+        for x in range(len(TEXP_rechts)-1):
+          t_Porter_rechts_diff_Pia[x] = abs(TEXP_rechts[x]-t_Porter_rechts[x])
+          t_NRTL_rechts_diff_Pia[x] = abs(TEXP_rechts[x] - t_NRTL_rechts[x])
+
+        t_diff_norm_rechts_P = h.np.abs(h.np.divide(t_Porter_rechts_diff_Pia, TEXP_rechts))
+        ard_neu_norm_rechts_P = (100 / len(TEXP_rechts)) * sum(t_diff_norm_rechts_P)
+        t_diff_norm_rechts_N = h.np.abs(h.np.divide(t_NRTL_rechts_diff_Pia, TEXP_rechts))
+        ard_neu_norm_rechts_N = (100 / len(TEXP_rechts)) * sum(t_diff_norm_rechts_N)
+
+        print('ARD_normiert für PD_Porter_links [%] =', ard_neu_norm_links_P)
+        print('ARD_normiert für PD_Porter_rechts [%] =', ard_neu_norm_rechts_P)
+        print('ARD_normiert für PD_NRTL_links [%] =', ard_neu_norm_links_N)
+        print('ARD_normiert für PD_NRTL_rechts [%] =', ard_neu_norm_rechts_N)
 
         return 0
