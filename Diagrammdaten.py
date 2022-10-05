@@ -14,8 +14,10 @@ _h0R = 25736.0
 
 _Alpha = 0.4
 XEXP = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508, 0.7997, 0.8504, 0.9002, 0.9406, 1])
+
+XEXP_rechts = h.np.array([0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508, 0.7997, 0.8504, 0.9002, 0.9406, 1])
 XEXP_korr = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.486, 0.395, 0.369, 0.3193, 0.3098, 0.2492, 0.2003, 0.1496, 0.0998, 0.0594, 0])
-XEXP_korr_links = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, ])
+XEXP_korr_links = h.np.array([0.000000001, 0.1994, 0.3192, 0.4, 0.5, ])
 XEXP_korr_rechts = h.np.array([0.5, 0.486, 0.395, 0.369, 0.3193, 0.3098, 0.2492, 0.2003, 0.1496, 0.0998, 0.0594, 0])
 TEXP = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75, 393.65, 397.15, 399.15, 400.65, 404.65])
 TEXP_links = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, ])
@@ -117,8 +119,8 @@ class Diagrams:
 
     #num, Gleichung PD Porter Pia
     @staticmethod
-    def PD_Porter_pia(x, t, a,):
-        _func = ((_r*t**2)/_h0RS)*((1/(1-x))-(1/x)+2*a[0]*(-2*x+1)+2*a[1]*(((-2*x+1))/t))
+    def PD_Porter_pia(x, t, a1, a2):
+        _func = ((_r*t**2)/_h0RS)*((1/(1-x))-(1/x)+2*a1*(-2*x+1)+2*a2*(((-2*x+1))/t))
         return _func
 
     # num, löst PD porter Pia
@@ -350,7 +352,7 @@ class Diagrams:
         return fqs_summe
 
     @staticmethod
-    def PD_Gleichungen():
+    def PD_Gleichungen_literatur():
         t_PD_ideal_links = h.np.zeros(len(TEXP_links))
         t_PD_ideal_links_diff = h.np.zeros(len(TEXP_links))
 
@@ -375,11 +377,32 @@ class Diagrams:
         print('ARD_normiert für PD_ideal_rechts [%] =', ard_neu_norm_rechts)
         #print(t_PD_ideal_links)
 
-        steps_t_links = len(TEXP_links)
-        c = h.np.array([1])
-        res_1 = spo.minimize(Diagrams.PD_real_literatur_minfqs, c, args=(XEXP_korr_links, TEXP_links, steps_t_links),
-                                        method='Nelder-Mead',)
-        print('deltag_AB s = ' + str(res_1.x[0]))
+        #steps_t_links = len(TEXP_links)
+        #c = h.np.array([1])
+        #res_1 = spo.minimize(Diagrams.PD_real_literatur_minfqs, c, args=(XEXP_korr_links, TEXP_links, steps_t_links), method='Nelder-Mead',)
+        #print('deltag_AB s = ' + str(res_1.x[0]))
+
+        return 0
+
+    @staticmethod
+    def PD_Gleichungen():
+
+        t_Porter_links_Pia = h.np.zeros(len(TEXP_links))
+        t_Porter_links_diff_Pia = h.np.zeros(len(TEXP_links))
+
+        t_Porter_rechts_Pia = h.np.zeros(len(TEXP_rechts))
+        t_Porterl_rechts_diff_Pia = h.np.zeros(len(TEXP_rechts))
+
+        _tinitial = 393.35
+
+        _initial = [_tinitial]
+        _tcalcRSS = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.000000001, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_korr_links, dense_output=True)
+        _tcalcRSR = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 1.0], _initial, method='RK45',
+                                    args=(_aRa), t_eval=XEXP_rechts, dense_output=True)
+
+        _tSLERSS = h.np.reshape(_tcalcRSS.y, len(TEXP_links))
+        _tSLERSR = h.np.reshape(_tcalcRSR.y, len(TEXP_rechts)-1)
+
 
 
         return 0
