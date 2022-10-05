@@ -46,8 +46,10 @@ import headers as h
 # output = h.pd.DataFrame(h.nrtlt.NrtlFit.parametersH2O(df))
 #output = h.pd.DataFrame(h.Eut.EutFind.pure_ma())
 
-output = h.Eut.EutFind.pure_ma()
+#output = h.Eut.EutFind.pure_ma()
 #output = h.bt.batterytest.test()
+
+output = h.diag.Diagrams.PD_Gleichungen()
 
 #h.rw.IO._write(output)
 

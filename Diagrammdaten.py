@@ -1,5 +1,5 @@
 import headers as h
-import scipy.optimize
+import scipy.optimize as spo
 import matplotlib.pyplot as plt
 from shapely.geometry import LineString
 
@@ -100,7 +100,7 @@ class Diagrams:
 
     # soll PD-real optimieren und c bestimmen
     @staticmethod
-    def PD_Porter_fit_minfqs(c, _xi, _texp, _h0, _t0, _steps, ):
+    def PD_real_literatur_minfqs(c, _xi, _texp, _steps, ):
         _tcalc = h.np.zeros(_steps)
         _tdiff = h.np.zeros(_steps)
 
@@ -347,3 +347,38 @@ class Diagrams:
         fqs_summe = h.np.sum(fqs_norm)
 
         return fqs_summe
+
+    @staticmethod
+    def PD_Gleichungen():
+        t_PD_ideal_links = h.np.zeros(len(TEXP_links))
+        t_PD_ideal_links_diff = h.np.zeros(len(TEXP_links))
+
+        t_PD_ideal_rechts = h.np.zeros(len(TEXP_rechts))
+        t_PD_ideal_rechts_diff = h.np.zeros(len(TEXP_rechts))
+        #print(TEXP_links)
+
+        for x in range(len(TEXP_links)):
+          t_PD_ideal_links[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_links[x], args=XEXP_korr_links[x])
+          t_PD_ideal_links_diff[x] = abs(TEXP_links[x]-t_PD_ideal_links[x])
+
+        t_diff_norm_links = h.np.abs(h.np.divide(t_PD_ideal_links_diff, TEXP_links))
+        ard_neu_norm_links = (100 / len(TEXP_links)) * sum(t_diff_norm_links)
+        print('ARD_normiert für PD_ideal_links [%] =', ard_neu_norm_links)
+
+        for x in range(len(TEXP_rechts)):
+          t_PD_ideal_rechts[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_rechts[x], args=XEXP_korr_rechts[x])
+          t_PD_ideal_rechts_diff[x] = abs(TEXP_rechts[x]-t_PD_ideal_rechts[x])
+
+        t_diff_norm_rechts = h.np.abs(h.np.divide(t_PD_ideal_rechts_diff, TEXP_rechts))
+        ard_neu_norm_rechts = (100 / len(TEXP_rechts)) * sum(t_diff_norm_rechts)
+        print('ARD_normiert für PD_ideal_rechts [%] =', ard_neu_norm_rechts)
+        #print(t_PD_ideal_links)
+
+        steps_t_links = len(TEXP_links)
+        c = 1
+        res_1 = spo.minimize(Diagrams.PD_real_literatur_minfqs, c, args=(XEXP_korr_links, TEXP_links, steps_t_links,),
+                                        method='Nelder-Mead',)
+        print('deltag_AB s = ' + str(res_1.x[0]))
+
+
+        return 0
