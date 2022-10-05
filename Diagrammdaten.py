@@ -409,27 +409,24 @@ class Diagrams:
         _tinitial = 393.35
 
         _initial = [_tinitial]
-        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.000000001, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_korr_links, dense_output=True)
+        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.0000000001, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_links, dense_output=True)
         _tcalcRSR_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 1.0], _initial, method='RK45',
                                     args=(_aRa), t_eval=XEXP_rechts, dense_output=True)
 
-        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.000000001, 0.5], _initial, method='RK45',
-                                           args=(_gSa), t_eval=XEXP_korr_links, dense_output=True)
+        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.0000000001, 0.5], _initial, method='RK45',
+                                           args=(_gSa), t_eval=XEXP_links, dense_output=True)
         _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.5, 1.0], _initial, method='RK45',
                                            args=(_gRa), t_eval=XEXP_rechts, dense_output=True)
 
         t_Porter_links = h.np.reshape(_tcalcRSS_Porter.y, len(TEXP_links))
-        t_Porter_rechts = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_rechts)-1)
+        t_Porter_rechts = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_rechts))
         t_NRTL_links = h.np.reshape(_tcalcRSS_NRTL.y, len(TEXP_links))
-        t_NRTL_rechts = h.np.reshape(_tcalcRSR_NRTL.y, len(TEXP_rechts) - 1)
-
-        print(t_Porter_links, t_NRTL_links)
+        t_NRTL_rechts = h.np.reshape(_tcalcRSR_NRTL.y, len(TEXP_rechts))
 
         for x in range(len(TEXP_links)):
           t_Porter_links_diff_Pia[x] = abs(TEXP_links[x]-t_Porter_links[x])
           t_NRTL_links_diff_Pia[x] = abs(TEXP_links[x] - t_NRTL_links[x])
 
-        #print(t_Porter_links_diff_Pia)
         t_diff_norm_links_P = h.np.abs(h.np.divide(t_Porter_links_diff_Pia, TEXP_links))
         ard_neu_norm_links_P = (100 / len(TEXP_links)) * sum(t_diff_norm_links_P)
         t_diff_norm_links_N = h.np.abs(h.np.divide(t_NRTL_links_diff_Pia, TEXP_links))
