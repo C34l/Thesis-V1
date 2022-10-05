@@ -90,22 +90,23 @@ class Diagrams:
 
     #num, berechne t aus PD-real
     @staticmethod
-    def PD_real_literatur_num(t, x, a):
+    def PD_real_literatur_num(t, x, a,):
         _tinitial = 393.35
 
         _initial = [_tinitial]
-        _func = h.spi.solve_ivp(Diagrams.PD_real_literatur, [0.5, 1.0], _initial, method='RK45', args=(a,), t_eval=x,
+        _func = h.spi.solve_ivp(Diagrams.PD_real_literatur, [0.0, 1.0], _initial, method='RK45', args=(a,),
                                 dense_output=True)
-        return _func
+        a = h.np.ndarray.flatten(_func.y)
+        return a
 
     # soll PD-real optimieren und c bestimmen
     @staticmethod
-    def PD_real_literatur_minfqs(c, _xi, _texp, _steps, ):
+    def PD_real_literatur_minfqs(c, _xi, _texp, _steps,):
         _tcalc = h.np.zeros(_steps)
         _tdiff = h.np.zeros(_steps)
 
         for x in range(_steps):
-                _tcalc1 = h.spo.fsolve(Diagrams.PD_real_literatur_num, _texp[x], args=(_xi, c,), full_output=True)
+                _tcalc1 = h.spo.fsolve(Diagrams.PD_real_literatur_num, _texp[x], args=(_xi[x], c,), full_output=True)
                 _tcalc[x] = _tcalc1[0]
                 _tdiff[x] = _texp[x] - _tcalc[x]
         fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
@@ -375,8 +376,8 @@ class Diagrams:
         #print(t_PD_ideal_links)
 
         steps_t_links = len(TEXP_links)
-        c = 1
-        res_1 = spo.minimize(Diagrams.PD_real_literatur_minfqs, c, args=(XEXP_korr_links, TEXP_links, steps_t_links,),
+        c = h.np.array([1])
+        res_1 = spo.minimize(Diagrams.PD_real_literatur_minfqs, c, args=(XEXP_korr_links, TEXP_links, steps_t_links),
                                         method='Nelder-Mead',)
         print('deltag_AB s = ' + str(res_1.x[0]))
 
