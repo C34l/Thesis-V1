@@ -88,6 +88,32 @@ class Diagrams:
         _func = -(t/_h0RS)*((x/(1-x))-1)*(((_r*t)/x)-2*c*(1-x))
         return _func
 
+    #num, berechne t aus PD-real
+    @staticmethod
+    def PD_real_literatur_num(t, x, a):
+        _tinitial = 393.35
+
+        _initial = [_tinitial]
+        _func = h.spi.solve_ivp(Diagrams.PD_real_literatur, [0.5, 1.0], _initial, method='RK45', args=(a,), t_eval=x,
+                                dense_output=True)
+        return _func
+
+    # soll PD-real optimieren und c bestimmen
+    @staticmethod
+    def PD_Porter_fit_minfqs(c, _xi, _texp, _h0, _t0, _steps, ):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
+
+        for x in range(_steps):
+                _tcalc1 = h.spo.fsolve(Diagrams.PD_real_literatur_num, _texp[x], args=(_xi, c,), full_output=True)
+                _tcalc[x] = _tcalc1[0]
+                _tdiff[x] = _texp[x] - _tcalc[x]
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
+
     #num, Gleichung PD Porter Pia
     @staticmethod
     def PD_Porter_pia(x, t, a,):
