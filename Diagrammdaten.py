@@ -17,7 +17,8 @@ XEXP = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.5514, 0.605, 0.631, 0.6807, 
 
 XEXP_rechts = h.np.array([0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508, 0.7997, 0.8504, 0.9002, 0.9406, 1])
 XEXP_korr = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.486, 0.395, 0.369, 0.3193, 0.3098, 0.2492, 0.2003, 0.1496, 0.0998, 0.0594, 0])
-XEXP_korr_links = h.np.array([0.000000001, 0.1994, 0.3192, 0.4, 0.5, ])
+XEXP_korr_links_Porter = h.np.array([0.000000000000001, 0.1994, 0.3192, 0.4, 0.5, ])
+XEXP_korr_links= h.np.array([0.000000001, 0.1994, 0.3192, 0.4, 0.5, ])
 XEXP_korr_rechts = h.np.array([0.5, 0.486, 0.395, 0.369, 0.3193, 0.3098, 0.2492, 0.2003, 0.1496, 0.0998, 0.0594, 0])
 TEXP = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75, 393.65, 397.15, 399.15, 400.65, 404.65])
 TEXP_links = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, ])
@@ -591,7 +592,8 @@ class Diagrams:
         print('ARD_normiert für C_NRTL_Pia [%] =', ard_neu_norm_N_Pia)
 
         steps_t = len(TEXP_links)
-        res_Porter = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aSa, args=(XEXP_korr_links, TEXP_links, steps_t,),
+        _aSa2 = h.np.array([-10, 4600])
+        res_Porter = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aSa2, args=(XEXP_korr_links_Porter, TEXP_links, steps_t,),
                                   method='Powell', )
         print('C_A1 = ' + str(res_Porter.x[0]))
         print('C_A2 = ' + str(res_Porter.x[1]))
