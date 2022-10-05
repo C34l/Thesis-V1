@@ -14,15 +14,20 @@ _h0R = 25736.0
 
 _Alpha = 0.4
 XEXP = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508, 0.7997, 0.8504, 0.9002, 0.9406, 1])
+TEXP = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75, 393.65, 397.15, 399.15, 400.65, 404.65])
 
-XEXP_rechts = h.np.array([0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508, 0.7997, 0.8504, 0.9002, 0.9406, 1])
+XEXP_rechts = h.np.array([0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508])
+TEXP_rechts = h.np.array([393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75])
+XEXP_links = h.np.array([0.1994, 0.3192, 0.4, 0.5])
+TEXP_links = h.np.array([393.65, 387.55, 391.35, 393.35])
+
 XEXP_korr = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.486, 0.395, 0.369, 0.3193, 0.3098, 0.2492, 0.2003, 0.1496, 0.0998, 0.0594, 0])
 XEXP_korr_links_Porter = h.np.array([0.000000000000001, 0.1994, 0.3192, 0.4, 0.5, ])
-XEXP_korr_links= h.np.array([0.000000001, 0.1994, 0.3192, 0.4, 0.5, ])
+XEXP_korr_links = h.np.array([0.000000001, 0.1994, 0.3192, 0.4, 0.5, ])
 XEXP_korr_rechts = h.np.array([0.5, 0.486, 0.395, 0.369, 0.3193, 0.3098, 0.2492, 0.2003, 0.1496, 0.0998, 0.0594, 0])
-TEXP = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75, 393.65, 397.15, 399.15, 400.65, 404.65])
-TEXP_links = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, ])
-TEXP_rechts = h.np.array([393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75, 393.65, 397.15, 399.15, 400.65, 404.65])
+
+
+
 
 _a1a = -5.597
 _a2a = 1952.672
@@ -589,17 +594,17 @@ class Diagrams:
         t_NRTL_C_diff_rechts = h.np.zeros(len(TEXP_rechts))
 
         for x in range(len(TEXP_links)):
-            t_Porter_C_Pia_links[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, TEXP_links[x], args=(XEXP_korr_links[x], _aSa))
+            t_Porter_C_Pia_links[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, TEXP_links[x], args=(XEXP_links[x], _aSa))
             t_Porter_C_diff_Pia_links[x] = abs(TEXP_links[x] - t_Porter_C_Pia_links[x])
-            t_NRTL_C_Pia_links[x] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, TEXP_links[x], args=(XEXP_korr_links[x], _gSa))
+            t_NRTL_C_Pia_links[x] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, TEXP_links[x], args=(XEXP_links[x], _gSa))
             t_NRTL_C_diff_Pia_links[x] = abs(TEXP_links[x] - t_NRTL_C_Pia_links[x])
 
         for x in range(len(TEXP_rechts)):
             t_Porter_C_Pia_rechts[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, TEXP_rechts[x],
-                                                 args=(XEXP_korr_rechts[x], _aRa))
+                                                 args=(XEXP_rechts[x], _aRa))
             t_Porter_C_diff_Pia_rechts[x] = abs(TEXP_rechts[x] - t_Porter_C_Pia_rechts[x])
             t_NRTL_C_Pia_rechts[x] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, TEXP_rechts[x],
-                                               args=(XEXP_korr_rechts[x], _gRa))
+                                               args=(XEXP_rechts[x], _gRa))
             t_NRTL_C_diff_Pia_rechts[x] = abs(TEXP_rechts[x] - t_NRTL_C_Pia_rechts[x])
 
         t_diff_norm_P_Pia_links = h.np.abs(h.np.divide(t_Porter_C_diff_Pia_links, TEXP_links))
@@ -648,23 +653,31 @@ class Diagrams:
         print('C_gba = ' + str(res_NRTL_rechts.x[1]))
 
 
-        for i in range(len(TEXP_rechts)):
+        for i in range(len(TEXP_links)):
             t_Porter_C_links[i] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, TEXP_links[i], args=(XEXP_korr_links[i], _aNeu_links))
             t_Porter_C_diff_links[i] = abs(TEXP_links[i] - t_Porter_C_links[i])
             t_NRTL_C_links[i] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, TEXP_links[i], args=(XEXP_korr_links[i], _gNeu_links))
             t_NRTL_C_diff_links[i] = abs(TEXP_links[i] - t_NRTL_C_links[i])
 
-        for i in range(len(TEXP_links)):
-            t_Porter_C[i] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, TEXP_links[i], args=(XEXP_korr_links[i], _aNeu))
-            t_Porter_C_diff[i] = abs(TEXP_links[i] - t_Porter_C[i])
-            t_NRTL_C[i] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, TEXP_links[i], args=(XEXP_korr_links[i], _gNeu))
-            t_NRTL_C_diff[i] = abs(TEXP_links[i] - t_NRTL_C[i])
+        for i in range(len(TEXP_rechts)):
+            t_Porter_C_rechts[i] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, TEXP_rechts[i], args=(XEXP_korr_rechts[i], _aNeu_rechts))
+            t_Porter_C_diff_rechts[i] = abs(TEXP_rechts[i] - t_Porter_C_rechts[i])
+            t_NRTL_C_rechts[i] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, TEXP_rechts[i], args=(XEXP_korr_rechts[i], _gNeu_rechts))
+            t_NRTL_C_diff_rechts[i] = abs(TEXP_rechts[i] - t_NRTL_C_rechts[i])
 
-        t_diff_norm_P = h.np.abs(h.np.divide(t_Porter_C_diff, TEXP_links))
-        ard_neu_norm_P = (100 / len(TEXP_links)) * sum(t_diff_norm_P)
-        t_diff_norm_N = h.np.abs(h.np.divide(t_NRTL_C_diff, TEXP_links))
-        ard_neu_norm_N = (100 / len(TEXP_links)) * sum(t_diff_norm_N)
-        print('ARD_normiert für C_Porter [%] =', ard_neu_norm_P)
-        print('ARD_normiert für C_NRTL [%] =', ard_neu_norm_N)
-        print(t_Porter_C)
+        t_diff_norm_P_links = h.np.abs(h.np.divide(t_Porter_C_diff_links, TEXP_links))
+        ard_neu_norm_P_links = (100 / len(TEXP_links)) * sum(t_diff_norm_P_links)
+        t_diff_norm_N_links = h.np.abs(h.np.divide(t_NRTL_C_diff_links, TEXP_links))
+        ard_neu_norm_N_links = (100 / len(TEXP_links)) * sum(t_diff_norm_N_links)
+
+        t_diff_norm_P_rechts = h.np.abs(h.np.divide(t_Porter_C_diff_rechts, TEXP_rechts))
+        ard_neu_norm_P_rechts = (100 / len(TEXP_rechts)) * sum(t_diff_norm_P_rechts)
+        t_diff_norm_N_rechts = h.np.abs(h.np.divide(t_NRTL_C_diff_rechts, TEXP_rechts))
+        ard_neu_norm_N_rechts = (100 / len(TEXP_rechts)) * sum(t_diff_norm_N_rechts)
+
+        print('ARD_normiert für C_Porter_links [%] =', ard_neu_norm_P_links)
+        print('ARD_normiert für C_Porter_rechts [%] =', ard_neu_norm_P_rechts)
+        print('ARD_normiert für C_NRTL_links [%] =', ard_neu_norm_N_links)
+        print('ARD_normiert für C_NRTL_rechts [%] =', ard_neu_norm_N_rechts)
+        #print(t_Porter_C)
         return 0
