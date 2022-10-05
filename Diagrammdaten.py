@@ -167,15 +167,38 @@ class Diagrams:
         yb = Diagrams.y_nrtl(_gRa, x, t, _Alpha)
         _func = (((1 / 2) * (((-_h0S / (_r * t)) * (1 - (t / _t0S))) + (((-_h0R / (_r * t)) * (1 - (t / _t0R)))))) / (
         (h.np.log(0.25) - h.np.log(x * ya * (1 - x) * yb)))) - 1
-        return 0
+        return _func
 
     @staticmethod
-    def Bilanz_A_porter_fit():
-        return 0
+    def Bilanz_A_porter_fit_minfqs(_a, _xi, _texp, _h0, _t0, _steps,):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
+
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_A_porter_pia, _texp[x], args=(_xi[x], _h0, _t0, _a,), full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            _tdiff[x] = _texp[x] - _tcalc[x]
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
 
     @staticmethod
-    def Bilanz_A_nrtl_fit():
-        return 0
+    def Bilanz_A_nrtl_fit_minfqs(_g, _xi, _texp, _h0, _t0, _steps,):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
+
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(Diagrams.Bilanz_A_NRTL_pia, _texp[x], args=(_xi[x], _h0, _t0, _g,),
+                                   full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            _tdiff[x] = _texp[x] - _tcalc[x]
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
 
     @staticmethod
     def Bilanz_B_porter_pia():
