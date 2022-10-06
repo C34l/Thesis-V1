@@ -16,15 +16,17 @@ _Alpha = 0.4
 XEXP = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508, 0.7997, 0.8504, 0.9002, 0.9406, 1])
 TEXP = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75, 393.65, 397.15, 399.15, 400.65, 404.65])
 
-XEXP_short = h.np.array([0.3192, 0.4, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508])
-TEXP_short = h.np.array([387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75])
+XEXP_short = h.np.array([0.3192, 0.4, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902,])
+TEXP_short = h.np.array([387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95,])
 
-XEXP_rechts = h.np.array([0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508])
-TEXP_rechts = h.np.array([393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75])
-XEXP_links = h.np.array([0.0000000001, 0.1994, 0.3192, 0.4, 0.5])
-TEXP_links = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35])
+XEXP_rechts = h.np.array([0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902,])
+TEXP_rechts = h.np.array([393.35, 392.85, 391.35, 390.95, 388.35, 387.95,])
+#XEXP_links = h.np.array([0.0000000001, 0.1994, 0.3192, 0.4, 0.5])
+#TEXP_links = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35])
+XEXP_links = h.np.array([0.3192, 0.4, 0.5])
+TEXP_links = h.np.array([387.55, 391.35, 393.35])
 
-XEXP_out = h.np.array([0.0000000001, 0.1994, 0.3192, 0.4, 0.5, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902, 0.7508])
+XEXP_out = h.np.array([0.3192, 0.4, 0.5, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902,])
 TEXP_out = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75])
 
 XEXP_korr = h.np.array([0.0, 0.1994, 0.3192, 0.4, 0.5, 0.486, 0.395, 0.369, 0.3193, 0.3098, 0.2492, 0.2003, 0.1496, 0.0998, 0.0594, 0])
@@ -312,8 +314,9 @@ class Diagrams:
 
     #soll t für Bilanz C berechnen
     @staticmethod
-    def Bilanz_C_porter_pia(t, x, a):
-        _func = (_r*t)*((x/(1-x))-1)*((1/x)-2*(1-x)*(a[0]+(a[1]/t)))
+    def Bilanz_C_porter_pia(t, _x, a):
+        x = 1-_x
+        _func = (_r*t)*(-(x/(1-x))-1)*((1/x)-2*(1-x)*(a[0]+(a[1]/t)))
         return _func
 
     @staticmethod
@@ -419,13 +422,13 @@ class Diagrams:
         _tinitial = 393.35
 
         _initial = [_tinitial]
-        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.0000000001, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_links, dense_output=True)
-        _tcalcRSR_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 1.0], _initial, method='RK45',
+        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.3, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_links, dense_output=True)
+        _tcalcRSR_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 0.72], _initial, method='RK45',
                                     args=(_aRa), t_eval=XEXP_rechts, dense_output=True)
 
-        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.0000000001, 0.5], _initial, method='RK45',
+        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.03, 0.5], _initial, method='RK45',
                                            args=(_gSa), t_eval=XEXP_links, dense_output=True)
-        _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.5, 1.0], _initial, method='RK45',
+        _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.5, 0.72], _initial, method='RK45',
                                            args=(_gRa), t_eval=XEXP_rechts, dense_output=True)
 
         t_Porter_links_Pia = h.np.reshape(_tcalcRSS_Porter.y, len(TEXP_links))
@@ -742,6 +745,29 @@ class Diagrams:
         print('ARD_normiert für C_NRTL_links [%] =', ard_neu_norm_N_links)
         print('ARD_normiert für C_NRTL_rechts [%] =', ard_neu_norm_N_rechts)
 
+
+        #_xinRac = h.np.zeros(75)
+        #_xinRac[0] = 0.25
+        #_tin = h.np.zeros(75)
+        #_tin[0] = 273.15
+
+        # loading up values
+        #for x in range(len(_xinRac)):
+
+            #_xinRac[x] = _xinRac[0] + .01 * x
+
+        #for x in range(len(_tin)):
+            #_tin[x] = _tin[0] + (2.0 * x)
+
+        #_tcalcRSS = h.np.zeros(75)
+        #_tcalcRSR = h.np.zeros(75)
+
+        #for x in range(len(_xinRac)):
+           #_tcalcRSS[x] = h.spo.fsolve(Diagrams.Bilanz_C_porter_pia, _tin[x], args=(_xinRac[x], _aNeu_links))
+           #_tcalcRSR[x] = h.spo.fsolve(Diagrams.Bilanz_C_porter_pia, _tin[x], args=(_xinRac[x], _aNeu_rechts))
+
+
+
         _ARDP_Pre = h.np.array([ard_neu_norm_P_Pia_links, ard_neu_norm_P_Pia_rechts])
         _ARDN_Pre = h.np.array([ard_neu_norm_N_Pia_links, ard_neu_norm_N_Pia_rechts])
         _ARDP_Post = h.np.array([ard_neu_norm_P_links, ard_neu_norm_P_rechts])
@@ -755,7 +781,7 @@ class Diagrams:
         _aOUT = h.np.concatenate((_aNeu_links, _aNeu_rechts))
         _gOUT = h.np.concatenate((_gNeu_links, _gNeu_rechts))
 
-        _xinDF = h.pd.DataFrame(XEXP_short, columns=['xin'])
+        _xinDF = h.pd.DataFrame(XEXP_out, columns=['xin'])
         _t1 = h.pd.DataFrame(t_P_Pre, columns=['t Porter pre'])
         _t2 = h.pd.DataFrame(t_N_Pre, columns=['t NRTL pre'])
         _ARD1out = h.pd.DataFrame(_ARDP_Pre, columns=['ARD PRE Porter links, rechts, ges'])
@@ -767,6 +793,10 @@ class Diagrams:
         _t4 = h.pd.DataFrame(t_N_Post, columns=['t NRTL post'])
         _ARD3out = h.pd.DataFrame(_ARDP_Post, columns=['ARD post Porter links, rechts, ges'])
         _ARD4out = h.pd.DataFrame(_ARDN_Post, columns=['ARD post NRTL links, rechts, ges'])
+
+        #_rac_out = h.pd.DataFrame(_xinRac, columns=['xrac'])
+        #_t5 = h.pd.DataFrame(_tcalcRSR, columns=['t Porter post links'])
+        #_t6 = h.pd.DataFrame(_tcalcRSS, columns=['t Porter post rechts'])
 
         _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
         df = h.pd.concat(_dataout, axis=1)
