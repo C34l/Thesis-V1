@@ -506,7 +506,7 @@ class Diagrams:
 
         steps_t = len(XEXP_short)
         res_Porter = spo.minimize(Diagrams.Bilanz_A_porter_fit_minfqs, _aGes, args=(XEXP_short, TEXP_short, steps_t,),
-                                        method='Nelder-Mead',)
+                                        method='Powell',)
         print('A_A1 = ' + str(res_Porter.x[0]))
         print('A_A2 = ' + str(res_Porter.x[1]))
         print('A_B1 = ' + str(res_Porter.x[2]))
