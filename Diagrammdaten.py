@@ -687,17 +687,17 @@ class Diagrams:
         _aSa2 = h.np.array([-10, 4600])
         res_Porter_links = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aSa2, args=(XEXP_links, TEXP_links, steps_t_links,),
                                   method='Powell', )
-
-
         _aNeu_links = (res_Porter_links.x[0], res_Porter_links.x[1])
+
         res_NRTL_links = spo.minimize(Diagrams.Bilanz_C_nrtl_fit_minfqs, _gSa, args=(XEXP_links, TEXP_links, steps_t_links,),
                                 method='Powell', )
         _gNeu_links = (res_NRTL_links.x[0], res_NRTL_links.x[1],)
 
+        _aSa3 = h.np.array([-10, 4700])
         steps_t_rechts = len(TEXP_rechts)
-        res_Porter_rechts = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aSa2,
+        res_Porter_rechts = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aSa3,
                                   args=(XEXP_rechts, TEXP_rechts, steps_t_rechts,),
-                                  method='Powell', )
+                                  method='Nelder-Mead', )
 
         _aNeu_rechts = (res_Porter_rechts.x[0], res_Porter_rechts.x[1])
         res_NRTL_rechts = spo.minimize(Diagrams.Bilanz_C_nrtl_fit_minfqs, _gRa, args=(XEXP_rechts, TEXP_rechts, steps_t_rechts,),
@@ -752,7 +752,7 @@ class Diagrams:
         t_P_Post = h.np.concatenate((t_Porter_C_links, t_Porter_C_rechts))
         t_N_Post = h.np.concatenate((t_NRTL_C_links, t_NRTL_C_rechts))
 
-        _aOUT = h.np.concatenate((_aNeu_links,_aNeu_rechts))
+        _aOUT = h.np.concatenate((_aNeu_links, _aNeu_rechts))
         _gOUT = h.np.concatenate((_gNeu_links, _gNeu_rechts))
 
         _xinDF = h.pd.DataFrame(XEXP_short, columns=['xin'])
@@ -770,7 +770,7 @@ class Diagrams:
 
         _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_B.xlsx')
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_C.xlsx')
 
 
         return 0
