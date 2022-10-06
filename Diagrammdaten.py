@@ -511,7 +511,7 @@ class Diagrams:
         _aNeu = (res_Porter.x[0], res_Porter.x[1], res_Porter.x[2], res_Porter.x[3])
 
         res_NRTL = spo.minimize(Diagrams.Bilanz_A_nrtl_fit_minfqs, _gGes, args=(XEXP_short, TEXP_short, steps_t,),
-                                  method='Powell', )
+                                  method='Nelder-Mead', )
         print('A_gab = ' + str(res_NRTL.x[0]))
         print('A_gba = ' + str(res_NRTL.x[1]))
         print('A_gAB = ' + str(res_NRTL.x[2]))
@@ -610,20 +610,27 @@ class Diagrams:
         print('ARD_normiert für B_Porter [%] =', ard_neu_norm_P)
         print('ARD_normiert für B_NRTL [%] =', ard_neu_norm_N)
 
+        _ARDP_Pre = h.np.array([ard_neu_norm_P_Pia])
+        _ARDN_Pre = h.np.array([ard_neu_norm_N_Pia])
+        _ARDP_Post = h.np.array([ard_neu_norm_P])
+        _ARDN_Post = h.np.array([ard_neu_norm_N])
 
-
-        _xinDF = h.pd.DataFrame(XEXP_out, columns=['xin'])
+        _xinDF = h.pd.DataFrame(XEXP_short, columns=['xin'])
         _t1 = h.pd.DataFrame(t_Porter_B_Pia, columns=['t Porter pre'])
-        _t2 = h.pd.DataFrame(t_out2, columns=['t NRTL pre'])
-        _ARD1out = h.pd.DataFrame(ard_neu_norm_P_Pia, columns=['ARD PRE Porter links, rechts, ges'])
-        _ARD2out = h.pd.DataFrame(ard_neu_norm_N_Pia, columns=['ARD PRE NRTL links, rechts, ges'])
+        _t2 = h.pd.DataFrame(t_NRTL_B_Pia, columns=['t NRTL pre'])
+        _ARD1out = h.pd.DataFrame(_ARDP_Pre, columns=['ARD PRE Porter links, rechts, ges'])
+        _ARD2out = h.pd.DataFrame(_ARDN_Pre, columns=['ARD PRE NRTL links, rechts, ges'])
+        _a_Aus = h.pd.DataFrame(_aNeu, columns=['A1, A2, B1, B2'])
+        _g_Aus = h.pd.DataFrame(_gNeu, columns=['g1, g2, g3, g4'])
 
-        _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out]
+        _t3 = h.pd.DataFrame(t_Porter_B, columns=['t Porter post'])
+        _t4 = h.pd.DataFrame(t_NRTL_B, columns=['t NRTL post'])
+        _ARD3out = h.pd.DataFrame(_ARDP_Post, columns=['ARD post Porter links, rechts, ges'])
+        _ARD4out = h.pd.DataFrame(_ARDN_Post, columns=['ARD post NRTL links, rechts, ges'])
+
+        _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_Gleichungen.xlsx')
-
-
-
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_B.xlsx')
         return 0
 
     @staticmethod
