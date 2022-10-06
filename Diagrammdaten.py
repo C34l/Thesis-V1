@@ -388,16 +388,18 @@ class Diagrams:
         ard_neu_norm_rechts = (100 / len(TEXP_rechts)) * sum(t_diff_norm_rechts)
         print('ARD_normiert für PD_ideal_rechts [%] =', ard_neu_norm_rechts)
 
+        ARD = ([ard_neu_norm_links,ard_neu_norm_rechts])
+
         t_out1 = h.np.concatenate((t_PD_ideal_links, t_PD_ideal_rechts))
 
         _xinDF = h.pd.DataFrame(XEXP_out, columns=['xin'])
         _t1 = h.pd.DataFrame(t_out1, columns=['t PD ideal'])
-        _ARD1 = h.pd.DataFrame(ard_neu_norm_links, columns=['ard_neu_norm_links'])
-        _ARD2 = h.pd.DataFrame(ard_neu_norm_rechts, columns=['ard_neu_norm_rechts'])
+        _ARD1out = h.pd.DataFrame(ARD, columns=['ARD links, rechts'])
+        #_ARD2 = h.pd.DataFrame(ard_neu_norm_rechts, columns=['ard_neu_norm_rechts'])
 
-        _dataout = [_xinDF, _t1, _ARD1, _ARD2]
+        _dataout = [_xinDF, _t1, _ARD1out,]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_ideal.xlsx')
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_literatur.xlsx')
 
         return 0
 
@@ -426,14 +428,14 @@ class Diagrams:
         _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.5, 1.0], _initial, method='RK45',
                                            args=(_gRa), t_eval=XEXP_rechts, dense_output=True)
 
-        t_Porter_links = h.np.reshape(_tcalcRSS_Porter.y, len(TEXP_links))
-        t_Porter_rechts = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_rechts))
-        t_NRTL_links = h.np.reshape(_tcalcRSS_NRTL.y, len(TEXP_links))
-        t_NRTL_rechts = h.np.reshape(_tcalcRSR_NRTL.y, len(TEXP_rechts))
+        t_Porter_links_Pia = h.np.reshape(_tcalcRSS_Porter.y, len(TEXP_links))
+        t_Porter_rechts_Pia = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_rechts))
+        t_NRTL_links_Pia = h.np.reshape(_tcalcRSS_NRTL.y, len(TEXP_links))
+        t_NRTL_rechts_Pia = h.np.reshape(_tcalcRSR_NRTL.y, len(TEXP_rechts))
 
         for x in range(len(TEXP_links)):
-          t_Porter_links_diff_Pia[x] = abs(TEXP_links[x]-t_Porter_links[x])
-          t_NRTL_links_diff_Pia[x] = abs(TEXP_links[x] - t_NRTL_links[x])
+          t_Porter_links_diff_Pia[x] = abs(TEXP_links[x]-t_Porter_links_Pia[x])
+          t_NRTL_links_diff_Pia[x] = abs(TEXP_links[x] - t_NRTL_links_Pia[x])
 
         t_diff_norm_links_P = h.np.abs(h.np.divide(t_Porter_links_diff_Pia, TEXP_links))
         ard_neu_norm_links_P = (100 / len(TEXP_links)) * sum(t_diff_norm_links_P)
@@ -442,8 +444,8 @@ class Diagrams:
 
 
         for x in range(len(TEXP_rechts)-1):
-          t_Porter_rechts_diff_Pia[x] = abs(TEXP_rechts[x]-t_Porter_rechts[x])
-          t_NRTL_rechts_diff_Pia[x] = abs(TEXP_rechts[x] - t_NRTL_rechts[x])
+          t_Porter_rechts_diff_Pia[x] = abs(TEXP_rechts[x]-t_Porter_rechts_Pia[x])
+          t_NRTL_rechts_diff_Pia[x] = abs(TEXP_rechts[x] - t_NRTL_rechts_Pia[x])
 
         t_diff_norm_rechts_P = h.np.abs(h.np.divide(t_Porter_rechts_diff_Pia, TEXP_rechts))
         ard_neu_norm_rechts_P = (100 / len(TEXP_rechts)) * sum(t_diff_norm_rechts_P)
@@ -454,6 +456,22 @@ class Diagrams:
         print('ARD_normiert für PD_Porter_rechts [%] =', ard_neu_norm_rechts_P)
         print('ARD_normiert für PD_NRTL_links [%] =', ard_neu_norm_links_N)
         print('ARD_normiert für PD_NRTL_rechts [%] =', ard_neu_norm_rechts_N)
+
+        ARD_Porter_Pre = ([ard_neu_norm_links_P, ard_neu_norm_rechts_P])
+        ARD_NRTL_Pre = ([ard_neu_norm_links_N, ard_neu_norm_rechts_N])
+
+        t_out1 = h.np.concatenate((t_Porter_links_Pia, t_Porter_rechts_Pia))
+        t_out2 = h.np.concatenate((t_NRTL_links_Pia, t_NRTL_rechts_Pia))
+
+        _xinDF = h.pd.DataFrame(XEXP_out, columns=['xin'])
+        _t1 = h.pd.DataFrame(t_out1, columns=['t Porter pre'])
+        _t2 = h.pd.DataFrame(t_out2, columns=['t NRTL pre'])
+        _ARD1out = h.pd.DataFrame(ARD_Porter_Pre, columns=['ARD PRE Porter links, rechts'])
+        _ARD2out = h.pd.DataFrame(ARD_NRTL_Pre, columns=['ARD PRE NRTL links, rechts'])
+
+        _dataout = [_xinDF, _t1,_t2, _ARD1out, _ARD2out]
+        df = h.pd.concat(_dataout, axis=1)
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_Gleichungen.xlsx')
 
         return 0
 
@@ -512,6 +530,23 @@ class Diagrams:
         ard_neu_norm_N = (100 / len(TEXP_short)) * sum(t_diff_norm_N)
         print('ARD_normiert für A_Porter [%] =', ard_neu_norm_P)
         print('ARD_normiert für A_NRTL [%] =', ard_neu_norm_N)
+
+        _xinDF = h.pd.DataFrame(XEXP_out, columns=['xin'])
+        _t1 = h.pd.DataFrame(t_Porter_A_Pia, columns=['t Porter pre'])
+        _t2 = h.pd.DataFrame(t_NRTL_A_Pia, columns=['t NRTL pre'])
+        _ARD1out = h.pd.DataFrame(ard_neu_norm_P_Pia, columns=['ARD PRE Porter links, rechts, ges'])
+        _ARD2out = h.pd.DataFrame(ard_neu_norm_N_Pia, columns=['ARD PRE NRTL links, rechts, ges'])
+        _a_Aus = h.pd.DataFrame(_aNeu, columns=['A1, A2, B1, B2'])
+        _g_Aus = h.pd.DataFrame(_gNeu, columns=['g1, g2, g3, g4'])
+
+        _t3 = h.pd.DataFrame(t_Porter_A, columns=['t Porter post'])
+        _t4 = h.pd.DataFrame(t_NRTL_A, columns=['t NRTL post'])
+        _ARD3out = h.pd.DataFrame(ard_neu_norm_P, columns=['ARD post Porter links, rechts, ges'])
+        _ARD4out = h.pd.DataFrame(ard_neu_norm_N, columns=['ARD post NRTL links, rechts, ges'])
+
+        _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
+        df = h.pd.concat(_dataout, axis=1)
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz A.xlsx')
         return 0
 
     @staticmethod
@@ -569,6 +604,21 @@ class Diagrams:
         ard_neu_norm_N = (100 / len(TEXP_short)) * sum(t_diff_norm_N)
         print('ARD_normiert für B_Porter [%] =', ard_neu_norm_P)
         print('ARD_normiert für B_NRTL [%] =', ard_neu_norm_N)
+
+
+
+        _xinDF = h.pd.DataFrame(XEXP_out, columns=['xin'])
+        _t1 = h.pd.DataFrame(t_Porter_B_Pia, columns=['t Porter pre'])
+        _t2 = h.pd.DataFrame(t_out2, columns=['t NRTL pre'])
+        _ARD1out = h.pd.DataFrame(ard_neu_norm_P_Pia, columns=['ARD PRE Porter links, rechts, ges'])
+        _ARD2out = h.pd.DataFrame(ard_neu_norm_N_Pia, columns=['ARD PRE NRTL links, rechts, ges'])
+
+        _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out]
+        df = h.pd.concat(_dataout, axis=1)
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_Gleichungen.xlsx')
+
+
+
         return 0
 
     @staticmethod
