@@ -741,5 +741,36 @@ class Diagrams:
         print('ARD_normiert für C_Porter_rechts [%] =', ard_neu_norm_P_rechts)
         print('ARD_normiert für C_NRTL_links [%] =', ard_neu_norm_N_links)
         print('ARD_normiert für C_NRTL_rechts [%] =', ard_neu_norm_N_rechts)
-        #print(t_Porter_C)
+
+        _ARDP_Pre = h.np.array([ard_neu_norm_P_Pia_links, ard_neu_norm_P_Pia_rechts])
+        _ARDN_Pre = h.np.array([ard_neu_norm_N_Pia_links, ard_neu_norm_N_Pia_rechts])
+        _ARDP_Post = h.np.array([ard_neu_norm_P_links, ard_neu_norm_P_rechts])
+        _ARDN_Post = h.np.array([ard_neu_norm_N_links, ard_neu_norm_N_rechts])
+
+        t_P_Pre = h.np.concatenate((t_Porter_C_Pia_links, t_Porter_C_Pia_rechts))
+        t_N_Pre = h.np.concatenate((t_NRTL_C_Pia_links, t_NRTL_C_Pia_rechts))
+        t_P_Post = h.np.concatenate((t_Porter_C_links, t_Porter_C_rechts))
+        t_N_Post = h.np.concatenate((t_NRTL_C_links, t_NRTL_C_rechts))
+
+        _aOUT = h.np.concatenate((_aNeu_links,_aNeu_rechts))
+        _gOUT = h.np.concatenate((_gNeu_links, _gNeu_rechts))
+
+        _xinDF = h.pd.DataFrame(XEXP_short, columns=['xin'])
+        _t1 = h.pd.DataFrame(t_P_Pre, columns=['t Porter pre'])
+        _t2 = h.pd.DataFrame(t_N_Pre, columns=['t NRTL pre'])
+        _ARD1out = h.pd.DataFrame(_ARDP_Pre, columns=['ARD PRE Porter links, rechts, ges'])
+        _ARD2out = h.pd.DataFrame(_ARDN_Pre, columns=['ARD PRE NRTL links, rechts, ges'])
+        _a_Aus = h.pd.DataFrame(_aOUT, columns=['A1, A2, B1, B2'])
+        _g_Aus = h.pd.DataFrame(_gOUT, columns=['g1, g2, g3, g4'])
+
+        _t3 = h.pd.DataFrame(t_P_Post, columns=['t Porter post'])
+        _t4 = h.pd.DataFrame(t_N_Post, columns=['t NRTL post'])
+        _ARD3out = h.pd.DataFrame(_ARDP_Post, columns=['ARD post Porter links, rechts, ges'])
+        _ARD4out = h.pd.DataFrame(_ARDN_Post, columns=['ARD post NRTL links, rechts, ges'])
+
+        _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
+        df = h.pd.concat(_dataout, axis=1)
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_B.xlsx')
+
+
         return 0
