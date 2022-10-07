@@ -19,8 +19,10 @@ TEXP = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 392.85, 391.35, 390.9
 XEXP_short = h.np.array([0.3192, 0.4, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902,])
 TEXP_short = h.np.array([387.55, 391.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95,])
 
-XEXP_rechts = h.np.array([0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902,])
-TEXP_rechts = h.np.array([393.35, 392.85, 391.35, 390.95, 388.35, 387.95,])
+XEXP_rechts1 = h.np.array([0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902,])
+TEXP_rechts1 = h.np.array([393.35, 392.85, 391.35, 390.95, 388.35, 387.95,])
+XEXP_rechts = h.np.array([0.3098, 0.3193, 0.369, 0.395, 0.486, 0.5,])
+TEXP_rechts = h.np.array([387.95, 388.35, 390.95, 391.35, 392.85, 393.35,])
 #XEXP_links = h.np.array([0.0000000001, 0.1994, 0.3192, 0.4, 0.5])
 #TEXP_links = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35])
 XEXP_links = h.np.array([0.3192, 0.4, 0.5])
@@ -510,32 +512,34 @@ class Diagrams:
 
     @staticmethod
     def Ansatz_A():
-        t_Porter_A_Pia = h.np.zeros(len(TEXP_short))
-        t_Porter_A_diff_Pia = h.np.zeros(len(TEXP_short))
-        t_NRTL_A_Pia = h.np.zeros(len(TEXP_short))
-        t_NRTL_A_diff_Pia = h.np.zeros(len(TEXP_short))
+        a = TEXP_links
+        b = XEXP_links
+        t_Porter_A_Pia = h.np.zeros(len(a))
+        t_Porter_A_diff_Pia = h.np.zeros(len(a))
+        t_NRTL_A_Pia = h.np.zeros(len(a))
+        t_NRTL_A_diff_Pia = h.np.zeros(len(a))
 
-        t_Porter_A = h.np.zeros(len(TEXP_short))
-        t_Porter_A_diff = h.np.zeros(len(TEXP_short))
-        t_NRTL_A = h.np.zeros(len(TEXP_short))
-        t_NRTL_A_diff = h.np.zeros(len(TEXP_short))
+        t_Porter_A = h.np.zeros(len(a))
+        t_Porter_A_diff = h.np.zeros(len(a))
+        t_NRTL_A = h.np.zeros(len(a))
+        t_NRTL_A_diff = h.np.zeros(len(a))
 
-        for x in range(len(TEXP_short)):
-            t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, TEXP_short[x], args=(XEXP_short[x], _aGes))
-            t_Porter_A_diff_Pia[x] = abs(TEXP_short[x] - t_Porter_A_Pia[x])
-            t_NRTL_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, TEXP_short[x], args=(XEXP_short[x], _gGes))
-            t_NRTL_A_diff_Pia[x] = abs(TEXP_short[x] - t_NRTL_A_Pia[x])
+        for x in range(len(a)):
+            t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, a[x], args=(b[x], _aGes))
+            t_Porter_A_diff_Pia[x] = abs(a[x] - t_Porter_A_Pia[x])
+            t_NRTL_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, a[x], args=(b[x], _gGes))
+            t_NRTL_A_diff_Pia[x] = abs(a[x] - t_NRTL_A_Pia[x])
             #print(t_Porter_A_Pia[x])
 
-        t_diff_norm_P_Pia = h.np.abs(h.np.divide(t_Porter_A_diff_Pia, TEXP_short))
-        ard_neu_norm_P_Pia = (100 / len(TEXP_short)) * sum(t_diff_norm_P_Pia)
-        t_diff_norm_N_Pia = h.np.abs(h.np.divide(t_NRTL_A_diff_Pia, TEXP_short))
-        ard_neu_norm_N_Pia = (100 / len(TEXP_short)) * sum(t_diff_norm_N_Pia)
+        t_diff_norm_P_Pia = h.np.abs(h.np.divide(t_Porter_A_diff_Pia, a))
+        ard_neu_norm_P_Pia = (100 / len(a)) * sum(t_diff_norm_P_Pia)
+        t_diff_norm_N_Pia = h.np.abs(h.np.divide(t_NRTL_A_diff_Pia, a))
+        ard_neu_norm_N_Pia = (100 / len(a)) * sum(t_diff_norm_N_Pia)
         print('ARD_normiert für A_Porter_Pia [%] =', ard_neu_norm_P_Pia)
         print('ARD_normiert für A_NRTL_Pia [%] =', ard_neu_norm_N_Pia)
 
-        steps_t = len(XEXP_short)
-        res_Porter = spo.minimize(Diagrams.Bilanz_A_porter_fit_minfqs, _aGes, args=(XEXP_short, TEXP_short, steps_t,),
+        steps_t = len(a)
+        res_Porter = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aGes, args=(b, a, steps_t,),
                                         method='Powell',)
         print('A_A1 = ' + str(res_Porter.x[0]))
         print('A_A2 = ' + str(res_Porter.x[1]))
@@ -543,7 +547,7 @@ class Diagrams:
         print('A_B1 = ' + str(res_Porter.x[3]))
         _aNeu = (res_Porter.x[0], res_Porter.x[1], res_Porter.x[2], res_Porter.x[3])
 
-        res_NRTL = spo.minimize(Diagrams.Bilanz_A_nrtl_fit_minfqs, _gGes, args=(XEXP_short, TEXP_short, steps_t,),
+        res_NRTL = spo.minimize(Diagrams.Bilanz_C_nrtl_fit_minfqs, _gGes, args=(b, a, steps_t,),
                                   method='Nelder-Mead', )
         print('A_gab = ' + str(res_NRTL.x[0]))
         print('A_gba = ' + str(res_NRTL.x[1]))
@@ -551,16 +555,16 @@ class Diagrams:
         print('A_gBA = ' + str(res_NRTL.x[3]))
         _gNeu = (res_NRTL.x[0], res_NRTL.x[1], res_NRTL.x[2], res_NRTL.x[3])
 
-        for x in range(len(TEXP_short)):
-            t_Porter_A[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, TEXP_short[x], args=(XEXP_short[x], _aNeu))
-            t_Porter_A_diff[x] = abs(TEXP_short[x] - t_Porter_A[x])
-            t_NRTL_A[x] = spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, TEXP_short[x], args=(XEXP_short[x], _gNeu))
-            t_NRTL_A_diff[x] = abs(TEXP_short[x] - t_NRTL_A[x])
+        for x in range(len(a)):
+            t_Porter_A[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, a[x], args=(b[x], _aNeu))
+            t_Porter_A_diff[x] = abs(a[x] - t_Porter_A[x])
+            t_NRTL_A[x] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, a[x], args=(b[x], _gNeu))
+            t_NRTL_A_diff[x] = abs(a[x] - t_NRTL_A[x])
 
-        t_diff_norm_P = h.np.abs(h.np.divide(t_Porter_A_diff, TEXP_short))
-        ard_neu_norm_P = (100 / len(TEXP_short)) * sum(t_diff_norm_P)
-        t_diff_norm_N = h.np.abs(h.np.divide(t_NRTL_A_diff, TEXP_short))
-        ard_neu_norm_N = (100 / len(TEXP_short)) * sum(t_diff_norm_N)
+        t_diff_norm_P = h.np.abs(h.np.divide(t_Porter_A_diff, a))
+        ard_neu_norm_P = (100 / len(a)) * sum(t_diff_norm_P)
+        t_diff_norm_N = h.np.abs(h.np.divide(t_NRTL_A_diff, a))
+        ard_neu_norm_N = (100 / len(a)) * sum(t_diff_norm_N)
         print('ARD_normiert für A_Porter [%] =', ard_neu_norm_P)
         print('ARD_normiert für A_NRTL [%] =', ard_neu_norm_N)
 
@@ -569,7 +573,7 @@ class Diagrams:
         _ARDP_Post = h.np.array([ard_neu_norm_P])
         _ARDN_Post = h.np.array([ard_neu_norm_N])
 
-        _xinDF = h.pd.DataFrame(XEXP_short, columns=['xin'])
+        _xinDF = h.pd.DataFrame(b, columns=['xin'])
         _t1 = h.pd.DataFrame(t_Porter_A_Pia, columns=['t Porter pre'])
         _t2 = h.pd.DataFrame(t_NRTL_A_Pia, columns=['t NRTL pre'])
         _ARD1out = h.pd.DataFrame(_ARDP_Pre, columns=['ARD PRE Porter links, rechts, ges'])
@@ -584,7 +588,7 @@ class Diagrams:
 
         _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_A.xlsx')
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_C_links.xlsx')
         return 0
 
     @staticmethod
