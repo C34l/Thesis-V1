@@ -512,8 +512,8 @@ class Diagrams:
 
     @staticmethod
     def Ansatz_A():
-        a = TEXP_links
-        b = XEXP_links
+        a = TEXP_rechts
+        b = XEXP_rechts
         t_Porter_A_Pia = h.np.zeros(len(a))
         t_Porter_A_diff_Pia = h.np.zeros(len(a))
         t_NRTL_A_Pia = h.np.zeros(len(a))
@@ -588,7 +588,7 @@ class Diagrams:
 
         _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_C_links.xlsx')
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_C_rechts.xlsx')
         return 0
 
     @staticmethod
