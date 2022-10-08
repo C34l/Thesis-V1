@@ -1241,7 +1241,7 @@ class EutFind:
                 #_ideal_sle()
                 #_nrtl_pure_comp_sle()
                 #_nrtl_pure_comp_porter()
-                #_nrtl_pure_comp_porter_eigen()
+                _nrtl_pure_comp_porter_eigen()
                 _nrtl_pure_comp_porter_eigen_GD()
                 #_nrtl_pure_comp_SLE_eigen()
                 #_nrtl_pure_comp_SLE_eigen_beidseitig()

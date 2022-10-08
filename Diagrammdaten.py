@@ -266,7 +266,7 @@ class Diagrams:
         ya = Diagrams.y_porter(x, t, A)
         yb = Diagrams.y_porter(x, t, B)
 
-        _func = (((1 / 2) * (((-_h0S / (_r * t)) * (1 - (t / _t0S))) + (((-_h0R / (_r * t)) * (1 - (t / _t0R)))))) / (
+        _func = (((((_h0S / (_r * t)) * (1 - (t / _t0S))) + (((_h0R / (_r * t)) * (1 - (t / _t0R)))))) / (
          (h.np.log(4 * x * ya * (1 - x) * yb)))) - 1
         return _func
 
@@ -294,7 +294,7 @@ class Diagrams:
         B = h.np.array([g[2], g[3]])
         ya = Diagrams.y_nrtl(A, x, t, _Alpha)
         yb = Diagrams.y_nrtl(B, x, t, _Alpha)
-        _func = (((1 / 2) * (((-_h0S / (_r * t)) * (1 - (t / _t0S))) + (((-_h0R / (_r * t)) * (1 - (t / _t0R)))))) / ((h.np.log(4 * x * ya * (1 - x) * yb)))) - 1
+        _func = (( (((_h0S / (_r * t)) * (1 - (t / _t0S))) + (((_h0R / (_r * t)) * (1 - (t / _t0R)))))) / ((h.np.log(4 * x * ya * (1 - x) * yb)))) - 1
         return _func
 
     #soll für ansatz B g's optimieren
@@ -346,7 +346,7 @@ class Diagrams:
         v = g[1]
         V = h.np.exp((a * v) / (_r * t))
 
-        _func = ((x / (1 - x)) - 1) * (t / _h0RS) * (((_r * t) / x) + (2 * (1 - x) ** 2) * (
+        _func = ((x / (1 - x)) - 1) * (((_r * t) / x) + (2 * (1 - x) ** 2) * (
                     ((u * (U - 1)) / (x * (U - 1) + 1) ** 3) - ((v * V * (V - 1)) / ((x - 1) * V - x) ** 3)) - (
                                                                  2 * (1 - x)) * ((u / (x * (U - 1) + 1) ** 2) + (
                     (v * V) / (x - (x - 1) * V) ** 2)))
@@ -453,15 +453,20 @@ class Diagrams:
 
         _tinitial = 393.35
 
-        _initial = [_tinitial]
-        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.3, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_links, dense_output=True)
-        _tcalcRSR_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 0.72], _initial, method='RK45',
-                                    args=(_aRa), t_eval=XEXP_rechts, dense_output=True)
+        _aLinks = h.np.array([-18.47,8048.465])
+        _aRechts = h.np.array([-23.2985, 9943.70])
+        _gLinks = h.np.array([12542.589, 6959.618])
+        _gRechts = h.np.array([12441.7709, 7007.004])
 
-        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.03, 0.5], _initial, method='RK45',
-                                           args=(_gSa), t_eval=XEXP_links, dense_output=True)
-        _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.5, 0.72], _initial, method='RK45',
-                                           args=(_gRa), t_eval=XEXP_rechts, dense_output=True)
+        _initial = [_tinitial]
+        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.3, 0.5], _initial, method='RK45',args=(_aLinks), t_eval=XEXP_links, dense_output=True)
+        _tcalcRSR_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.3, 0.5], _initial, method='RK45',
+                                    args=(_aRechts), t_eval=XEXP_rechts, dense_output=True)
+
+        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.3, 0.5], _initial, method='RK45',
+                                           args=(_gLinks), t_eval=XEXP_links, dense_output=True)
+        _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.3, 0.5], _initial, method='RK45',
+                                           args=(_gRechts), t_eval=XEXP_rechts, dense_output=True)
 
         t_Porter_links_Pia = h.np.reshape(_tcalcRSS_Porter.y, len(TEXP_links))
         t_Porter_rechts_Pia = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_rechts))
@@ -506,14 +511,14 @@ class Diagrams:
 
         _dataout = [_xinDF, _t1,_t2, _ARD1out, _ARD2out]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_Gleichungen.xlsx')
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_Gleichungen_Parameter_Porter_C.xlsx')
 
         return 0
 
     @staticmethod
     def Ansatz_A():
-        a = TEXP_rechts
-        b = XEXP_rechts
+        a = TEXP_links
+        b = XEXP_links
         t_Porter_A_Pia = h.np.zeros(len(a))
         t_Porter_A_diff_Pia = h.np.zeros(len(a))
         t_NRTL_A_Pia = h.np.zeros(len(a))
@@ -524,8 +529,11 @@ class Diagrams:
         t_NRTL_A = h.np.zeros(len(a))
         t_NRTL_A_diff = h.np.zeros(len(a))
 
+        _aLinks = h.np.array([-20, 8000])
+        _aRechts = h.np.array([-20, 10000])
+
         for x in range(len(a)):
-            t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, a[x], args=(b[x], _aGes))
+            t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, a[x], args=(b[x], _aLinks))
             t_Porter_A_diff_Pia[x] = abs(a[x] - t_Porter_A_Pia[x])
             t_NRTL_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, a[x], args=(b[x], _gGes))
             t_NRTL_A_diff_Pia[x] = abs(a[x] - t_NRTL_A_Pia[x])
@@ -538,17 +546,20 @@ class Diagrams:
         print('ARD_normiert für A_Porter_Pia [%] =', ard_neu_norm_P_Pia)
         print('ARD_normiert für A_NRTL_Pia [%] =', ard_neu_norm_N_Pia)
 
+        _gC = h.np.array([-2800, 7060, -6.6, 4000])
+
         steps_t = len(a)
-        res_Porter = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aGes, args=(b, a, steps_t,),
+        res_Porter = spo.minimize(Diagrams.Bilanz_C_porter_fit_minfqs, _aLinks, args=(b, a, steps_t,),
                                         method='Powell',)
         print('A_A1 = ' + str(res_Porter.x[0]))
         print('A_A2 = ' + str(res_Porter.x[1]))
-        print('A_B1 = ' + str(res_Porter.x[2]))
-        print('A_B1 = ' + str(res_Porter.x[3]))
-        _aNeu = (res_Porter.x[0], res_Porter.x[1], res_Porter.x[2], res_Porter.x[3])
+        #print('A_B1 = ' + str(res_Porter.x[2]))
+        #print('A_B1 = ' + str(res_Porter.x[3]))
+        #_aNeu = (res_Porter.x[0], res_Porter.x[1], res_Porter.x[2], res_Porter.x[3])
+        _aNeu = (res_Porter.x[0], res_Porter.x[1],)
 
-        res_NRTL = spo.minimize(Diagrams.Bilanz_C_nrtl_fit_minfqs, _gGes, args=(b, a, steps_t,),
-                                  method='Nelder-Mead', )
+        res_NRTL = spo.minimize(Diagrams.Bilanz_C_nrtl_fit_minfqs, _gC, args=(b, a, steps_t,),
+                                  method='Powell', )
         print('A_gab = ' + str(res_NRTL.x[0]))
         print('A_gba = ' + str(res_NRTL.x[1]))
         print('A_gAB = ' + str(res_NRTL.x[2]))
@@ -588,7 +599,7 @@ class Diagrams:
 
         _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_C_rechts.xlsx')
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_C_links_revision_02.xlsx')
         return 0
 
     @staticmethod
