@@ -28,7 +28,7 @@ TEXP_rechts = h.np.array([387.95, 388.35, 390.95, 391.35, 392.85, 393.35,])
 XEXP_links = h.np.array([0.3192, 0.4, 0.5])
 TEXP_links = h.np.array([387.55, 391.35, 393.35])
 
-XEXP_calc = h.np.array([.2,.21,.22,.23,.24,.25,.26,.27,.28,.29,.3,.31,.32,.33,.34,.35,.36,.37,.38,.39,.4,.41,.42,.43,.44,.45,.46,.47,.47,.49,.5])
+XEXP_calc = h.np.array([.2,.21,.22,.23,.24,.25,.26,.27,.28,.29,.3,.31,.32,.33,.34,.35,.36,.37,.38,.39,.4,.41,.42,.43,.44,.45,.46,.47,.48,.49,.5])
 
 TEXP_calc = h.np.array([384.6,384.9,385.2,385.5,385.8,386.1,386.4,386.7,387.0,387.3,387.6,387.87,388.14,388.41,388.68,388.95,389.22,389.49,389.76,390.03,390.3,390.57,390.83,391.10,391.37,391.64,391.91,392.18,392.45,392.72,393.35])
 
@@ -141,7 +141,7 @@ class Diagrams:
     #num, Gleichung PD Porter Pia_
     @staticmethod
     def PD_Porter_pia(x, t, a1, a2):
-        _func = ((_r*t**2)/_h0RS)*((1/(1-x))-(1/x)+2*a1*(-2*x+1)+2*a2*(((-2*x+1))/t))
+        _func = -((_r*t**2)/_h0RS)*((1/(1-x))-(1/x)+2*a1*(-2*x+1)+2*a2*(((-2*x+1))/t))
         return _func
 
     # num, löst PD porter Pia
@@ -178,7 +178,7 @@ class Diagrams:
         v = g1
         V = h.np.exp((a*v)/(_r*t))
 
-        _func = ((x/(1-x))-1)*(t/_h0RS)*(((_r*t)/x)+(2*(1-x)**2)*(((u*(U-1))/(x*(U-1)+1)**3)-((v*V*(V-1))/((x-1)*V-x)**3))-(2*(1-x))*((u/(x*(U-1)+1)**2)+((v*V)/(x-(x-1)*V)**2)))
+        _func = -((x/(1-x))-1)*(t/_h0RS)*(((_r*t)/x)+(2*(1-x)**2)*(((u*(U-1))/(x*(U-1)+1)**3)-((v*V*(V-1))/((x-1)*V-x)**3))-(2*(1-x))*((u/(x*(U-1)+1)**2)+((v*V)/(x-(x-1)*V)**2)))
         return _func
 
     #num, löst PD-Nrtl-Pia
@@ -404,27 +404,27 @@ class Diagrams:
 
     @staticmethod
     def PD_Gleichungen_literatur():
-        t_PD_ideal_links = h.np.zeros(len(TEXP_links))
-        t_PD_ideal_links_diff = h.np.zeros(len(TEXP_links))
+        t_PD_ideal_links = h.np.zeros(len(TEXP_calc))
+        t_PD_ideal_links_diff = h.np.zeros(len(TEXP_calc))
 
-        t_PD_ideal_rechts = h.np.zeros(len(TEXP_rechts))
-        t_PD_ideal_rechts_diff = h.np.zeros(len(TEXP_rechts))
+        t_PD_ideal_rechts = h.np.zeros(len(TEXP_calc))
+        t_PD_ideal_rechts_diff = h.np.zeros(len(TEXP_calc))
         #print(TEXP_links)
 
-        for x in range(len(TEXP_links)):
-          t_PD_ideal_links[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_links[x], args=XEXP_links[x])
-          t_PD_ideal_links_diff[x] = abs(TEXP_links[x]-t_PD_ideal_links[x])
+        for x in range(len(TEXP_calc)):
+          t_PD_ideal_links[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_calc[x], args=XEXP_calc[x])
+          t_PD_ideal_links_diff[x] = abs(TEXP_calc[x]-t_PD_ideal_links[x])
 
-        t_diff_norm_links = h.np.abs(h.np.divide(t_PD_ideal_links_diff, TEXP_links))
-        ard_neu_norm_links = (100 / len(TEXP_links)) * sum(t_diff_norm_links)
+        t_diff_norm_links = h.np.abs(h.np.divide(t_PD_ideal_links_diff, TEXP_calc))
+        ard_neu_norm_links = (100 / len(TEXP_calc)) * sum(t_diff_norm_links)
         print('ARD_normiert für PD_ideal_links [%] =', ard_neu_norm_links)
 
-        for x in range(len(TEXP_rechts)):
-          t_PD_ideal_rechts[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_rechts[x], args=XEXP_rechts[x])
-          t_PD_ideal_rechts_diff[x] = abs(TEXP_rechts[x]-t_PD_ideal_rechts[x])
+        for x in range(len(TEXP_calc)):
+          t_PD_ideal_rechts[x] = spo.fsolve(Diagrams.PD_ideal, TEXP_calc[x], args=XEXP_calc[x])
+          t_PD_ideal_rechts_diff[x] = abs(TEXP_calc[x]-t_PD_ideal_rechts[x])
 
-        t_diff_norm_rechts = h.np.abs(h.np.divide(t_PD_ideal_rechts_diff, TEXP_rechts))
-        ard_neu_norm_rechts = (100 / len(TEXP_rechts)) * sum(t_diff_norm_rechts)
+        t_diff_norm_rechts = h.np.abs(h.np.divide(t_PD_ideal_rechts_diff, TEXP_calc))
+        ard_neu_norm_rechts = (100 / len(TEXP_calc)) * sum(t_diff_norm_rechts)
         print('ARD_normiert für PD_ideal_rechts [%] =', ard_neu_norm_rechts)
 
         ARD = ([ard_neu_norm_links,ard_neu_norm_rechts])
@@ -438,7 +438,7 @@ class Diagrams:
 
         _dataout = [_xinDF, _t1, _ARD1out,]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_literatur.xlsx')
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_literatur_fullcalc.xlsx')
 
         return 0
 
@@ -463,19 +463,22 @@ class Diagrams:
         _gRechts = h.np.array([-1500.360, 6598.8141])
 
         _initial = [_tinitial]
-        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.3192, 0.5], _initial, method='RK45',args=(_aSa), t_eval=XEXP_links, dense_output=True)
-        _tcalcRSR_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.3098, 0.5], _initial, method='RK45',
-                                    args=(_aRa), t_eval=XEXP_rechts, dense_output=True)
+        x_test = h.np.flip(XEXP_calc)
+        x_test1 = 1-x_test
+        print(x_test1)
+        _tcalcRSS_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 0.8], _initial, method='RK45',args=(_aRa), t_eval=x_test1, dense_output=True)
+        _tcalcRSR_Porter = h.spi.solve_ivp(Diagrams.PD_Porter_pia, [0.5, 0.8], _initial, method='RK45',
+                                    args=(_aRa), t_eval=x_test1, dense_output=True)
 
-        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.3192, 0.5], _initial, method='RK45',
-                                           args=(_gRa), t_eval=XEXP_links, dense_output=True)
-        _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.3098, 0.5], _initial, method='RK45',
-                                           args=(_gRa), t_eval=XEXP_rechts, dense_output=True)
+        _tcalcRSS_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.5, 0.8], _initial, method='RK45',
+                                           args=(_gRa), t_eval=x_test1, dense_output=True)
+        _tcalcRSR_NRTL = h.spi.solve_ivp(Diagrams.PD_NRTL_pia, [0.5, 0.8], _initial, method='RK45',
+                                           args=(_gRa), t_eval=x_test1, dense_output=True)
 
-        t_Porter_links_Pia = h.np.reshape(_tcalcRSS_Porter.y, len(TEXP_links))
-        t_Porter_rechts_Pia = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_rechts))
-        t_NRTL_links_Pia = h.np.reshape(_tcalcRSS_NRTL.y, len(TEXP_links))
-        t_NRTL_rechts_Pia = h.np.reshape(_tcalcRSR_NRTL.y, len(TEXP_rechts))
+        t_Porter_links_Pia = h.np.reshape(_tcalcRSS_Porter.y, len(TEXP_calc))
+        t_Porter_rechts_Pia = h.np.reshape(_tcalcRSR_Porter.y, len(TEXP_calc))
+        t_NRTL_links_Pia = h.np.reshape(_tcalcRSS_NRTL.y, len(TEXP_calc))
+        t_NRTL_rechts_Pia = h.np.reshape(_tcalcRSR_NRTL.y, len(TEXP_calc))
 
         for x in range(len(TEXP_links)):
           t_Porter_links_diff_Pia[x] = abs(TEXP_links[x]-t_Porter_links_Pia[x])
@@ -515,7 +518,7 @@ class Diagrams:
 
         _dataout = [_xinDF, _t1,_t2, _ARD1out, _ARD2out]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_Gleichungen_Parameter_Revision_10.xlsx')
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_PD_Gleichungen_Parameter_fullcalc_fit_09.xlsx')
 
         return 0
 

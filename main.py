@@ -49,7 +49,7 @@ import headers as h
 #output = h.Eut.EutFind.pure_ma()
 #output = h.bt.batterytest.test()
 
-output = h.diag.Diagrams.Ansatz_A_fullcalc()
+output = h.diag.Diagrams.PD_Gleichungen()
 
 #h.rw.IO._write(output)
 
