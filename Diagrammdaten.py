@@ -28,9 +28,9 @@ TEXP_rechts = h.np.array([387.95, 388.35, 390.95, 391.35, 392.85, 393.35,])
 XEXP_links = h.np.array([0.3192, 0.4, 0.5])
 TEXP_links = h.np.array([387.55, 391.35, 393.35])
 
-XEXP_calc = h.np.array([.3,.31,.32,.33,.34,.35,.36,.37,.38,.39,.4,.41,.42,.43,.44,.45,.46,.47,.47,.49,.5])
+XEXP_calc = h.np.array([.2,.21,.22,.23,.24,.25,.26,.27,.28,.29,.3,.31,.32,.33,.34,.35,.36,.37,.38,.39,.4,.41,.42,.43,.44,.45,.46,.47,.47,.49,.5])
 
-TEXP_calc = h.np.array([387.6,387.87,388.14,388.41,388.68,388.95,389.22,389.49,389.76,390.03,390.3,390.57,390.83,391.10,391.37,391.64,391.91,392.18,392.45,392.72,393.35])
+TEXP_calc = h.np.array([384.6,384.9,385.2,385.5,385.8,386.1,386.4,386.7,387.0,387.3,387.6,387.87,388.14,388.41,388.68,388.95,389.22,389.49,389.76,390.03,390.3,390.57,390.83,391.10,391.37,391.64,391.91,392.18,392.45,392.72,393.35])
 
 XEXP_out = h.np.array([0.3192, 0.4, 0.5, 0.5, 0.5514, 0.605, 0.631, 0.6807, 0.6902,])
 TEXP_out = h.np.array([404.75, 393.65, 387.55, 391.35, 393.35, 393.35, 392.85, 391.35, 390.95, 388.35, 387.95, 391.75])
@@ -629,24 +629,28 @@ class Diagrams:
         _gRechts = h.np.array([-3000, 7000])
 
         for x in range(len(a)):
-            t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, a[x], args=(b[x], _aGes))
+            t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, a[x], args=(b[x], _aRa))
             t_Porter_A_diff_Pia[x] = abs(a[x] - t_Porter_A_Pia[x])
-            t_NRTL_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, a[x], args=(b[x], _gGes))
+            t_NRTL_A_Pia[x] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, a[x], args=(b[x], _gRa))
             t_NRTL_A_diff_Pia[x] = abs(a[x] - t_NRTL_A_Pia[x])
             # print(t_Porter_A_Pia[x])
         _aNeuA = h.np.array([-4.521928561, 1952.361292, -32.19731334, 12795.25705])
         _aNeuB = h.np.array([-4.033229588, 1952.728083, -32.19600899, 12794.74957])
-        _aNeuC = h.np.array([])
-        _aNeuD = h.np.array([])
+        _aNeuC_links = h.np.array([-18.34038332, 7997.736814])
+        _aNeuC_rechts = h.np.array([-23.4301089, 9995.134542])
+        _aNeuD_links = _aRa
+        _aNeuD_rechts = _aRa
         _gNeuA = h.np.array([13143.45622, 6984.489059, 13143.45622, 6984.489059])
         _gNeuB = h.np.array([12441.7709, 7007.004798, 12441.77082, 7007.011123])
-        _gNeuC = h.np.array([])
-        _gNeuD = h.np.array([])
+        _gNeuC_links = h.np.array([-2799.852916, 6999.601463])
+        _gNeuC_rechts = h.np.array([-2851.360956, 6598.814123])
+        _gNeuD_links = _gRa
+        _gNeuD_rechts = _gRa
 
         for x in range(len(a)):
-            t_Porter_A[x] = spo.fsolve(Diagrams.Bilanz_A_porter_pia, a[x], args=(b[x], _aNeuA))
+            t_Porter_A[x] = spo.fsolve(Diagrams.Bilanz_C_porter_pia, a[x], args=(b[x], _aNeuC_rechts))
             t_Porter_A_diff[x] = abs(a[x] - t_Porter_A[x])
-            t_NRTL_A[x] = spo.fsolve(Diagrams.Bilanz_A_nrtl_pia, a[x], args=(b[x], _gNeuA))
+            t_NRTL_A[x] = spo.fsolve(Diagrams.Bilanz_C_nrtl_pia, a[x], args=(b[x], _gNeuC_rechts))
             t_NRTL_A_diff[x] = abs(a[x] - t_NRTL_A[x])
 
         _xinDF = h.pd.DataFrame(b, columns=['xin'])
@@ -657,7 +661,7 @@ class Diagrams:
 
         _dataout = [_xinDF, _t1, _t2, _t3, _t4]
         df = h.pd.concat(_dataout, axis=1)
-        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_A_links_fullcalc.xlsx')
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_C_rechts_fullcalc.xlsx')
         return 0
 
     @staticmethod
