@@ -718,7 +718,7 @@ class Diagrams:
         _aTest = h.np.array([0.5, 100, 3, -800])
         steps_t = len(a)
         res_Porter = spo.minimize(Diagrams.Ansatz_Enders_Porter_fit, _aGes, args=(b, a, steps_t,),
-                                  method='Powell', )
+                                  method='Nelder-Mead', )
         print('A_A1 = ' + str(res_Porter.x[0]))
         print('A_A2 = ' + str(res_Porter.x[1]))
         print('A_B1 = ' + str(res_Porter.x[2]))
@@ -726,7 +726,7 @@ class Diagrams:
         _aNeu = (res_Porter.x[0], res_Porter.x[1], res_Porter.x[2], res_Porter.x[3])
         #_aNeu = (res_Porter.x[0], res_Porter.x[1],)
 
-        res_NRTL = spo.minimize(Diagrams.Ansatz_Enders_NRTL_fit, _gGes, args=(b, a, steps_t,),method='Powell', )
+        res_NRTL = spo.minimize(Diagrams.Ansatz_Enders_NRTL_fit, _gGes, args=(b, a, steps_t,),method='Nelder-Mead', )
         print('A_gab = ' + str(res_NRTL.x[0]))
         print('A_gba = ' + str(res_NRTL.x[1]))
         print('A_gAB = ' + str(res_NRTL.x[2]))
@@ -865,6 +865,43 @@ class Diagrams:
         _dataout = [_xinDF, _t1, _t3,]
         df = h.pd.concat(_dataout, axis=1)
         df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_Enders_gesamt_fullcalc_23102022.xlsx')
+        return 0
+
+    @staticmethod
+    def Ansatz_Enders_NRTL_fullcalc():
+        a = TEXP_calc
+        b = XEXP_calc
+        t_Porter_A_Pia = h.np.zeros(len(a))
+        t_Porter_A_diff_Pia = h.np.zeros(len(a))
+
+        t_Porter_A = h.np.zeros(len(a))
+        t_Porter_A_diff = h.np.zeros(len(a))
+
+        _aLinks = h.np.array([_gabS, _gbaS])
+        _aRechts = h.np.array([_gabR, _gbaR])
+
+        for x in range(len(a)):
+            t_Porter_A_Pia[x] = spo.fsolve(Diagrams.Ansatz_Enders_NRTL, a[x], args=(b[x], _gGes))
+            t_Porter_A_diff_Pia[x] = abs(a[x] - t_Porter_A_Pia[x])
+            # print(t_Porter_A_Pia[x])
+        # _aNeuA = h.np.array([-4.521928561, 1952.361292, -32.19731334, 12795.25705])
+        #_aNeuGes = h.np.array([-0.198, 57.723, -4460.604, 17287.546])
+        _gNeuGes = h.np.array([38790.07, 112787.151, -0.465, -28294.279])
+
+        _aNeu_links = h.np.array([-18.34038332, 7997.736814])
+        _aNeu_rechts = h.np.array([-23.4301089, 9995.134542])
+
+        for x in range(len(a)):
+            t_Porter_A[x] = spo.fsolve(Diagrams.Ansatz_Enders_NRTL, a[x], args=(b[x], _gNeuGes))
+            t_Porter_A_diff[x] = abs(a[x] - t_Porter_A[x])
+
+        _xinDF = h.pd.DataFrame(b, columns=['xin'])
+        _t1 = h.pd.DataFrame(t_Porter_A_Pia, columns=['t Porter pre'])
+        _t3 = h.pd.DataFrame(t_Porter_A, columns=['t Porter post'])
+
+        _dataout = [_xinDF, _t1, _t3, ]
+        df = h.pd.concat(_dataout, axis=1)
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_Enders_gesamt_fullcalc_NRTL_24102022.xlsx')
         return 0
 
     @staticmethod
