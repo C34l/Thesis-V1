@@ -51,7 +51,7 @@ import headers as h
 
 #output = h.diag.Diagrams.Ansatz_A()
 #output = h.diag.Diagrams.Ansatz_A_fullcalc()
-output = h.diag.Diagrams.Ansatz_Enders_Calc()
+output = h.diag.Diagrams.Ansatz_Enders_2()
 #output = h.diag.Diagrams.Ansatz_Enders_NRTL_fullcalc()
 #h.rw.IO._write(output)
 

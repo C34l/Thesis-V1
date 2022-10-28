@@ -86,6 +86,64 @@ class Diagrams:
         return _func
 
     @staticmethod
+    def t_sle_enders_porter(_t,_x, _a):
+        _xr = _x
+        _xs = 1 -_x
+        _ktref = 3.6*10**(-3)
+        _ys = h.diag.Diagrams.y_porter(_xs, _t, _a)
+        _yr = h.diag.Diagrams.y_porter(_xr, _t, _a)
+
+        _func = h.np.log(_xs*_ys*_xr*_yr)-h.np.log(_ktref)-(42.11/_r)*((1/298.15)-(1/_t))
+
+        return _func
+
+    @staticmethod
+    def Bilanz_enders_porter_fit_minfqs(_a, _xi, _texp, _steps, ):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
+
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(Diagrams.t_sle_enders_porter, _texp[x], args=(_xi[x], _a,),
+                                   full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            _tdiff[x] = _texp[x] - _tcalc[x]
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
+
+    @staticmethod
+    def t_sle_enders_NRTL(_t, _x, _a):
+        _alpha = 0.4
+        _xs = _x
+        _xr = 1 - _x
+        _ktref = 3.6 * 10 ** (-3)
+        _ys = h.diag.Diagrams.y_nrtl(_a, _xs, _t, _alpha)
+        _yr = h.diag.Diagrams.y_nrtl(_a, _xr, _t, _alpha)
+
+        _func = h.np.log(_xs * _ys * _xr * _yr) - h.np.log(_ktref) - (42.11 / _r) * ((1 / 298.15) - (1 / _t))
+
+        return _func
+
+    @staticmethod
+    def Bilanz_enders_nrtl_fit_minfqs(_a, _xi, _texp, _steps, ):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
+
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(Diagrams.t_sle_enders_porter, _texp[x], args=(_xi[x], _a,),
+                                   full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            _tdiff[x] = _texp[x] - _tcalc[x]
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
+
+
+    @staticmethod
     def t_sle_nrtl(_texp, _xi, _h0, _t0, _g, _alpha):
         _yi = Diagrams.y_nrtl(_g, _xi, _texp, _alpha)
         _gx = h.np.exp(_yi) * _xi
@@ -684,6 +742,72 @@ class Diagrams:
         _dataout = [_xinDF, _t1, _t2, _ARD1out, _ARD2out, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
         df = h.pd.concat(_dataout, axis=1)
         df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_A_trial_inversion.xlsx')
+        return 0
+
+    @staticmethod
+    def Ansatz_Enders_2():
+        a_fit = h.np.array([387.75, 387.55])
+        b_fit = h.np.array([0.31, 0.69])
+        a = TEXP_calc
+        b = XEXP_calc
+        t_Porter_A_Pia = h.np.zeros(len(a))
+        t_Porter_A_diff_Pia = h.np.zeros(len(a))
+        t_NRTL_A_Pia = h.np.zeros(len(a))
+        t_NRTL_A_diff_Pia = h.np.zeros(len(a))
+
+        t_Porter_A = h.np.zeros(len(a))
+        t_Porter_A_diff = h.np.zeros(len(a))
+        t_NRTL_A = h.np.zeros(len(a))
+        t_NRTL_A_diff = h.np.zeros(len(a))
+
+        steps_t = len(a)
+        _aTest = h.np.array([-500,22000])
+        _gTest = h.np.array([-1590, 12585])
+        res_Porter = spo.minimize(Diagrams.Bilanz_enders_porter_fit_minfqs, _aTest, args=(b_fit, a_fit, 2,),
+                                  method='Nelder-Mead', )
+        print('A_A1 = ' + str(res_Porter.x[0]))
+        print('A_A2 = ' + str(res_Porter.x[1]))
+        #print('A_B1 = ' + str(res_Porter.x[2]))
+        #print('A_B1 = ' + str(res_Porter.x[3]))
+        _aNeu = (res_Porter.x[0], res_Porter.x[1],)
+
+        res_NRTL = spo.minimize(Diagrams.Bilanz_enders_nrtl_fit_minfqs, _gTest, args=(b_fit, a_fit, 2,),
+                                method='Nelder-Mead', )
+        print('A_gab = ' + str(res_NRTL.x[0]))
+        print('A_gba = ' + str(res_NRTL.x[1]))
+        #print('A_gAB = ' + str(res_NRTL.x[2]))
+        #print('A_gBA = ' + str(res_NRTL.x[3]))
+        _gNeu = (res_NRTL.x[0], res_NRTL.x[1],)
+
+        for x in range(len(a)):
+            t_Porter_A[x] = spo.fsolve(Diagrams.t_sle_enders_porter, a[x], args=(b[x], _aNeu))
+            t_Porter_A_diff[x] = abs(a[x] - t_Porter_A[x])
+            t_NRTL_A[x] = spo.fsolve(Diagrams.t_sle_enders_NRTL, a[x], args=(b[x], _gNeu))
+            t_NRTL_A_diff[x] = abs(a[x] - t_NRTL_A[x])
+
+        t_diff_norm_P = h.np.abs(h.np.divide(t_Porter_A_diff, a))
+        ard_neu_norm_P = (100 / len(a)) * sum(t_diff_norm_P)
+        t_diff_norm_N = h.np.abs(h.np.divide(t_NRTL_A_diff, a))
+        ard_neu_norm_N = (100 / len(a)) * sum(t_diff_norm_N)
+        print('ARD_normiert für A_Porter [%] =', ard_neu_norm_P)
+        print('ARD_normiert für A_NRTL [%] =', ard_neu_norm_N)
+
+        _ARDP_Post = h.np.array([ard_neu_norm_P])
+        _ARDN_Post = h.np.array([ard_neu_norm_N])
+
+        _xinDF = h.pd.DataFrame(b, columns=['xin'])
+
+        _a_Aus = h.pd.DataFrame(_aNeu, columns=['A1, A2, B1, B2'])
+        _g_Aus = h.pd.DataFrame(_gNeu, columns=['g1, g2, g3, g4'])
+
+        _t3 = h.pd.DataFrame(t_Porter_A, columns=['t Porter post'])
+        _t4 = h.pd.DataFrame(t_NRTL_A, columns=['t NRTL post'])
+        _ARD3out = h.pd.DataFrame(_ARDP_Post, columns=['ARD post Porter links, rechts, ges'])
+        _ARD4out = h.pd.DataFrame(_ARDN_Post, columns=['ARD post NRTL links, rechts, ges'])
+
+        _dataout = [_xinDF, _a_Aus, _g_Aus, _t3, _t4, _ARD3out, _ARD4out]
+        df = h.pd.concat(_dataout, axis=1)
+        df.to_excel(r'C:\\Users\\Ulf\\Desktop\\originData_Ansatz_Enders_2.xlsx')
         return 0
 
     @staticmethod
