@@ -14,7 +14,7 @@ import nrtl_fit_solvent_2a as nrfs2a
 import NRTL_Test as nrtlt
 import Eutektikum as Eut
 import math as math
-import Battery_test as bt
 import Diagrammdaten as diag
+import Promo_Model_1 as pm1
 
 #header und objektverwaltung

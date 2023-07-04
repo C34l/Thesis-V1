@@ -2,6 +2,7 @@ import pandas as pd
 
 import headers as h
 
+# thesis
 # INPUT-Laptop:- C:\\Users\\Admin\\Desktop\\Input.xlsx
 # OUTPUT-Laptop:- C:\\Users\\Admin\\Desktop\\Output_pure.xlsx
 # OUTPUT-Laptop:- C:\\Users\\Admin\\Desktop\\Output_h2o.xlsx
@@ -25,13 +26,13 @@ import headers as h
 # OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Output_Programmtest.xlsx
 # OUTPUT-Desk:- C:\\Users\\Ulf\\Desktop\\Calc_Eut.xlsx
 
-#df = h.rw.IO._read()
+# df = h.rw.IO._read()
 
 # output = h.pd.DataFrame(h.nrp.Nrtl.binary_pure_ma(df))
 # output = h.pd.DataFrame(h.nrp.Nrtl.ma_water(df))
 # output = h.pd.DataFrame(h.nrp.Nrtl.ma_alkyl_lactate(df))
 
-#output = h.pd.DataFrame(h.nrfs.NrtlFit.parametersH2O(df))
+# output = h.pd.DataFrame(h.nrfs.NrtlFit.parametersH2O(df))
 # output = h.pd.DataFrame(h.nrfs.NrtlFit._parameters_lak(df))
 
 # output = h.pd.DataFrame(h.nrpe.Nrtl.ma_water(df))
@@ -44,15 +45,16 @@ import headers as h
 # output = h.pd.DataFrame(h.nrfs2a.NrtlFit._parameters_lak(df))
 
 # output = h.pd.DataFrame(h.nrtlt.NrtlFit.parametersH2O(df))
-#output = h.pd.DataFrame(h.Eut.EutFind.pure_ma())
+# output = h.pd.DataFrame(h.Eut.EutFind.pure_ma())
 
-#output = h.Eut.EutFind.pure_ma()
-#output = h.bt.batterytest.test()
+# output = h.Eut.EutFind.pure_ma()
+# output = h.bt.batterytest.test()
 
-#output = h.diag.Diagrams.Ansatz_A()
-#output = h.diag.Diagrams.Ansatz_A_fullcalc()
-output = h.diag.Diagrams.Ansatz_Enders_2()
-#output = h.diag.Diagrams.Ansatz_Enders_NRTL_fullcalc()
-#h.rw.IO._write(output)
+# output = h.diag.Diagrams.Ansatz_A()
+# output = h.diag.Diagrams.Ansatz_A_fullcalc()
+# output = h.diag.Diagrams.Ansatz_Enders_2()
+# output = h.diag.Diagrams.Ansatz_Enders_NRTL_fullcalc()
+# h.rw.IO._write(output)
 
 
+# promo ab hier 04.07.2023
