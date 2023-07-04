@@ -2,6 +2,7 @@ import pandas as pd
 
 import headers as h
 
+#thesis
 # INPUT-Laptop:- C:\\Users\\Admin\\Desktop\\Input.xlsx
 # OUTPUT-Laptop:- C:\\Users\\Admin\\Desktop\\Output_pure.xlsx
 # OUTPUT-Laptop:- C:\\Users\\Admin\\Desktop\\Output_h2o.xlsx
@@ -51,8 +52,9 @@ import headers as h
 
 #output = h.diag.Diagrams.Ansatz_A()
 #output = h.diag.Diagrams.Ansatz_A_fullcalc()
-output = h.diag.Diagrams.Ansatz_Enders_2()
+#output = h.diag.Diagrams.Ansatz_Enders_2()
 #output = h.diag.Diagrams.Ansatz_Enders_NRTL_fullcalc()
 #h.rw.IO._write(output)
 
 
+#promo ab hier 04.07.2023
