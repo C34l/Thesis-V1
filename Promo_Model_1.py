@@ -12,15 +12,24 @@ class fit_functions_binary:
     def y_margules(_t, _x, _a):
         return 0
 
-    # calculating activity coefficient for porter with 3 coefficients in gamma explicit form
+    # calculating activity coefficient for porter with 3 coefficients in gamma explicit form with no respect to component.
+    # component information is given in the func arguments during call of func
     @staticmethod
-    def y_porter(_t, _x, _a1, _a2, _a3):
-        _func = h.np.exp((_a1+_a2/_t+_a3/_t**2)*(1-_x)**2)
+    def y_porter(_T, _x, _a1, _a2, _a3):
+        _func = h.np.exp((_a1+_a2/_T+_a3/_T**2)*_x**2)
         return _func
 
-    #calculating x_i in phase beta from x_i in phase alpha via solution of equationsystem
+    #calculating x_i in phase beta from x_i in phase alpha via solution of equation system, both equations set to zero and with normation to 1
     @staticmethod
-    def _phase_partition_balance():
+    def _phase_partition_balance(_x_1_alpha, _x_1_beta, _T, _a1, _a2, _a3):
+        _x_2_alpha = 1 - _x_1_alpha
+        _x_2_beta = 1 - _x_1_beta
+
+        _gamma_1_alpha = fit_functions_binary.y_porter(_T, _x_2_alpha, _a1, _a2, _a3)
+        _gamma_1_beta = fit_functions_binary.y_porter(_T, _x_2_beta, _a1, _a2, _a3)
+        _gamma_2_alpha = fit_functions_binary.y_porter(_T, _x_1_alpha, _a1, _a2, _a3)
+        _gamma_2_beta = fit_functions_binary.y_porter(_T, _x_1_beta, _a1, _a2, _a3)
+
         _eq1 = 0
         _eq2 = 0
 
