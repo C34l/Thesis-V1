@@ -39,7 +39,18 @@ class fit_functions_binary:
         _eq2 = ((_x_2_beta*_gamma_2_beta)/(_x_2_alpha*_gamma_2_alpha))-1
 
         _func = _eq1 - _eq2
+        return _func
+
+    #target temperature difference for optimization based on minimum least square comparision
+    @staticmethod
+    def _least_square_error_sum():
         return 0
+
+    # method to calculate the porter coefficients via optimization / minimization going the route of Tdiff into balance into gamma
+    @staticmethod
+    def _porter_parameter_fit():
+        return 0
+
     # calculating activity coefficient for koningsveld? or whole different model?
     @staticmethod
     def y_koningsveld(_t, _x, _a1, _a2, _a3, _p):
