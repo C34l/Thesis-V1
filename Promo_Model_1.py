@@ -12,12 +12,20 @@ class fit_functions_binary:
     def y_margules(_t, _x, _a):
         return 0
 
-    # calculating activity coefficient for porter with 3 coefficients
+    # calculating activity coefficient for porter with 3 coefficients in gamma explicit form
     @staticmethod
     def y_porter(_t, _x, _a1, _a2, _a3):
         _func = h.np.exp((_a1+_a2/_t+_a3/_t**2)*(1-_x)**2)
         return _func
 
+    #calculating x_i in phase beta from x_i in phase alpha via solution of equationsystem
+    @staticmethod
+    def _phase_partition_balance():
+        _eq1 = 0
+        _eq2 = 0
+
+        _func = _eq1 - _eq2
+        return 0
     # calculating activity coefficient for koningsveld? or whole different model?
     @staticmethod
     def y_koningsveld(_t, _x, _a1, _a2, _a3, _p):
