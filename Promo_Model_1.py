@@ -1,3 +1,4 @@
+
 import headers as h
 import scipy.optimize
 import matplotlib.pyplot as plt
@@ -5,35 +6,41 @@ import matplotlib.pyplot as plt
 # needs a class for parameter/ dataset structure
 # which params are given/ needed?
 # are there different starting values available in literature?
-# how many differentiations are needed? how do i implement these? --> chemical potential can be derived to gain additional information about the systems behaviour
+# how many differentiations are needed? how do i implement these?
+# --> chemical potential can be derived to gain additional information about the systems behaviour
 # is there any need for eos, and or excess quantity models?
 
+# we need to figure out a way to import our experimental data and add it here
 
-class fit_functions_binary:
+class FitFunctionsBinary:
     # calculating activity coefficient for margules
     @staticmethod
     def y_margules(_t, _x, _a):
         return 0
 
-    # calculating activity coefficient for porter with 3 coefficients in gamma explicit form with no respect to component.
+    # calculating activity coefficient for porter with 3 coefficients in
+    # gamma explicit form with no respect to component.
     # component information is given in the func arguments during call of func
     @staticmethod
-    def y_porter(_T, _x, _a1, _a2, _a3):
-        _func = h.np.exp((_a1+_a2/_T+_a3/_T**2)*_x**2)
+    def y_porter(_a, _T, _x):
+        _func = h.np.exp((_a[0]+_a[1]/_T+_a[2]/_T**2)*_x**2)
         return _func
 
-    # calculating x_i in phase beta from x_i in phase alpha via solution of equation system, both equations set to zero and with normation to 1
+    # calculating x_i in phase beta from x_i in phase alpha via solution of equation system,
+    # both equations set to zero and with normation to 1
     # not suitable for koningsveld due to being in generalized form and not evolved out of porter in explicit form
     # solver works towards zero for both
+    # params of a for porter as array
+    # we're currently fitting the T way of things, whereas in literature oftentimes x based opti is used(!)
     @staticmethod
-    def _general_phase_partition_balance(_x_1_alpha, _x_1_beta, _T, _a1, _a2, _a3):
+    def _general_phase_partition_balance_porter(_T, _x_1_alpha, _x_1_beta, _a,):
         _x_2_alpha = 1 - _x_1_alpha
         _x_2_beta = 1 - _x_1_beta
 
-        _gamma_1_alpha = fit_functions_binary.y_porter(_T, _x_2_alpha, _a1, _a2, _a3)
-        _gamma_1_beta = fit_functions_binary.y_porter(_T, _x_2_beta, _a1, _a2, _a3)
-        _gamma_2_alpha = fit_functions_binary.y_porter(_T, _x_1_alpha, _a1, _a2, _a3)
-        _gamma_2_beta = fit_functions_binary.y_porter(_T, _x_1_beta, _a1, _a2, _a3)
+        _gamma_1_alpha = FitFunctionsBinary.y_porter(_a, _T, _x_2_alpha)
+        _gamma_1_beta = FitFunctionsBinary.y_porter(_a, _T, _x_2_beta)
+        _gamma_2_alpha = FitFunctionsBinary.y_porter(_a, _T, _x_1_alpha)
+        _gamma_2_beta = FitFunctionsBinary.y_porter(_a, _T, _x_1_beta)
 
         _eq1 = ((_x_1_beta*_gamma_1_beta)/(_x_1_alpha*_gamma_1_beta))-1
         _eq2 = ((_x_2_beta*_gamma_2_beta)/(_x_2_alpha*_gamma_2_alpha))-1
@@ -41,15 +48,59 @@ class fit_functions_binary:
         _func = _eq1 - _eq2
         return _func
 
-    #target temperature difference for optimization based on minimum least square comparision
+    # target temperature difference for optimization based on minimum least square comparision
+    # note that we carefully need to align our function parameters to pass the correct values
+    # through to our optimization
     @staticmethod
-    def _least_square_error_sum():
-        return 0
+    def _least_square_error_sum(_a, _x_1_alpha, _x_1_beta, _texp, _steps):
+        _tcalc = h.np.zeros(_steps)
+        _tdiff = h.np.zeros(_steps)
 
-    # method to calculate the porter coefficients via optimization / minimization going the route of Tdiff into balance into gamma
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter,
+                                   _texp[x], args=(_x_1_alpha[x], _x_1_beta[x], _a), full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            _tdiff[x] = _texp[x] - _tcalc[x]
+
+        fqs_norm = (h.np.abs(h.np.divide(_tdiff, _texp))) ** 2
+
+        fqs_summe = h.np.sum(fqs_norm)
+
+        return fqs_summe
+
+    # method to calculate the porter coefficients via optimization
+    # / minimization going the route of Tdiff into balance into gamma
     @staticmethod
-    def _porter_parameter_fit():
-        return 0
+    def _porter_parameter_fit(_a, _x_1_alpha, _x_1_beta, _texp, _steps):
+        _steps = len(_texp)
+
+        _res = h.spo.minimize(h.pm1.FitFunctionsBinary._least_square_error_sum, _a,
+                              args=(_x_1_alpha, _x_1_beta, _texp, _steps), method='Powell',)
+        print('A1 = ' + str(_res.x[0]))
+        print('A2 = ' + str(_res.x[1]))
+        print('A3 = ' + str(_res.x[2]))
+
+
+        t_diff_norm = h.np.zeros(_steps)
+        t_diff = h.np.zeros(_steps)
+        _tcalc = h.np.zeros(_steps)
+        _gamma = h.np.zeros(_steps)
+
+        _a_fit = (_res.x[0], _res.x[1], _res.x[2])
+
+        for x in range(_steps):
+            _tcalc1 = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter, _texp[x],
+                                   args=(_x_1_alpha[x], _x_1_beta[x], _a_fit), full_output=True)
+            _tcalc[x] = _tcalc1[0]
+            t_diff[x] = abs((_texp[x] - _tcalc[x]))
+            _gamma[x] = (h.pm1.FitFunctionsBinary.y_porter(_gneu, _xs[x], _tcalc[x], _Alpha))
+
+        t_diff_norm = h.np.abs(h.np.divide(t_diff, _ts))
+        ard_neu_norm = (100 / steps_t) * sum(t_diff_norm)
+        print('ARD_normiert [%] =', ard_neu_norm)
+        print(_tcalc)
+        _params = (res_1.x[0], res_1.x[1], ard_neu_norm, _tcalc, _gamma,)
+        return _params
 
     # calculating activity coefficient for koningsveld? or whole different model?
     @staticmethod
@@ -71,7 +122,3 @@ class fit_functions_binary:
     def eq_for_T():
         return 0
 
-    #criteria for optimization of system, quality criterium
-    @staticmethod
-    def min_fqs():
-        return 0
