@@ -35,8 +35,8 @@ class fit_functions_binary:
         _gamma_2_alpha = fit_functions_binary.y_porter(_T, _x_1_alpha, _a1, _a2, _a3)
         _gamma_2_beta = fit_functions_binary.y_porter(_T, _x_1_beta, _a1, _a2, _a3)
 
-        _eq1 = 0
-        _eq2 = 0
+        _eq1 = ((_x_1_beta*_gamma_1_beta)/(_x_1_alpha*_gamma_1_beta))-1
+        _eq2 = ((_x_2_beta*_gamma_2_beta)/(_x_2_alpha*_gamma_2_alpha))-1
 
         _func = _eq1 - _eq2
         return 0
