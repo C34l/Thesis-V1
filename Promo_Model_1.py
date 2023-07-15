@@ -6,8 +6,11 @@ import matplotlib.pyplot as plt
 # which params are given/ needed?
 # are there different starting values available in literature?
 # how many differentiations are needed? how do i implement these? --> chemical potential can be derived to gain additional information about the systems behaviour
+# is there any need for eos, and or excess quantity models?
+
+
 class fit_functions_binary:
-    #calculating activity coefficient for margules
+    # calculating activity coefficient for margules
     @staticmethod
     def y_margules(_t, _x, _a):
         return 0
@@ -19,9 +22,11 @@ class fit_functions_binary:
         _func = h.np.exp((_a1+_a2/_T+_a3/_T**2)*_x**2)
         return _func
 
-    #calculating x_i in phase beta from x_i in phase alpha via solution of equation system, both equations set to zero and with normation to 1
+    # calculating x_i in phase beta from x_i in phase alpha via solution of equation system, both equations set to zero and with normation to 1
+    # not suitable for koningsveld due to being in generalized form and not evolved out of porter in explicit form
+    # solver works towards zero for both
     @staticmethod
-    def _phase_partition_balance(_x_1_alpha, _x_1_beta, _T, _a1, _a2, _a3):
+    def _general_phase_partition_balance(_x_1_alpha, _x_1_beta, _T, _a1, _a2, _a3):
         _x_2_alpha = 1 - _x_1_alpha
         _x_2_beta = 1 - _x_1_beta
 
