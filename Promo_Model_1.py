@@ -70,6 +70,7 @@ class FitFunctionsBinary:
 
     # method to calculate the porter coefficients via optimization
     # / minimization going the route of Tdiff into balance into gamma
+    # cleanup of old declarations still needed!
     @staticmethod
     def _porter_parameter_fit(_a, _x_1_alpha, _x_1_beta, _texp, _steps):
         _steps = len(_texp)
