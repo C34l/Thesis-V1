@@ -26,6 +26,12 @@ class FitFunctionsBinary:
         _func = h.np.exp((_a[0]+_a[1]/_T+_a[2]/_T**2)*_x**2)
         return _func
 
+    #solving porter bilance for T to remodel the whole phase diagram
+    @staticmethod
+    def y_porter_for_T(_T, _a, _x):
+        _func = h.np.exp((_a[0] + _a[1] / _T + _a[2] / _T ** 2) * _x ** 2)
+        return _func
+
     # calculating x_i in phase beta from x_i in phase alpha via solution of equation system,
     # both equations set to zero and with normation to 1
     # not suitable for koningsveld due to being in generalized form and not evolved out of porter in explicit form
@@ -160,6 +166,11 @@ class FitFunctionsBinary:
         x_chloroform_in_alpha_019198 = h.np.array([0.0010, 0.001, 0.001, 0.002, 0.003, 0.004])
         x_chloroform_in_beta_019198 = h.np.array([0.992, 0.991, 0.989, 0.987, 0.984, 0.982])
 
+        #good dataset but only halve the data needed, useful for referencing tho
+        t_exp_015816 = h.np.array([273.15, 276.35, 290.55, 302.55, 314.75, 328.05])
+        x_chloroform_in_alpha_015816 = h.np.array([0.00148727, 0.0013413, 0.00107333, 0.00115314, 0.00107333, 0.00116819])
+
+        _
 
 
         _x_1_alpha = x_chloroform_in_alpha_01593
@@ -174,5 +185,39 @@ class FitFunctionsBinary:
             print('A3-Start = ' + str(b[2]))
             h.pm1.FitFunctionsBinary._porter_parameter_fit(b, _x_1_alpha, _x_1_beta, _texp, _steps)
 
+
+        return 0
+
+    @staticmethod
+    def plotter():
+        a0 = 6.64
+        a1 = 11618.233
+        a2 = 0
+
+        a = h.np.array([a0, a1, a2])
+
+        # good dataset
+        t_exp_01593 = h.np.array([273.15, 282.65, 292.75, 302.65, 312.45, 322.35, 332.35])
+        x_chloroform_in_alpha_01593 = h.np.array([0.00155311, 0.00141498, 0.00126175, 0.00120053, 0.00112407, 0.00116994
+                                                     , 0.00120053])
+        x_chloroform_in_beta_01593 = h.np.array([0.997587, 0.996519, 0.995637, 0.994455, 0.992705, 0.991104, 0.989026])
+
+        # highly imprecise dataset
+        t_exp_019198 = h.np.array([283.15, 293.15, 298.15, 303.15, 313.15, 323.15])
+        x_chloroform_in_alpha_019198 = h.np.array([0.0010, 0.001, 0.001, 0.002, 0.003, 0.004])
+        x_chloroform_in_beta_019198 = h.np.array([0.992, 0.991, 0.989, 0.987, 0.984, 0.982])
+
+        # good dataset but only halve the data needed, useful for referencing tho
+        t_exp_015816 = h.np.array([273.15, 276.35, 290.55, 302.55, 314.75, 328.05])
+        x_chloroform_in_alpha_015816 = h.np.array(
+            [0.00148727, 0.0013413, 0.00107333, 0.00115314, 0.00107333, 0.00116819])
+
+        calc_steps = 1000
+        x_to_plot = h.np.zeros(calc_steps)
+        t_to_plot = h.np.zeros(calc_steps)
+
+        for x in range(calc_steps):
+            x_to_plot[x] = x + 0.1
+            t_to_plot[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter)
 
         return 0
