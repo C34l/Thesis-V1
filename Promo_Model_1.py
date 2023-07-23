@@ -134,8 +134,8 @@ class FitFunctionsBinary:
     #
     @staticmethod
     def method_caller():
-        a0 = 10
-        a1 = 100
+        a0 = 6
+        a1 = 1500
         a2 = 0
 
         a = h.np.array([a0, a1, a2])
@@ -152,11 +152,11 @@ class FitFunctionsBinary:
         _texp = t_exp_01593
         _steps = len(_texp)
         for x in range(test_steps):
-            b = ([a0+x, a1 + x, a2])
+            b = ([a0, a1 + x*5, a2])
             print('Start-Parametersatz')
             print('A1-Start = ' + str(b[0]))
             print('A2-Start = ' + str(b[1]))
             print('A3-Start = ' + str(b[2]))
-            h.pm1.FitFunctionsBinary._porter_parameter_fit(a, _x_1_alpha, _x_1_beta, _texp, _steps)
+            h.pm1.FitFunctionsBinary._porter_parameter_fit(b, _x_1_alpha, _x_1_beta, _texp, _steps)
 
         return 0
