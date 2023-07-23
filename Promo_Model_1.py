@@ -152,7 +152,7 @@ class FitFunctionsBinary:
         _texp = t_exp_01593
         _steps = len(_texp)
         for x in range(test_steps):
-            b = ([a0, a1 + x, a2])
+            b = ([a0+x, a1 + x, a2])
             print('Start-Parametersatz')
             print('A1-Start = ' + str(b[0]))
             print('A2-Start = ' + str(b[1]))
