@@ -76,7 +76,7 @@ class FitFunctionsBinary:
         _steps = len(_texp)
 
         _res = h.spo.minimize(h.pm1.FitFunctionsBinary._least_square_error_sum, _a,
-                              args=(_x_1_alpha, _x_1_beta, _texp, _steps), method='Nelder-Mead',bounds=((None,None),(None,None),(0,0)))
+                              args=(_x_1_alpha, _x_1_beta, _texp, _steps), method='Powell',bounds=((None,None),(None,None),(0,0)))
         print('A1 = ' + str(_res.x[0]))
         print('A2 = ' + str(_res.x[1]))
         print('A3 = ' + str(_res.x[2]))
@@ -98,11 +98,18 @@ class FitFunctionsBinary:
 
         t_diff_norm = h.np.abs(h.np.divide(t_diff, _texp))
         ard_neu_norm = (100 / _steps) * sum(t_diff_norm)
-        print('ARD_normiert [%] =', ard_neu_norm)
-        print('T-Calc [K] =', _tcalc)
-        print('T-Exp [K] =', _texp)
-        print('T-Diff [K] =', t_diff)
-        _params = (_res.x[0], _res.x[1], _res.x[2], ard_neu_norm, _tcalc, _gamma,)
+        if ard_neu_norm <= 10 and h.np.sum(t_diff) > 0:
+            print('Calculation successful and optimization precise')
+            print('ARD_normiert [%] =', ard_neu_norm)
+            print('T-Calc [K] =', _tcalc)
+            print('T-Exp [K] =', _texp)
+            print('T-Diff [K] =', t_diff)
+        elif ard_neu_norm <= 10 and h.np.sum(t_diff) == 0:
+            print('Calculation failed')
+        else:
+            print('Optimization too imprecise for evaluation')
+        #_params = (_res.x[0], _res.x[1], _res.x[2], ard_neu_norm, _tcalc, _gamma,)
+        _params = ard_neu_norm
         return _params
 
     # calculating activity coefficient for koningsveld? or whole different model?
@@ -134,18 +141,26 @@ class FitFunctionsBinary:
     #
     @staticmethod
     def method_caller():
-        a0 = 6
-        a1 = 1500
+        a0 = 5
+        a1 = 100
         a2 = 0
 
         a = h.np.array([a0, a1, a2])
-        test_steps = 100
+        test_steps = 4000
         b = h.np.zeros(test_steps)
 
+        #good dataset
         t_exp_01593 = h.np.array([273.15, 282.65, 292.75, 302.65, 312.45, 322.35, 332.35])
         x_chloroform_in_alpha_01593 = h.np.array([0.00155311, 0.00141498, 0.00126175, 0.00120053, 0.00112407, 0.00116994
                                                      , 0.00120053])
         x_chloroform_in_beta_01593 = h.np.array([0.997587, 0.996519, 0.995637, 0.994455, 0.992705, 0.991104, 0.989026])
+
+        #highly imprecise dataset
+        t_exp_019198 = h.np.array([283.15, 293.15, 298.15, 303.15, 313.15, 323.15])
+        x_chloroform_in_alpha_019198 = h.np.array([0.0010, 0.001, 0.001, 0.002, 0.003, 0.004])
+        x_chloroform_in_beta_019198 = h.np.array([0.992, 0.991, 0.989, 0.987, 0.984, 0.982])
+
+
 
         _x_1_alpha = x_chloroform_in_alpha_01593
         _x_1_beta = x_chloroform_in_beta_01593
@@ -158,5 +173,6 @@ class FitFunctionsBinary:
             print('A2-Start = ' + str(b[1]))
             print('A3-Start = ' + str(b[2]))
             h.pm1.FitFunctionsBinary._porter_parameter_fit(b, _x_1_alpha, _x_1_beta, _texp, _steps)
+
 
         return 0
