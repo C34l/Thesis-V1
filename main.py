@@ -58,3 +58,4 @@ import headers as h
 
 
 # promo ab hier 04.07.2023
+h.pm1.FitFunctionsBinary.method_caller()

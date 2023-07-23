@@ -76,7 +76,7 @@ class FitFunctionsBinary:
         _steps = len(_texp)
 
         _res = h.spo.minimize(h.pm1.FitFunctionsBinary._least_square_error_sum, _a,
-                              args=(_x_1_alpha, _x_1_beta, _texp, _steps), method='Powell',)
+                              args=(_x_1_alpha, _x_1_beta, _texp, _steps), method='Nelder-Mead',bounds=((None,None),(None,None),(0,0)))
         print('A1 = ' + str(_res.x[0]))
         print('A2 = ' + str(_res.x[1]))
         print('A3 = ' + str(_res.x[2]))
@@ -94,13 +94,15 @@ class FitFunctionsBinary:
                                    args=(_x_1_alpha[x], _x_1_beta[x], _a_fit), full_output=True)
             _tcalc[x] = _tcalc1[0]
             t_diff[x] = abs((_texp[x] - _tcalc[x]))
-            _gamma[x] = (h.pm1.FitFunctionsBinary.y_porter(_gneu, _xs[x], _tcalc[x], _Alpha))
+            _gamma[x] = (h.pm1.FitFunctionsBinary.y_porter(_a_fit, _tcalc[x], _x_1_alpha[x]))
 
-        t_diff_norm = h.np.abs(h.np.divide(t_diff, _ts))
-        ard_neu_norm = (100 / steps_t) * sum(t_diff_norm)
+        t_diff_norm = h.np.abs(h.np.divide(t_diff, _texp))
+        ard_neu_norm = (100 / _steps) * sum(t_diff_norm)
         print('ARD_normiert [%] =', ard_neu_norm)
-        print(_tcalc)
-        _params = (res_1.x[0], res_1.x[1], ard_neu_norm, _tcalc, _gamma,)
+        print('T-Calc [K] =', _tcalc)
+        print('T-Exp [K] =', _texp)
+        print('T-Diff [K] =', t_diff)
+        _params = (_res.x[0], _res.x[1], _res.x[2], ard_neu_norm, _tcalc, _gamma,)
         return _params
 
     # calculating activity coefficient for koningsveld? or whole different model?
@@ -123,3 +125,38 @@ class FitFunctionsBinary:
     def eq_for_T():
         return 0
 
+    # which are our two phases?
+    #we're calculating the concentration of chcl3 in the two phases. if phase 1 is close to xchcl3 = 0
+    # it's the waterphase, if phase 2 corresponds to xchcl3 = 1 phase 2, which means we're basically looking at
+    # chloroform in the water rich phase and chloroform in the chloroform rich phase over the
+    # molar concentration of chloroform in the entire system which means: SUMx_chlor_in_1+x_chlor_in_2 =/= 1
+    #lets rename the water rich phase alpha and the chloroformrich phase beta
+    #
+    @staticmethod
+    def method_caller():
+        a0 = 10
+        a1 = 100
+        a2 = 0
+
+        a = h.np.array([a0, a1, a2])
+        test_steps = 100
+        b = h.np.zeros(test_steps)
+
+        t_exp_01593 = h.np.array([273.15, 282.65, 292.75, 302.65, 312.45, 322.35, 332.35])
+        x_chloroform_in_alpha_01593 = h.np.array([0.00155311, 0.00141498, 0.00126175, 0.00120053, 0.00112407, 0.00116994
+                                                     , 0.00120053])
+        x_chloroform_in_beta_01593 = h.np.array([0.997587, 0.996519, 0.995637, 0.994455, 0.992705, 0.991104, 0.989026])
+
+        _x_1_alpha = x_chloroform_in_alpha_01593
+        _x_1_beta = x_chloroform_in_beta_01593
+        _texp = t_exp_01593
+        _steps = len(_texp)
+        for x in range(test_steps):
+            b = ([a0, a1 + x, a2])
+            print('Start-Parametersatz')
+            print('A1-Start = ' + str(b[0]))
+            print('A2-Start = ' + str(b[1]))
+            print('A3-Start = ' + str(b[2]))
+            h.pm1.FitFunctionsBinary._porter_parameter_fit(a, _x_1_alpha, _x_1_beta, _texp, _steps)
+
+        return 0
