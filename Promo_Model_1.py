@@ -51,7 +51,7 @@ class FitFunctionsBinary:
         _eq1 = ((_x_1_beta*_gamma_1_beta)/(_x_1_alpha*_gamma_1_beta))-1
         _eq2 = ((_x_2_beta*_gamma_2_beta)/(_x_2_alpha*_gamma_2_alpha))-1
 
-        _func = _eq1 - _eq2
+        _func = 1 - (_eq1/_eq2)
         return _func
 
     # target temperature difference for optimization based on minimum least square comparision
@@ -185,10 +185,11 @@ class FitFunctionsBinary:
 
         return 0
 
+    # plotting the wanted data sets and outputting them to excel
     @staticmethod
     def plotter():
         a0 = 6.64
-        a1 = 11618.233
+        a1 = 1618.233
         a2 = 0
 
         a = h.np.array([a0, a1, a2])
@@ -209,26 +210,26 @@ class FitFunctionsBinary:
         x_chloroform_in_alpha_015816 = h.np.array(
             [0.00148727, 0.0013413, 0.00107333, 0.00115314, 0.00107333, 0.00116819])
 
-        calc_steps = 1000
+        calc_steps = 100000
         x_to_plot = h.np.zeros(calc_steps)
         t_to_plot = h.np.zeros(calc_steps)
         t_start1 = h.np.zeros(int(calc_steps / 2))
         t_start2 = h.np.zeros(int(calc_steps / 2))
 
         for x in range (int(calc_steps / 2)):
-            t_start1[x] = 273.15 + 0.214 * x
-            t_start2[x] = 380.15 - 0.214 * x
+            t_start1[x] = 273.15 + 0.0214 * x
+            t_start2[x] = 487.15 - 0.0214 * x
 
         t_start = h.np.append(t_start1, t_start2, axis=0)
 
         for x in range(calc_steps):
-            x_to_plot[x] = x * 0.001
+            x_to_plot[x] = x * 0.00001
             t_to_plot[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter, t_start[x],
                                         args=(x_to_plot[x], 1-x_to_plot[x], a))
 
         data = {'x': x_to_plot, 't': t_to_plot, 't_start': t_start}
         dataframe = h.pd.DataFrame(data=data)
         dataframe.to_excel(r'C:\Users\Ulf\Desktop\Promo\Daten\chloroform_water.xlsx')
-        #print(t_to_plot)
+        print('export finished')
 
         return 0
