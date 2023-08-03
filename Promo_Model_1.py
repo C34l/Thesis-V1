@@ -225,7 +225,7 @@ class FitFunctionsBinary:
         for x in range(calc_steps):
             x_to_plot[x] = x * 0.0001
             t_to_plot[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter, t_start[x],
-                                        args=(x_to_plot[x], 1-x_to_plot[x], a))
+                                        args=(x_to_plot[x], 1-x_to_plot[x]*10, a))
 
         data = {'x': x_to_plot, 't': t_to_plot, 't_start': t_start}
         dataframe = h.pd.DataFrame(data=data)
