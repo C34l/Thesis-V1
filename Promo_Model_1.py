@@ -170,9 +170,6 @@ class FitFunctionsBinary:
         t_exp_015816 = h.np.array([273.15, 276.35, 290.55, 302.55, 314.75, 328.05])
         x_chloroform_in_alpha_015816 = h.np.array([0.00148727, 0.0013413, 0.00107333, 0.00115314, 0.00107333, 0.00116819])
 
-        _
-
-
         _x_1_alpha = x_chloroform_in_alpha_01593
         _x_1_beta = x_chloroform_in_beta_01593
         _texp = t_exp_01593
@@ -215,9 +212,23 @@ class FitFunctionsBinary:
         calc_steps = 1000
         x_to_plot = h.np.zeros(calc_steps)
         t_to_plot = h.np.zeros(calc_steps)
+        t_start1 = h.np.zeros(int(calc_steps / 2))
+        t_start2 = h.np.zeros(int(calc_steps / 2))
+
+        for x in range (int(calc_steps / 2)):
+            t_start1[x] = 273.15 + 0.214 * x
+            t_start2[x] = 380.15 - 0.214 * x
+
+        t_start = h.np.append(t_start1, t_start2, axis=0)
 
         for x in range(calc_steps):
-            x_to_plot[x] = x + 0.1
-            t_to_plot[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter)
+            x_to_plot[x] = x * 0.001
+            t_to_plot[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter, t_start[x],
+                                        args=(x_to_plot[x], 1-x_to_plot[x], a))
+
+        data = {'x': x_to_plot, 't': t_to_plot, 't_start': t_start}
+        dataframe = h.pd.DataFrame(data=data)
+        dataframe.to_excel(r'C:\Users\Ulf\Desktop\Promo\Daten\chloroform_water.xlsx')
+        #print(t_to_plot)
 
         return 0
