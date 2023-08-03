@@ -210,20 +210,20 @@ class FitFunctionsBinary:
         x_chloroform_in_alpha_015816 = h.np.array(
             [0.00148727, 0.0013413, 0.00107333, 0.00115314, 0.00107333, 0.00116819])
 
-        calc_steps = 100000
+        calc_steps = 10000
         x_to_plot = h.np.zeros(calc_steps)
         t_to_plot = h.np.zeros(calc_steps)
         t_start1 = h.np.zeros(int(calc_steps / 2))
         t_start2 = h.np.zeros(int(calc_steps / 2))
 
         for x in range (int(calc_steps / 2)):
-            t_start1[x] = 273.15 + 0.0214 * x
-            t_start2[x] = 487.15 - 0.0214 * x
+            t_start1[x] = 273.15 + 3 * x
+            t_start2[x] = 15273.15 - 3 * x
 
         t_start = h.np.append(t_start1, t_start2, axis=0)
 
         for x in range(calc_steps):
-            x_to_plot[x] = x * 0.00001
+            x_to_plot[x] = x * 0.0001
             t_to_plot[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter, t_start[x],
                                         args=(x_to_plot[x], 1-x_to_plot[x], a))
 
