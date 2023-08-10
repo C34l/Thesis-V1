@@ -62,10 +62,10 @@ class FitFunctionsBinary:
         _x_2_alpha = 1 - _x_1_alpha
         _x_2_beta = 1 - _x_1_beta
 
-        _gamma_1_alpha = FitFunctionsBinary.y_porter(_a, _T, _x_2_alpha)
-        _gamma_1_beta = FitFunctionsBinary.y_porter(_a, _T, _x_2_beta)
-        _gamma_2_alpha = FitFunctionsBinary.y_porter(_a, _T, _x_1_alpha)
-        _gamma_2_beta = FitFunctionsBinary.y_porter(_a, _T, _x_1_beta)
+        _gamma_1_alpha = h.spo.fsolve(FitFunctionsBinary.y_porter_for_T, _T, args=(_a, _x_2_alpha))
+        _gamma_1_beta = h.spo.fsolve(FitFunctionsBinary.y_porter_for_T, _T, args=(_a, _x_2_beta))
+        _gamma_2_alpha = h.spo.fsolve(FitFunctionsBinary.y_porter_for_T, _T, args=(_a, _x_1_alpha))
+        _gamma_2_beta = h.spo.fsolve(FitFunctionsBinary.y_porter_for_T, _T, args=(_a, _x_1_beta))
 
         _eq1 = ((_x_1_beta * _gamma_1_beta) / (_x_1_alpha * _gamma_1_beta)) - 1
         _eq2 = ((_x_2_beta * _gamma_2_beta) / (_x_2_alpha * _gamma_2_alpha)) - 1
@@ -166,12 +166,12 @@ class FitFunctionsBinary:
     #
     @staticmethod
     def method_caller():
-        a0 = 5
+        a0 = -100
         a1 = 100
         a2 = 0
 
         a = h.np.array([a0, a1, a2])
-        test_steps = 4000
+        test_steps = 400
         b = h.np.zeros(test_steps)
 
         #good dataset
@@ -229,29 +229,44 @@ class FitFunctionsBinary:
         x_chloroform_in_alpha_015816 = h.np.array(
             [0.00148727, 0.0013413, 0.00107333, 0.00115314, 0.00107333, 0.00116819])
 
-        calc_steps = 100
+        calc_steps = 20
         x_to_plot1 = h.np.zeros(calc_steps)
         x_to_plot2 = h.np.zeros(calc_steps)
-        x_to_print = h.np.zeros(calc_steps)
+        x_to_print1 = h.np.zeros(calc_steps)
+        x_to_print2 = h.np.zeros(calc_steps)
         t_start1 = h.np.zeros(int(calc_steps / 2))
         t_start2 = h.np.zeros(int(calc_steps / 2))
 
         for x in range (int(calc_steps / 2)):
-            t_start1[x] = 273.15 + 3 * x
-            t_start2[x] = 573.15 - 3 * x
+            t_start1[x] = 333.15 - 9 * x
+            t_start2[x] = 333.15 - 4.5 * x
 
         t_start = h.np.append(t_start1, t_start2, axis=0)
 
-        for x in range(calc_steps):
-            x_to_plot1[x] = x * 0.0001
-            x_to_plot2[x] = 1 - x * 0.0001
+        for x in range(int(calc_steps / 2)):
+            x_to_plot1[x] = 0.001 + x * 0.0001
+            x_to_plot2[x] = 0.989 + x * 0.0001
 
-            x_to_print[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter_x, x_to_plot2[x],
-                                        args=(x_to_plot1[x], t_start[x], a))
+            x_to_print1[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter_x, x_to_plot2[x],
+                                        args=(x_to_plot1[x], t_start1[x], a))
 
-        data = {'x': x_to_print, 't': t_start, 'x_start': x_to_plot2}
-        dataframe = h.pd.DataFrame(data=data)
-        dataframe.to_excel(r'C:\Users\Ulf\Desktop\Promo\Daten\chloroform_water_x_based.xlsx')
-        print('export finished')
+
+        n1 = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter_x, 0.99,
+                         args=(0.001109, 320, a))
+        dev1 = ((0.99/n1)-1)*100
+        n2 = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter_x, 0.99,
+                          args=(0.00107, 325, a))
+        dev2 = ((0.99 / n2) - 1) * 100
+        n3 = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter_x, 0.99,
+                          args=(0.00103, 330, a))
+        dev3 = ((0.99 / n3) - 1) * 100
+        print('x1', n1, 'dev1', dev1)
+        print('x2', n2, 'dev2', dev2)
+        print('x3', n3, 'dev3', dev3)
+
+        #data = {'x2_start': x_to_plot2, 'x': x_to_print1, 't': t_start, 'x1_start': x_to_plot1, 't2': t_start}
+        #dataframe = h.pd.DataFrame(data=data)
+        #dataframe.to_excel(r'C:\Users\Ulf\Desktop\Promo\Daten\chloroform_water_x_based_5.xlsx')
+        #print('export finished')
 
         return 0
