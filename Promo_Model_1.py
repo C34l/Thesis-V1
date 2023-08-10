@@ -54,6 +54,25 @@ class FitFunctionsBinary:
         _func = 1 - (_eq1/_eq2)
         return _func
 
+    # changed partition balance to account for more precise remodeling based on x_1_alpha and T as leading guesses.
+    # this should help with the general problem of imprecise guesses for x_1_beta,
+    # as x_1_alpha is often measured and T is constant for both comp points
+    @staticmethod
+    def _general_phase_partition_balance_porter_x(_x_1_beta, _x_1_alpha, _T, _a, ):
+        _x_2_alpha = 1 - _x_1_alpha
+        _x_2_beta = 1 - _x_1_beta
+
+        _gamma_1_alpha = FitFunctionsBinary.y_porter(_a, _T, _x_2_alpha)
+        _gamma_1_beta = FitFunctionsBinary.y_porter(_a, _T, _x_2_beta)
+        _gamma_2_alpha = FitFunctionsBinary.y_porter(_a, _T, _x_1_alpha)
+        _gamma_2_beta = FitFunctionsBinary.y_porter(_a, _T, _x_1_beta)
+
+        _eq1 = ((_x_1_beta * _gamma_1_beta) / (_x_1_alpha * _gamma_1_beta)) - 1
+        _eq2 = ((_x_2_beta * _gamma_2_beta) / (_x_2_alpha * _gamma_2_alpha)) - 1
+
+        _func = 1 - (_eq1 / _eq2)
+        return _func
+
     # target temperature difference for optimization based on minimum least square comparision
     # note that we carefully need to align our function parameters to pass the correct values
     # through to our optimization
@@ -210,26 +229,29 @@ class FitFunctionsBinary:
         x_chloroform_in_alpha_015816 = h.np.array(
             [0.00148727, 0.0013413, 0.00107333, 0.00115314, 0.00107333, 0.00116819])
 
-        calc_steps = 10000
-        x_to_plot = h.np.zeros(calc_steps)
-        t_to_plot = h.np.zeros(calc_steps)
+        calc_steps = 100
+        x_to_plot1 = h.np.zeros(calc_steps)
+        x_to_plot2 = h.np.zeros(calc_steps)
+        x_to_print = h.np.zeros(calc_steps)
         t_start1 = h.np.zeros(int(calc_steps / 2))
         t_start2 = h.np.zeros(int(calc_steps / 2))
 
         for x in range (int(calc_steps / 2)):
             t_start1[x] = 273.15 + 3 * x
-            t_start2[x] = 15273.15 - 3 * x
+            t_start2[x] = 573.15 - 3 * x
 
         t_start = h.np.append(t_start1, t_start2, axis=0)
 
         for x in range(calc_steps):
-            x_to_plot[x] = x * 0.0001
-            t_to_plot[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter, t_start[x],
-                                        args=(x_to_plot[x], 1-x_to_plot[x]*10, a))
+            x_to_plot1[x] = x * 0.0001
+            x_to_plot2[x] = 1 - x * 0.0001
 
-        data = {'x': x_to_plot, 't': t_to_plot, 't_start': t_start}
+            x_to_print[x] = h.spo.fsolve(h.pm1.FitFunctionsBinary._general_phase_partition_balance_porter_x, x_to_plot2[x],
+                                        args=(x_to_plot1[x], t_start[x], a))
+
+        data = {'x': x_to_print, 't': t_start, 'x_start': x_to_plot2}
         dataframe = h.pd.DataFrame(data=data)
-        dataframe.to_excel(r'C:\Users\Ulf\Desktop\Promo\Daten\chloroform_water.xlsx')
+        dataframe.to_excel(r'C:\Users\Ulf\Desktop\Promo\Daten\chloroform_water_x_based.xlsx')
         print('export finished')
 
         return 0
