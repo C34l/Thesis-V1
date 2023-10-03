@@ -102,9 +102,9 @@ class FitFunctionsBinary:
 
         _res = h.spo.minimize(h.pm1.FitFunctionsBinary._least_square_error_sum, _a,
                               args=(_x_1_alpha, _x_1_beta, _texp, _steps), method='Powell',bounds=((None,None),(None,None),(0,0)))
-        print('A1 = ' + str(_res.x[0]))
-        print('A2 = ' + str(_res.x[1]))
-        print('A3 = ' + str(_res.x[2]))
+        #print('A1 = ' + str(_res.x[0]))
+        #print('A2 = ' + str(_res.x[1]))
+        #print('A3 = ' + str(_res.x[2]))
 
 
         t_diff_norm = h.np.zeros(_steps)
@@ -129,6 +129,9 @@ class FitFunctionsBinary:
             print('T-Calc [K] =', _tcalc)
             print('T-Exp [K] =', _texp)
             print('T-Diff [K] =', t_diff)
+            print('A1 = ' + str(_res.x[0]))
+            print('A2 = ' + str(_res.x[1]))
+            print('A3 = ' + str(_res.x[2]))
         elif ard_neu_norm <= 10 and h.np.sum(t_diff) == 0:
             print('Calculation failed')
         else:
@@ -140,6 +143,7 @@ class FitFunctionsBinary:
     # calculating activity coefficient for koningsveld? or whole different model?
     @staticmethod
     def y_koningsveld(_t, _x, _a1, _a2, _a3, _p):
+        
         return 0
 
     # calculating activity coefficient for nrtl
@@ -166,12 +170,12 @@ class FitFunctionsBinary:
     #
     @staticmethod
     def method_caller():
-        a0 = -100
-        a1 = 100
+        a0 = 0
+        a1 = 0
         a2 = 0
 
         a = h.np.array([a0, a1, a2])
-        test_steps = 400
+        test_steps = 50
         b = h.np.zeros(test_steps)
 
         #good dataset
@@ -193,13 +197,13 @@ class FitFunctionsBinary:
         _x_1_beta = x_chloroform_in_beta_01593
         _texp = t_exp_01593
         _steps = len(_texp)
-        for x in range(test_steps):
-            b = ([a0, a1 + x*5, a2])
-            print('Start-Parametersatz')
-            print('A1-Start = ' + str(b[0]))
-            print('A2-Start = ' + str(b[1]))
-            print('A3-Start = ' + str(b[2]))
-            h.pm1.FitFunctionsBinary._porter_parameter_fit(b, _x_1_alpha, _x_1_beta, _texp, _steps)
+        for y in range(test_steps):
+            a = a0 - 10*y
+            for x in range(test_steps):
+                b = ([a, a1 + x*100, a2])
+                print('Start-Parametersatz')
+                print('A1-Start = ' + str(b[0]), 'A2-Start = ' + str(b[1]), 'A3-Start = ' + str(b[2]))
+                h.pm1.FitFunctionsBinary._porter_parameter_fit(b, _x_1_alpha, _x_1_beta, _texp, _steps)
 
 
         return 0
